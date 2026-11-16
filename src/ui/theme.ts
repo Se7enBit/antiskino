@@ -6,6 +6,8 @@ export const colors = {
   primary: '#1F6F4A',
   onPrimary: '#FFFFFF',
   border: '#D6DED9',
+  danger: '#B3261E',
+  dangerSurface: '#FCEEEE',
 } as const;
 
 export const spacing = {
