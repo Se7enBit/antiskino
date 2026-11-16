@@ -5,7 +5,7 @@ Camping pitch booking platform for Greece: a marketplace of partner campings wit
 **`SPEC.md` is the source of truth** for features, data model, business rules and milestones. Read the relevant section before starting a task. If a request contradicts the spec, stop and ask. When a decision changes, update `SPEC.md` (including §0 Decisions log) in the same change.
 
 ## Current milestone
-**M1 — Skeleton** (see SPEC §9). Update this line when a milestone is done.
+**M2 — Partner setup** (see SPEC §9; M1 done). Update this line when a milestone is done.
 
 ## Stack
 Expo (latest SDK) + Expo Router + TypeScript strict · Supabase (Postgres + RLS, Auth email OTP, Storage, Edge Functions in Deno/TS, Realtime, pg_cron + pg_net) · TanStack Query · Zustand · react-hook-form + zod · i18next · Resend · Expo push. Ask before adding any library not listed in SPEC §5.
@@ -50,7 +50,8 @@ The owner mostly works from a phone, so:
 - Schema changes go in **new** files in `supabase/migrations/` (`supabase migration new <name>`). Never edit a migration that has been applied.
 - Migrations reach the dev project only through the Supabase GitHub integration ("Deploy to production" on push to `main`). Never add `supabase db push` for dev to CI.
 - Grant explicitly: every new table/function revokes all from `anon` and `authenticated` (functions also from `public`), then grants only what it needs. Supabase projects differ in default privileges.
-- **RLS on every table.** Policies use `is_admin()`, `is_partner_member()`, `is_partner_owner()`. Each new policy gets a pgTAP test.
+- **RLS on every table.** Policies use `is_admin()`, `is_partner_member()`, `is_partner_owner()` (with `camping_partner()` / `camping_is_live()` for camping-scoped rows). Each new policy gets a pgTAP test.
+- pgTAP files run against the seeded database: start each one by deleting partners and campings inside its transaction, as the existing files do.
 - Bookings have no direct insert/update policies; writes go through edge functions and `security definer` SQL functions.
 - The Supabase secret (service role) key is used only inside edge functions. Never put it in the app. Never log secrets, tokens or guest personal data.
 - Regenerate `src/api/database.types.ts` after every migration (`npm run db:types`). CI fails when it is stale.

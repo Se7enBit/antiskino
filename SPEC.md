@@ -2,7 +2,7 @@
 
 > Book a camping pitch in Greece in under a minute. (*αντίσκηνο* = tent)
 
-Last updated: 2026-11-16 · Status: M1 (skeleton) built, M2 next
+Last updated: 2026-11-16 · Status: M1 done, M2 in progress (database layer built)
 
 ## 0. Decisions log
 
@@ -33,6 +33,11 @@ Last updated: 2026-11-16 · Status: M1 (skeleton) built, M2 next
 | Supabase CLI | v3, pinned in CI | `gen types` and `test db` target the local stack by default. Types: `npm run db:types` (public schema, Prettier-formatted); CI fails when stale |
 | UI language | Held in React state (`LanguageProvider`, `useT()`) | Static web HTML is Greek and switches to the browser language after hydration; changes run in a transition to avoid hydration mismatches |
 | DB grants | Explicit per table/function | Supabase projects differ in default privileges, so migrations revoke from `anon`/`authenticated` and grant only what is needed |
+| Camping status | Only admins change it, via `set_camping_status()` | Owners update profile columns only (not partner, slug or status). New campings start as `draft` |
+| Payment mode in DB | A check constraint keeps `payment_mode = 'on_site'` until M7 | Drop the constraint when online payments ship |
+| Camping defaults | `confirmation_mode` instant, `cancellation_policy` flexible, `request_expiry_hours` 24 | Changed per camping in the profile |
+| Catalog integrity | Seasons of a camping and guest-category age ranges cannot overlap; a price must point at an item of the season's camping | Deleting a pitch type, guest category or extra deletes its prices |
+| Allotment edits | `set_allotment` / `set_closed` take a night range with both ends included, at most 400 nights per call | `set_allotment` refuses (does not clamp) a value below `booked`, changing nothing; `set_closed` skips nights without inventory |
 
 ## 1. Core problem
 
@@ -368,7 +373,7 @@ platform_settings(id = 1, default_commission_bps int)
 ```
 
 ### 6.2 Security (RLS)
-- Helper SQL functions: `is_admin()`, `is_partner_member(partner_id)`, `is_partner_owner(partner_id)`, `camping_partner(camping_id)`.
+- Helper SQL functions: `is_admin()`, `is_partner_member(partner_id)`, `is_partner_owner(partner_id)`, `camping_partner(camping_id)`, `camping_is_live(camping_id)`.
 - **anon / everyone:** read `live` campings, their active pitch types, photos, seasons, prices, extras, fees, guest categories and visible reviews. Nothing else.
 - **bookings:** signed-in guests read their own (`user_id = auth.uid()`); partner members read their campings' bookings; admin reads all. **No direct insert or update policy:** writes only via edge functions and SQL functions (`security definer`).
 - **Partner config tables:** members read; owners write. Staff may only open/close nights (via `set_closed()`).
