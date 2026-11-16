@@ -4,7 +4,7 @@
 -- Demo users for signing in with an email code against the local stack
 -- (codes land in Mailpit at http://127.0.0.1:54324):
 --   admin@antiskino.test  platform admin
---   owner@antiskino.test  future partner owner (partners arrive in M2)
+--   owner@antiskino.test  owner of the demo partner
 --   guest@antiskino.test  camper
 -- plus a demo partner (owned by owner@) with one live camping, two pitch types,
 -- the 2027 seasons, prices and inventory.
