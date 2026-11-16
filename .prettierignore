@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.expo/
+coverage/
+package-lock.json
+assets/
+# Hand-written docs are not reformatted
+*.md
+supabase/.temp/
+supabase/.branches/

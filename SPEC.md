@@ -2,7 +2,7 @@
 
 > Book a camping pitch in Greece in under a minute. (*αντίσκηνο* = tent)
 
-Last updated: 2026-11-16 · Status: design done, M1 next
+Last updated: 2026-11-16 · Status: M1 (skeleton) built, M2 next
 
 ## 0. Decisions log
 
@@ -29,6 +29,10 @@ Last updated: 2026-11-16 · Status: design done, M1 next
 | v1 extras | Push notifications, reviews after stay, favorites | No partner reports in v1 |
 | Partner staff | Owner + staff roles | |
 | Name | **Antiskino** | |
+| Migrations deploy | **Supabase GitHub integration** applies `supabase/migrations` to the dev project on push to `main` ("Deploy to production") | CI never runs `db push` for dev; it applies migrations to a local stack and runs pgTAP. Prod: manual `workflow_dispatch` (M8) |
+| Supabase CLI | v3, pinned in CI | `gen types` and `test db` target the local stack by default. Types: `npm run db:types` (public schema, Prettier-formatted); CI fails when stale |
+| UI language | Held in React state (`LanguageProvider`, `useT()`) | Static web HTML is Greek and switches to the browser language after hydration; changes run in a transition to avoid hydration mismatches |
+| DB grants | Explicit per table/function | Supabase projects differ in default privileges, so migrations revoke from `anon`/`authenticated` and grant only what is needed |
 
 ## 1. Core problem
 
@@ -232,14 +236,14 @@ expired        ├──► cancelled (guest / partner / admin)
 | Payments | `PaymentProvider` interface only, until M7 |
 | Tests | Jest (jest-expo) + React Native Testing Library; `deno test` for `_shared` logic (pricing, cancellation, refs); pgTAP via `supabase test db` (inventory, transitions, RLS) |
 | Lint/format | ESLint (expo config) + Prettier |
-| CI | GitHub Actions: typecheck → lint → jest → deno test → `supabase start` + pgTAP → web export → deploy preview; migrations pushed to the dev project on `main` |
+| CI | GitHub Actions: typecheck → lint → jest → deno test, `supabase start` + pgTAP + generated-types check → web export → deploy preview (from `main`). Migrations reach the dev project through the Supabase GitHub integration on push to `main`, not through CI |
 | Hosting | Web: GitHub Pages for previews, Cloudflare Pages + custom domain for production. Mobile: EAS Build. DB: Supabase dev + prod projects |
 
 **Phone-first workflow** (no laptop needed):
 1. **Web preview** on every push to `main`: open it on the phone.
 2. **Android preview APK / dev build** via EAS for native checks (push, maps). Push doesn't work in Expo Go.
 3. **CI is the test runner.** DB logic is covered by pgTAP and pricing by deno tests, so most correctness is verified without a device.
-4. **Migrations** are applied by CI to the dev project. Prod uses a manual `workflow_dispatch`.
+4. **Migrations** are applied to the dev project by the Supabase GitHub integration when `main` is pushed (CI only tests them). Prod uses a manual `workflow_dispatch`.
 5. A camping going live triggers a web rebuild (`repository_dispatch`) so its static `/c/<slug>` page exists. In the native app it's live immediately.
 
 ## 6. Architecture
@@ -412,8 +416,8 @@ Hosted checkout (redirect to `checkoutUrl`) keeps card data out of the app on al
 - [ ] CI green on `main`; the web preview deploys; the preview APK installs and receives a push.
 
 ## 9. Milestones
-1. **Skeleton:** Expo + Router + TS strict, i18n EL/EN, CI, web preview deploy, Supabase dev project with migrations applied by CI, seed demo partner/camping.
-2. **Partner setup:** schema (partners → campings → pitch types → seasons/prices → inventory), RLS + pgTAP, admin create/invite, partner Profile / Pitch types / Rates / Availability screens.
+1. **Skeleton:** Expo + Router + TS strict, i18n EL/EN, CI, web preview deploy, Supabase dev project with migrations applied by the GitHub integration, first migration (profiles, platform_settings, `is_admin()`), seed demo users.
+2. **Partner setup:** schema (partners → campings → pitch types → seasons/prices → inventory), RLS + pgTAP, seed demo partner/camping, admin create/invite, partner Profile / Pitch types / Rates / Availability screens.
 3. **Search & quote:** `search` and `quote` functions + pricing tests, Home (with single-camping mode), results list/map, camping page.
 4. **Booking (on-site payment):** `create-booking`, instant and request flows, `transition_booking`, jobs, emails, manage link, cancellations, sign-in + claim, My bookings.
 5. **Reception:** Today, booking detail actions, assign pitch, check-in/no-show, realtime, push notifications.
@@ -429,3 +433,5 @@ Hosted checkout (redirect to `checkoutUrl`) keeps card data out of the app on al
 - **The first camping's setup:** does it use a PMS or sell on other sites? This sets allotment sizes and whether sync is needed later.
 - **Domain and store names:** check that antiskino.gr / .com and the app store name are available.
 - **Legal:** terms of service, privacy policy (GDPR), partner agreement.
+- **Icon set** (not in §5): the tab bar shows labels only until one is chosen. Amenity and equipment icons need it by M3.
+- **Native session storage** (not in §5): web keeps the Supabase session in localStorage; native needs a storage library (e.g. AsyncStorage or expo-secure-store) before sign-in ships in M4.

@@ -1,0 +1,52 @@
+{
+  "app": {
+    "name": "Antiskino",
+    "tagline": "Book a camping pitch in Greece in under a minute."
+  },
+  "common": {
+    "comingSoon": "Coming soon",
+    "backToApp": "Back to the app"
+  },
+  "tabs": {
+    "explore": "Explore",
+    "favorites": "Favorites",
+    "bookings": "Bookings",
+    "account": "Account"
+  },
+  "explore": {
+    "title": "Find a camping pitch",
+    "body": "Search by dates, guests and equipment will appear here."
+  },
+  "favorites": {
+    "title": "Favorites",
+    "body": "Campings you save with the heart will appear here."
+  },
+  "bookings": {
+    "title": "My bookings",
+    "body": "Sign in to see your bookings here."
+  },
+  "account": {
+    "title": "Account",
+    "body": "Sign in with an email code will appear here.",
+    "language": "Language",
+    "languages": {
+      "el": "Ελληνικά",
+      "en": "English"
+    },
+    "areas": "Other areas",
+    "partnerArea": "Partner area",
+    "adminArea": "Platform admin"
+  },
+  "partner": {
+    "title": "Partner area",
+    "body": "Today, bookings, availability and rates for your campings will appear here."
+  },
+  "admin": {
+    "title": "Platform admin",
+    "body": "Partners, campings, bookings and reviews will appear here."
+  },
+  "notFound": {
+    "title": "Page not found",
+    "body": "This page doesn't exist."
+  }
+}

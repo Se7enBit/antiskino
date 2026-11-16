@@ -22,14 +22,15 @@ supabase start                     # local stack (needs Docker)
 supabase db reset                  # apply migrations + seed.sql
 supabase test db                   # pgTAP tests in supabase/tests
 deno test supabase/functions       # edge function unit tests
-supabase gen types typescript --local > src/api/database.types.ts
+npm run db:types                   # regenerate src/api/database.types.ts from the local stack
+npm run format                     # prettier --write + eslint --fix
 ```
-Create the missing npm scripts in M1.
+The Supabase CLI is v3 (pinned in CI): `gen types` and `test db` target the local stack by default.
 
 ## Working from a phone
 The owner mostly works from a phone, so:
 - **CI is the test runner.** Keep `typecheck → lint → jest → deno test → pgTAP → web export` green, and add tests with every logic change.
-- The web preview deploys on push to `main`, and native checks use the EAS preview APK. Push notifications don't work in Expo Go.
+- The web preview (https://se7enbit.github.io/antiskino/) deploys on push to `main`, and native checks use the EAS preview APK. Push notifications don't work in Expo Go.
 - Keep changes small. End each task with a short "how to check it on the phone" note (which screen, what to tap, what to expect).
 
 ## Rules
@@ -46,14 +47,17 @@ The owner mostly works from a phone, so:
 - Any change to these paths needs pgTAP tests, including the concurrency test (SPEC §8).
 
 ### Database & security
-- Schema changes go in **new** files in `supabase/migrations/`. Never edit a migration that has been applied.
+- Schema changes go in **new** files in `supabase/migrations/` (`supabase migration new <name>`). Never edit a migration that has been applied.
+- Migrations reach the dev project only through the Supabase GitHub integration ("Deploy to production" on push to `main`). Never add `supabase db push` for dev to CI.
+- Grant explicitly: every new table/function revokes all from `anon` and `authenticated` (functions also from `public`), then grants only what it needs. Supabase projects differ in default privileges.
 - **RLS on every table.** Policies use `is_admin()`, `is_partner_member()`, `is_partner_owner()`. Each new policy gets a pgTAP test.
 - Bookings have no direct insert/update policies; writes go through edge functions and `security definer` SQL functions.
 - The Supabase secret (service role) key is used only inside edge functions. Never put it in the app. Never log secrets, tokens or guest personal data.
-- Regenerate `src/api/database.types.ts` after every migration.
+- Regenerate `src/api/database.types.ts` after every migration (`npm run db:types`). CI fails when it is stale.
 
 ### i18n
 - No hard-coded user-facing strings. Use `t('…')` with keys in **both** `src/i18n/locales/el.json` and `en.json`. A test enforces matching keys.
+- Get `t` from `useT()` and the language from `useLanguage()` (`@/i18n`), never `useTranslation` directly (ESLint enforces). This keeps language switches hydration-safe on static web.
 - DB text fields are `jsonb {"el": …, "en": …}`. Display them with `localized()` (falls back to the other language).
 - Emails and pushes use the booking's / user's `locale`.
 
@@ -77,5 +81,6 @@ The owner mostly works from a phone, so:
 ## Environment variables
 - **App (public):** `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_KEY` (publishable/anon key), `EXPO_PUBLIC_SITE_URL`
 - **Edge function secrets:** `SUPABASE_URL`, Supabase secret/service-role key (provided to functions), `RESEND_API_KEY`, `EMAIL_FROM`, `SITE_URL`, `EXPO_ACCESS_TOKEN` (optional, push). From M7: `PAYMENT_PROVIDER`, provider API key, webhook secret.
-- **CI secrets:** `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD`, `SUPABASE_PROJECT_REF`, `EXPO_TOKEN`
+- **CI repository variables (public):** `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_KEY`, `EXPO_PUBLIC_SITE_URL` (optional; defaults to the Pages URL)
+- **CI secrets:** `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD`, `SUPABASE_PROJECT_REF` (prod migrations, M8), `EXPO_TOKEN` (EAS, from M6). None are used in M1.
 - Keep `.env.example` up to date with every variable (no values).
