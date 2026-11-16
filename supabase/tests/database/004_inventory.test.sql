@@ -4,6 +4,11 @@ create extension if not exists pgtap with schema extensions;
 
 select plan(33);
 
+-- Start from no partners or campings: seed.sql data would skew the counts.
+-- Everything here is rolled back at the end.
+delete from public.campings;
+delete from public.partners;
+
 create function pg_temp.login(p_user uuid) returns void language plpgsql as $$
 begin
   perform set_config('request.jwt.claims',

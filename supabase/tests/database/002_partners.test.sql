@@ -5,6 +5,11 @@ create extension if not exists pgtap with schema extensions;
 select plan(34);
 
 -- Switch to a signed-in user (or anon with null) for the rest of the transaction; `reset role` returns to postgres.
+-- Start from no partners or campings: seed.sql data would skew the counts.
+-- Everything here is rolled back at the end.
+delete from public.campings;
+delete from public.partners;
+
 create function pg_temp.login(p_user uuid) returns void language plpgsql as $$
 begin
   perform set_config('request.jwt.claims',
