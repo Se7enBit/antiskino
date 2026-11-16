@@ -16,6 +16,7 @@ type Props = Pick<
   | 'returnKeyType'
   | 'editable'
   | 'maxLength'
+  | 'multiline'
   | 'testID'
 > & {
   label: string;
@@ -30,7 +31,12 @@ export function TextField({ label, error, ...input }: Props) {
         accessibilityLabel={label}
         autoCorrect={false}
         placeholderTextColor={colors.muted}
-        style={[styles.input, error ? styles.inputError : null]}
+        style={[
+          styles.input,
+          input.multiline ? styles.multiline : null,
+          input.editable === false ? styles.readOnly : null,
+          error ? styles.inputError : null,
+        ]}
         {...input}
       />
       {error ? (
@@ -55,6 +61,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: colors.text,
   },
+  multiline: { minHeight: 96, paddingVertical: spacing.sm, textAlignVertical: 'top' },
+  readOnly: { backgroundColor: colors.surface, color: colors.muted },
   inputError: { borderColor: colors.danger },
   error: { fontSize: 14, color: colors.danger },
 });

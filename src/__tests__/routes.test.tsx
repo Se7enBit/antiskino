@@ -15,6 +15,8 @@ describe('routes', () => {
     // No Supabase settings in Jest: sign-in shows a notice and the areas ask to sign in.
     ['/account', "Sign-in isn't available in this build yet."],
     ['/partner', 'Sign in to continue'],
+    ['/partner/profile', 'Sign in to continue'],
+    ['/partner/availability', 'Sign in to continue'],
     ['/admin', 'Sign in to continue'],
     ['/admin/new-partner', 'Sign in to continue'],
     ['/admin/partner', 'Sign in to continue'],

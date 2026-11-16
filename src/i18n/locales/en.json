@@ -10,7 +10,8 @@
     "retry": "Try again",
     "error": "Something went wrong. Check your connection and try again.",
     "save": "Save",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "checkFields": "Some fields need fixing. Check the messages above."
   },
   "tabs": {
     "explore": "Explore",
@@ -78,7 +79,82 @@
   },
   "partner": {
     "title": "Partner area",
-    "body": "Today, bookings, availability and rates for your campings will appear here."
+    "nav": {
+      "profile": "Profile",
+      "pitchTypes": "Pitch types",
+      "rates": "Rates",
+      "availability": "Availability",
+      "availabilityShort": "Calendar"
+    },
+    "exit": "Exit",
+    "noCampings": "Your team has no campings yet. The Antiskino team adds them.",
+    "comingSoon": "This screen is coming in the next update.",
+    "ownersOnly": "Only the camping's owners can change this.",
+    "profile": {
+      "sections": {
+        "basics": "Basics",
+        "texts": "Descriptions",
+        "amenities": "Amenities",
+        "times": "Check-in and check-out",
+        "rules": "Booking rules"
+      },
+      "name": "Camping name",
+      "region": "Region",
+      "address": "Address",
+      "phone": "Phone",
+      "email": "Email",
+      "coordinates": "Map pin (latitude, longitude)",
+      "coordinatesHint": "In Google Maps, long-press the entrance and copy the numbers that appear.",
+      "shortDescrEl": "Short description (Greek)",
+      "shortDescrEn": "Short description (English)",
+      "descrEl": "Description (Greek)",
+      "descrEn": "Description (English)",
+      "houseRulesEl": "House rules (Greek)",
+      "houseRulesEn": "House rules (English)",
+      "checkInFrom": "Check-in from",
+      "checkOutUntil": "Check-out until",
+      "sameDayCutoff": "Same-day bookings until",
+      "timeHint": "24-hour time, e.g. 14:00.",
+      "confirmationMode": "Confirmation",
+      "confirmation": {
+        "instant": "Instant",
+        "request": "On request"
+      },
+      "confirmationHelp": {
+        "instant": "Bookings are confirmed immediately.",
+        "request": "You accept or decline each request."
+      },
+      "requestExpiryHours": "Hours to answer a request (2–48)",
+      "paymentMode": "Payment",
+      "payment": {
+        "on_site": "At reception",
+        "deposit": "Deposit online",
+        "full": "Full payment online"
+      },
+      "onlinePaymentsLater": "Online payments come later.",
+      "cancellationPolicy": "Cancellation",
+      "cancellation": {
+        "flexible": "Flexible",
+        "moderate": "Moderate",
+        "strict": "Strict"
+      },
+      "cancellationHelp": {
+        "flexible": "Full refund up to the day before arrival.",
+        "moderate": "Full refund up to 7 days before arrival, 50% from 6 to 1 day before.",
+        "strict": "Full refund up to 30 days before arrival, 50% from 29 to 7 days before, no refund later."
+      },
+      "onSiteNote": "With payment at reception nothing is charged online, so cancelling is free for the guest.",
+      "save": "Save profile",
+      "saved": "Profile saved.",
+      "errors": {
+        "name": "Enter the camping name.",
+        "email": "Enter a valid email or leave it empty.",
+        "coordinates": "Write \"latitude, longitude\", e.g. 40.0915, 23.98.",
+        "time": "Write a time like 14:00.",
+        "requestExpiryHours": "Enter a number from 2 to 48.",
+        "text": "Too long."
+      }
+    }
   },
   "admin": {
     "title": "Platform admin",
@@ -177,5 +253,21 @@
     "expired": "This invitation has expired. Ask for a new one.",
     "invalid": "This invitation link isn't valid. Make sure you opened the whole link.",
     "wrongEmail": "This invitation was sent to a different email address. Sign out and sign in with that address."
+  },
+  "amenities": {
+    "hot_showers": "Hot showers",
+    "electricity": "Electricity",
+    "wifi": "Wi-Fi",
+    "beach_access": "Beach access",
+    "pool": "Pool",
+    "restaurant": "Restaurant",
+    "bar": "Bar",
+    "mini_market": "Mini-market",
+    "laundry": "Laundry",
+    "shared_kitchen": "Shared kitchen",
+    "bbq": "Barbecue area",
+    "pets_allowed": "Pets allowed",
+    "playground": "Playground",
+    "shade": "Shade"
   }
 }
