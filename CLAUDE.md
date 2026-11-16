@@ -66,6 +66,7 @@ The owner mostly works from a phone, so:
 - TypeScript strict and no `any`. Use `unknown` + zod at every boundary (edge function input, URL params, storage).
 - Components never call supabase directly. Data access goes through hooks in `src/api/`.
 - Platform-specific code uses `*.native.tsx` / `*.web.tsx` (e.g. maps).
+- Static web hosting can't serve unknown dynamic paths: screens with ids take query parameters (`/admin/partner?id=`); use `[param]` segments only with `generateStaticParams`.
 - The partner area must work at 360 px wide and on desktop.
 - Prefer small, readable modules over clever abstractions.
 
