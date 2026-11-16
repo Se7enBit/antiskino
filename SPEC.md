@@ -38,7 +38,7 @@ Last updated: 2026-11-16 · Status: M1 done, M2 in progress (database layer and 
 | Camping defaults | `confirmation_mode` instant, `cancellation_policy` flexible, `request_expiry_hours` 24 | Changed per camping in the profile |
 | Catalog integrity | Seasons of a camping and guest-category age ranges cannot overlap; a price must point at an item of the season's camping | Deleting a pitch type, guest category or extra deletes its prices |
 | Sign-in timing | Email-code sign-in and the partner/admin gates move to **M2** | Partners and admins need them to use M2's screens. Claiming guest bookings and My bookings stay in M4 |
-| Sign-in email | One bilingual (EL + EN) code template for both new and returning users | Hosted projects: same text under Authentication → Email Templates (Confirm signup and Magic link) |
+| Sign-in email | One bilingual (EL + EN) code template for both new and returning users | Hosted projects need **custom SMTP** before templates can be edited (default emails carry a link, not the code). Dev: Resend SMTP; then paste the template into Confirm signup and Magic link |
 | Native session storage | `@react-native-async-storage/async-storage` | Web keeps using localStorage. Reusable for guest favorites (Zustand) |
 | Photo uploads | `expo-image-picker` → Supabase Storage | Camping and pitch-type photos (M2) |
 | Partner invites | **Copy-link invites** until a Resend sender domain is verified | The admin shares the invite link (Share sheet); email via Resend is added later |

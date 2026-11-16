@@ -87,11 +87,16 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Export static web build
-        run: npx expo export -p web
+        run: |
+          if [ -z "$EXPO_PUBLIC_SUPABASE_URL" ] || [ -z "$EXPO_PUBLIC_SUPABASE_KEY" ]; then
+            echo "::warning::EXPO_PUBLIC_SUPABASE_URL / EXPO_PUBLIC_SUPABASE_KEY are not set (Actions variables or secrets): this build has no sign-in."
+          fi
+          npx expo export -p web
         env:
-          # Public values (publishable key), set as repository variables.
-          EXPO_PUBLIC_SUPABASE_URL: ${{ vars.EXPO_PUBLIC_SUPABASE_URL }}
-          EXPO_PUBLIC_SUPABASE_KEY: ${{ vars.EXPO_PUBLIC_SUPABASE_KEY }}
+          # Public values (the publishable key ends up in the bundle anyway).
+          # Read from Actions variables, or from secrets with the same names.
+          EXPO_PUBLIC_SUPABASE_URL: ${{ vars.EXPO_PUBLIC_SUPABASE_URL || secrets.EXPO_PUBLIC_SUPABASE_URL }}
+          EXPO_PUBLIC_SUPABASE_KEY: ${{ vars.EXPO_PUBLIC_SUPABASE_KEY || secrets.EXPO_PUBLIC_SUPABASE_KEY }}
           EXPO_PUBLIC_SITE_URL: ${{ vars.EXPO_PUBLIC_SITE_URL || format('https://{0}.github.io/{1}', github.repository_owner, github.event.repository.name) }}
       - name: Add GitHub Pages 404 page
         run: cp "dist/+not-found.html" dist/404.html
