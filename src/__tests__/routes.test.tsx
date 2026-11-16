@@ -12,10 +12,11 @@ describe('routes', () => {
     ['/', 'Find a camping pitch'],
     ['/favorites', 'Campings you save with the heart will appear here.'],
     ['/bookings', 'Sign in to see your bookings here.'],
-    ['/account', 'Sign in with an email code will appear here.'],
-    ['/partner', 'Today, bookings, availability and rates for your campings will appear here.'],
-    ['/admin', 'Partners, campings, bookings and reviews will appear here.'],
-  ])('%s renders its placeholder', async (url, text) => {
+    // No Supabase settings in Jest: sign-in shows a notice and the areas ask to sign in.
+    ['/account', "Sign-in isn't available in this build yet."],
+    ['/partner', 'Sign in to continue'],
+    ['/admin', 'Sign in to continue'],
+  ])('%s renders', async (url, text) => {
     await renderRouter('./app', { initialUrl: url });
     expect(screen).toHavePathname(url);
     expect(await screen.findByText(text)).toBeOnTheScreen();
