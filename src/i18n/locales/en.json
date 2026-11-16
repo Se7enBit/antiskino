@@ -165,5 +165,17 @@
   "notFound": {
     "title": "Page not found",
     "body": "This page doesn't exist."
+  },
+  "invite": {
+    "title": "Partner invitation",
+    "intro": "You've been invited to join a camping's team on Antiskino.",
+    "signInFirst": "Sign in with the email address the invitation was sent to.",
+    "accept": "Accept invitation",
+    "accepted": "You're on the team now.",
+    "openPartnerArea": "Open the partner area",
+    "used": "This invitation has already been used.",
+    "expired": "This invitation has expired. Ask for a new one.",
+    "invalid": "This invitation link isn't valid. Make sure you opened the whole link.",
+    "wrongEmail": "This invitation was sent to a different email address. Sign out and sign in with that address."
   }
 }
