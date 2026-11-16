@@ -2,7 +2,7 @@
 
 > Book a camping pitch in Greece in under a minute. (*αντίσκηνο* = tent)
 
-Last updated: 2026-11-16 · Status: M1 done, M2 in progress (database layer, sign-in and admin built)
+Last updated: 2026-11-16 · Status: M1 done, M2 in progress (database layer, sign-in, admin and partner profile built)
 
 ## 0. Decisions log
 
@@ -43,6 +43,9 @@ Last updated: 2026-11-16 · Status: M1 done, M2 in progress (database layer, sig
 | Photo uploads | `expo-image-picker` → Supabase Storage | Camping and pitch-type photos (M2) |
 | Partner invites | **Copy-link invites** until a Resend sender domain is verified | The admin shares the invite link (Share sheet); email via Resend is added later |
 | Invite mechanics | SQL functions `create_partner_invite()` / `accept_partner_invite()` | 7-day one-time token, only its SHA-256 stored; a new invite replaces the pending one for that email. Admins invite to any partner, owners to their own. Accepting needs a sign-in with the invited email and never demotes an owner. The `invite` edge function arrives only with invite emails |
+| Partner area navigation | Sidebar ≥ 768 px wide, bottom tabs below; `/partner` opens Profile until Today ships (M5) | Short tab labels on phones (Availability → "Calendar" / "Ημερολόγιο"); a camping switcher appears with more than one camping |
+| Amenities | Fixed list of 14 keys in `src/domain/amenities.ts` | The 11 from F2 plus bar, shared kitchen and barbecue area; labels in the locale files |
+| Map pin (M2) | Typed or pasted as "latitude, longitude" | A map picker comes with maps in M3 |
 | URLs with ids on web | Private screens take ids as query parameters (`/admin/partner?id=`, `/invite?t=`) | Static hosting can't pre-render unknown ids. Dynamic segments only for pages pre-rendered with `generateStaticParams` (e.g. `/c/[slug]`). Decide `/m/<ref>` in M4 |
 | Allotment edits | `set_allotment` / `set_closed` take a night range with both ends included, at most 400 nights per call | `set_allotment` refuses (does not clamp) a value below `booked`, changing nothing; `set_closed` skips nights without inventory |
 
@@ -277,7 +280,7 @@ app/
   m/[ref].tsx                  # guest manage link (token)
   partner/
     _layout.tsx                # partner-member gate, sidebar/tabs, camping switcher
-    index.tsx                  # Today
+    index.tsx                  # Today (M5); redirects to profile until then
     bookings/index.tsx
     bookings/[id].tsx
     availability.tsx
