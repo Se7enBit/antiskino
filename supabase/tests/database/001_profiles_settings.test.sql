@@ -2,7 +2,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(37);
+select plan(38);
 
 -- ---------------------------------------------------------------------------
 -- Schema
@@ -24,6 +24,10 @@ select is(
   (select default_commission_bps from public.platform_settings where id = 1),
   600,
   'platform_settings has its singleton row'
+);
+select is_empty(
+  $$ select u.id from auth.users u left join public.profiles p on p.id = u.id where p.id is null $$,
+  'every auth user has a profile (seeded and backfilled users included)'
 );
 
 -- ---------------------------------------------------------------------------
