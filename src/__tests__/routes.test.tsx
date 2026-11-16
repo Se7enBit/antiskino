@@ -16,6 +16,9 @@ describe('routes', () => {
     ['/account', "Sign-in isn't available in this build yet."],
     ['/partner', 'Sign in to continue'],
     ['/admin', 'Sign in to continue'],
+    ['/admin/new-partner', 'Sign in to continue'],
+    ['/admin/partner', 'Sign in to continue'],
+    ['/invite', "Sign-in isn't available in this build yet."],
   ])('%s renders', async (url, text) => {
     await renderRouter('./app', { initialUrl: url });
     expect(screen).toHavePathname(url);

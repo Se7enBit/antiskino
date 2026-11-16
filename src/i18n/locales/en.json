@@ -7,7 +7,10 @@
     "comingSoon": "Coming soon",
     "backToApp": "Back to the app",
     "loading": "Loading…",
-    "retry": "Try again"
+    "retry": "Try again",
+    "error": "Something went wrong. Check your connection and try again.",
+    "save": "Save",
+    "cancel": "Cancel"
   },
   "tabs": {
     "explore": "Explore",
@@ -79,10 +82,100 @@
   },
   "admin": {
     "title": "Platform admin",
-    "body": "Partners, campings, bookings and reviews will appear here."
+    "partners": {
+      "title": "Partners",
+      "new": "New partner",
+      "empty": "No partners yet. Create the first one.",
+      "commission": "Commission",
+      "commissionDefault": "platform default",
+      "noCampings": "No campings yet"
+    },
+    "partnerForm": {
+      "title": "New partner",
+      "name": "Company name",
+      "legalName": "Legal name",
+      "vatNumber": "VAT number",
+      "billingEmail": "Billing email",
+      "commission": "Commission override (%)",
+      "commissionHint": "Leave empty to use the platform default.",
+      "submit": "Create partner",
+      "errors": {
+        "name": "Enter the company name.",
+        "legalName": "Too long.",
+        "vatNumber": "Too long.",
+        "billingEmail": "Enter a valid email or leave it empty.",
+        "commissionPercent": "Enter a percentage from 0 to 100, e.g. 6 or 5.5."
+      }
+    },
+    "partner": {
+      "title": "Partner",
+      "notFound": "This partner doesn't exist or you can't see it.",
+      "company": "Company",
+      "commissionSaved": "Commission saved."
+    },
+    "campings": {
+      "title": "Campings",
+      "empty": "No campings yet.",
+      "add": "Add camping",
+      "name": "Camping name",
+      "slug": "Web address",
+      "slugHint": "Used in links such as …/c/{{slug}}",
+      "region": "Region",
+      "create": "Create camping",
+      "slugTaken": "This web address is already taken.",
+      "publish": "Publish",
+      "pause": "Pause",
+      "toDraft": "Back to draft",
+      "errors": {
+        "name": "Enter the camping name.",
+        "slug": "Use lowercase Latin letters, digits and dashes.",
+        "region": "Too long."
+      }
+    },
+    "status": {
+      "draft": "Draft",
+      "live": "Live",
+      "paused": "Paused"
+    },
+    "team": {
+      "title": "Team",
+      "members": "Members",
+      "noMembers": "No members yet. Invite the owner.",
+      "unnamed": "Name not set",
+      "invites": "Invites",
+      "pending": "Pending until {{date}}",
+      "accepted": "Accepted",
+      "expired": "Expired",
+      "email": "Email",
+      "role": "Role",
+      "createLink": "Create invite link",
+      "linkReady": "Invite link for {{email}}. It works once and expires in 7 days:",
+      "share": "Share link",
+      "shareMessage": "You're invited to {{partner}} on Antiskino: {{link}}",
+      "noSiteUrl": "The site address isn't configured, so the link can't be built.",
+      "errors": {
+        "email": "Enter a valid email address."
+      }
+    },
+    "roles": {
+      "owner": "Owner",
+      "staff": "Staff"
+    }
   },
   "notFound": {
     "title": "Page not found",
     "body": "This page doesn't exist."
+  },
+  "invite": {
+    "title": "Partner invitation",
+    "intro": "You've been invited to join a camping's team on Antiskino.",
+    "signInFirst": "Sign in with the email address the invitation was sent to.",
+    "accept": "Accept invitation",
+    "accepted": "You're on the team now.",
+    "openPartnerArea": "Open the partner area",
+    "used": "This invitation has already been used.",
+    "expired": "This invitation has expired. Ask for a new one.",
+    "invalid": "This invitation link isn't valid. Make sure you opened the whole link.",
+    "wrongEmail": "This invitation was sent to a different email address. Sign out and sign in with that address."
   }
 }

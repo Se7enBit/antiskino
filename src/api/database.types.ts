@@ -569,12 +569,22 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      accept_partner_invite: { Args: { p_token: string }; Returns: Json };
       camping_is_live: { Args: { p_camping_id: string }; Returns: boolean };
       camping_partner: { Args: { p_camping_id: string }; Returns: string };
       check_night_range: {
         Args: { p_first_night: string; p_last_night: string };
         Returns: undefined;
       };
+      create_partner_invite: {
+        Args: {
+          p_email: string;
+          p_partner_id: string;
+          p_role: Database['public']['Enums']['partner_role'];
+        };
+        Returns: string;
+      };
+      invite_token_hash: { Args: { p_token: string }; Returns: string };
       is_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
       is_localized_text: { Args: { p_required?: boolean; p_value: Json }; Returns: boolean };
       is_partner_member: { Args: { p_partner_id: string }; Returns: boolean };
