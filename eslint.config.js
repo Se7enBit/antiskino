@@ -37,6 +37,24 @@ module.exports = defineConfig([
     },
   },
   {
+    // The only modules allowed to import supabase-js.
+    files: ['src/lib/supabase.ts', 'src/api/**'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: 'react-i18next',
+              importNames: ['useTranslation'],
+              message: 'Use useT() from @/i18n so language switches are hydration-safe.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
     files: ['**/*.ts', '**/*.tsx'],
     rules: {
       '@typescript-eslint/no-explicit-any': 'error',
