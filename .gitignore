@@ -25,6 +25,8 @@ expo-env.d.ts
 supabase/.branches
 supabase/.temp
 supabase/functions/.env
+# Root lock written by `deno test supabase/functions`; functions get their own deno.json from M3
+/deno.lock
 
 # Signing keys & certificates
 *.jks

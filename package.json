@@ -15,7 +15,8 @@
     "lint": "eslint . --max-warnings=0 && prettier --check .",
     "format": "prettier --write . && eslint . --fix",
     "test": "jest",
-    "export:web": "expo export -p web"
+    "export:web": "expo export -p web",
+    "db:types": "supabase gen types typescript --schema public > src/api/database.types.ts && prettier --write src/api/database.types.ts"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.119.0",

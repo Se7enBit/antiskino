@@ -6,7 +6,5 @@ package-lock.json
 assets/
 # Hand-written docs are not reformatted
 *.md
-# Generated
-src/api/database.types.ts
 supabase/.temp/
 supabase/.branches/
