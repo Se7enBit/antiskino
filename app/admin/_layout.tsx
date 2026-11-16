@@ -11,6 +11,8 @@ export default function AdminLayout() {
     <RequireAccess area="admin">
       <Stack screenOptions={{ headerTintColor: colors.primary }}>
         <Stack.Screen name="index" options={{ title: t('admin.title') }} />
+        <Stack.Screen name="new-partner" options={{ title: t('admin.partnerForm.title') }} />
+        <Stack.Screen name="partner" options={{ title: t('admin.partner.title') }} />
       </Stack>
     </RequireAccess>
   );
