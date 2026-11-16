@@ -1,17 +1,23 @@
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 
+import { AuthProvider } from '@/api/auth';
+import { QueryProvider } from '@/api/QueryProvider';
 import { LanguageProvider } from '@/i18n';
 
 export default function RootLayout() {
   return (
     <LanguageProvider>
-      <StatusBar style="dark" />
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Screen name="(customer)" />
-        <Stack.Screen name="partner" />
-        <Stack.Screen name="admin" />
-      </Stack>
+      <QueryProvider>
+        <AuthProvider>
+          <StatusBar style="dark" />
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="(customer)" />
+            <Stack.Screen name="partner" />
+            <Stack.Screen name="admin" />
+          </Stack>
+        </AuthProvider>
+      </QueryProvider>
     </LanguageProvider>
   );
 }

@@ -252,6 +252,17 @@ otp_expiry = 3600
 # admin_email = "admin@email.com"
 # sender_name = "Admin"
 
+# Sign-in uses a one-time code ({{ .Token }}), not a link. New users get the
+# confirmation template, existing users the magic_link one; both show the code.
+# The hosted projects need the same text under Authentication > Email Templates.
+[auth.email.template.magic_link]
+subject = "Ο κωδικός σου για το Antiskino / Your Antiskino code"
+content_path = "./supabase/templates/sign_in_code.html"
+
+[auth.email.template.confirmation]
+subject = "Ο κωδικός σου για το Antiskino / Your Antiskino code"
+content_path = "./supabase/templates/sign_in_code.html"
+
 # Uncomment to customize email template
 # [auth.email.template.invite]
 # subject = "You have been invited"

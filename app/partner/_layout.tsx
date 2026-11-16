@@ -1,14 +1,17 @@
 import { Stack } from 'expo-router';
 
+import { RequireAccess } from '@/features/auth/RequireAccess';
 import { useT } from '@/i18n';
 import { colors } from '@/ui';
 
-// Partner-member gate, sidebar/bottom tabs and camping switcher arrive in M2/M5.
+// Partner members only. Sidebar/bottom tabs and the camping switcher arrive with the partner screens.
 export default function PartnerLayout() {
   const t = useT();
   return (
-    <Stack screenOptions={{ headerTintColor: colors.primary }}>
-      <Stack.Screen name="index" options={{ title: t('partner.title') }} />
-    </Stack>
+    <RequireAccess area="partner">
+      <Stack screenOptions={{ headerTintColor: colors.primary }}>
+        <Stack.Screen name="index" options={{ title: t('partner.title') }} />
+      </Stack>
+    </RequireAccess>
   );
 }

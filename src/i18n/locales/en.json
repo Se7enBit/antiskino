@@ -5,7 +5,9 @@
   },
   "common": {
     "comingSoon": "Coming soon",
-    "backToApp": "Back to the app"
+    "backToApp": "Back to the app",
+    "loading": "Loading…",
+    "retry": "Try again"
   },
   "tabs": {
     "explore": "Explore",
@@ -27,7 +29,6 @@
   },
   "account": {
     "title": "Account",
-    "body": "Sign in with an email code will appear here.",
     "language": "Language",
     "languages": {
       "el": "Ελληνικά",
@@ -35,7 +36,42 @@
     },
     "areas": "Other areas",
     "partnerArea": "Partner area",
-    "adminArea": "Platform admin"
+    "adminArea": "Platform admin",
+    "notConfigured": "Sign-in isn't available in this build yet.",
+    "signedInAs": "Signed in as {{email}}",
+    "signOut": "Sign out"
+  },
+  "signIn": {
+    "title": "Sign in",
+    "intro": "We'll email you a one-time code. No password needed.",
+    "emailLabel": "Email",
+    "sendCode": "Send code",
+    "codeSent": "We sent a code to {{email}}. It can take a minute to arrive.",
+    "codeLabel": "Code from the email",
+    "submit": "Sign in",
+    "useAnotherEmail": "Use another email",
+    "resend": "Send a new code",
+    "errors": {
+      "invalidEmail": "Enter a valid email address.",
+      "invalidCode": "Enter the code from the email.",
+      "wrongCode": "That code is wrong or has expired. Ask for a new one.",
+      "tooManyRequests": "Too many attempts. Wait a minute and try again.",
+      "signupDisabled": "Sign-in with an email code is turned off.",
+      "generic": "Something went wrong. Check your connection and try again."
+    }
+  },
+  "access": {
+    "signInRequired": {
+      "title": "Sign in to continue",
+      "body": "This area is for partner campings and the Antiskino team.",
+      "action": "Go to sign in"
+    },
+    "denied": {
+      "title": "No access",
+      "partner": "Your account isn't on a partner camping's team yet. Ask the camping's owner for an invite.",
+      "admin": "This area is for the Antiskino team."
+    },
+    "error": "Couldn't check your access."
   },
   "partner": {
     "title": "Partner area",

@@ -2,7 +2,7 @@
 
 > Book a camping pitch in Greece in under a minute. (*αντίσκηνο* = tent)
 
-Last updated: 2026-11-16 · Status: M1 (skeleton) built, M2 next
+Last updated: 2026-11-16 · Status: M1 done, M2 in progress (database layer and sign-in built)
 
 ## 0. Decisions log
 
@@ -33,6 +33,16 @@ Last updated: 2026-11-16 · Status: M1 (skeleton) built, M2 next
 | Supabase CLI | v3, pinned in CI | `gen types` and `test db` target the local stack by default. Types: `npm run db:types` (public schema, Prettier-formatted); CI fails when stale |
 | UI language | Held in React state (`LanguageProvider`, `useT()`) | Static web HTML is Greek and switches to the browser language after hydration; changes run in a transition to avoid hydration mismatches |
 | DB grants | Explicit per table/function | Supabase projects differ in default privileges, so migrations revoke from `anon`/`authenticated` and grant only what is needed |
+| Camping status | Only admins change it, via `set_camping_status()` | Owners update profile columns only (not partner, slug or status). New campings start as `draft` |
+| Payment mode in DB | A check constraint keeps `payment_mode = 'on_site'` until M7 | Drop the constraint when online payments ship |
+| Camping defaults | `confirmation_mode` instant, `cancellation_policy` flexible, `request_expiry_hours` 24 | Changed per camping in the profile |
+| Catalog integrity | Seasons of a camping and guest-category age ranges cannot overlap; a price must point at an item of the season's camping | Deleting a pitch type, guest category or extra deletes its prices |
+| Sign-in timing | Email-code sign-in and the partner/admin gates move to **M2** | Partners and admins need them to use M2's screens. Claiming guest bookings and My bookings stay in M4 |
+| Sign-in email | One bilingual (EL + EN) code template for both new and returning users | Hosted projects: same text under Authentication → Email Templates (Confirm signup and Magic link) |
+| Native session storage | `@react-native-async-storage/async-storage` | Web keeps using localStorage. Reusable for guest favorites (Zustand) |
+| Photo uploads | `expo-image-picker` → Supabase Storage | Camping and pitch-type photos (M2) |
+| Partner invites | **Copy-link invites** until a Resend sender domain is verified | The admin shares the invite link (Share sheet); email via Resend is added later |
+| Allotment edits | `set_allotment` / `set_closed` take a night range with both ends included, at most 400 nights per call | `set_allotment` refuses (does not clamp) a value below `booked`, changing nothing; `set_closed` skips nights without inventory |
 
 ## 1. Core problem
 
@@ -225,11 +235,12 @@ expired        ├──► cancelled (guest / partner / admin)
 | Navigation | Expo Router; web `output: "static"`; `/c/[slug]` pre-rendered via `generateStaticParams` |
 | UI | Small in-house component kit in `src/ui` (no UI framework in v1) |
 | Server state | TanStack Query over supabase-js |
-| Local state | Zustand (search params, booking draft, guest favorites) |
+| Local state | Zustand (search params, booking draft, guest favorites); AsyncStorage for native persistence (also the Supabase session) |
 | Forms & validation | react-hook-form + zod (zod also validates edge function input) |
 | i18n | i18next + react-i18next + expo-localization; `el.json`, `en.json`; DB texts as `jsonb {"el","en"}` |
 | Dates | date-fns + small helpers in `src/lib/dates.ts`; nights as `YYYY-MM-DD` strings, Europe/Athens |
 | Maps | `react-native-maps` on native (`*.native.tsx`), `react-leaflet` + OpenStreetMap tiles on web (`*.web.tsx`) |
+| Photos | `expo-image-picker` for choosing photos; files in Supabase Storage |
 | Backend | Supabase: Postgres + RLS, Auth (email OTP), Storage (photos), Edge Functions (Deno/TS), Realtime (partner Today/Bookings), pg_cron + pg_net |
 | Email | Resend, called from edge functions; EL/EN templates |
 | Push | expo-notifications + Expo Push API from edge functions |
@@ -368,7 +379,7 @@ platform_settings(id = 1, default_commission_bps int)
 ```
 
 ### 6.2 Security (RLS)
-- Helper SQL functions: `is_admin()`, `is_partner_member(partner_id)`, `is_partner_owner(partner_id)`, `camping_partner(camping_id)`.
+- Helper SQL functions: `is_admin()`, `is_partner_member(partner_id)`, `is_partner_owner(partner_id)`, `camping_partner(camping_id)`, `camping_is_live(camping_id)`.
 - **anon / everyone:** read `live` campings, their active pitch types, photos, seasons, prices, extras, fees, guest categories and visible reviews. Nothing else.
 - **bookings:** signed-in guests read their own (`user_id = auth.uid()`); partner members read their campings' bookings; admin reads all. **No direct insert or update policy:** writes only via edge functions and SQL functions (`security definer`).
 - **Partner config tables:** members read; owners write. Staff may only open/close nights (via `set_closed()`).
@@ -417,9 +428,9 @@ Hosted checkout (redirect to `checkoutUrl`) keeps card data out of the app on al
 
 ## 9. Milestones
 1. **Skeleton:** Expo + Router + TS strict, i18n EL/EN, CI, web preview deploy, Supabase dev project with migrations applied by the GitHub integration, first migration (profiles, platform_settings, `is_admin()`), seed demo users.
-2. **Partner setup:** schema (partners → campings → pitch types → seasons/prices → inventory), RLS + pgTAP, seed demo partner/camping, admin create/invite, partner Profile / Pitch types / Rates / Availability screens.
+2. **Partner setup:** schema (partners → campings → pitch types → seasons/prices → inventory), RLS + pgTAP, seed demo partner/camping, email-code sign-in with partner/admin gates, admin create/invite (copy link), partner Profile / Pitch types / Rates / Availability screens with photos.
 3. **Search & quote:** `search` and `quote` functions + pricing tests, Home (with single-camping mode), results list/map, camping page.
-4. **Booking (on-site payment):** `create-booking`, instant and request flows, `transition_booking`, jobs, emails, manage link, cancellations, sign-in + claim, My bookings.
+4. **Booking (on-site payment):** `create-booking`, instant and request flows, `transition_booking`, jobs, emails, manage link, cancellations, claiming bookings on sign-in, My bookings.
 5. **Reception:** Today, booking detail actions, assign pitch, check-in/no-show, realtime, push notifications.
 6. **Reviews, favorites, polish:** review invites, replies, moderation; favorites; empty/error states; Android preview APK. **Field test with the first camping** using its real pitch types, seasons and prices.
 7. **Online payments:** pick the provider, implement `PaymentProvider`, deposit/full modes, request-mode authorize/capture, refunds, platform fee, partner payout onboarding.
@@ -434,4 +445,3 @@ Hosted checkout (redirect to `checkoutUrl`) keeps card data out of the app on al
 - **Domain and store names:** check that antiskino.gr / .com and the app store name are available.
 - **Legal:** terms of service, privacy policy (GDPR), partner agreement.
 - **Icon set** (not in §5): the tab bar shows labels only until one is chosen. Amenity and equipment icons need it by M3.
-- **Native session storage** (not in §5): web keeps the Supabase session in localStorage; native needs a storage library (e.g. AsyncStorage or expo-secure-store) before sign-in ships in M4.

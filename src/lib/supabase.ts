@@ -1,8 +1,9 @@
-import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import { Platform } from 'react-native';
+import { createClient, processLock, type SupabaseClient } from '@supabase/supabase-js';
 import { z } from 'zod';
 
 import type { Database } from '@/api/database.types';
+
+import { authStorage } from './authStorage';
 
 export type AppSupabaseClient = SupabaseClient<Database>;
 
@@ -31,28 +32,32 @@ export function parseSupabaseEnv(raw: Record<string, unknown>): SupabaseEnv {
   };
 }
 
-// Web keeps the session in localStorage. Native persistence needs a storage
-// library that SPEC §5 doesn't list yet; it arrives with sign-in (M4). Until
-// then native sessions live in memory.
-function browserStorage(): Storage | undefined {
-  if (Platform.OS !== 'web' || typeof window === 'undefined') return undefined;
-  try {
-    return window.localStorage;
-  } catch {
-    return undefined;
-  }
-}
-
+// Sessions persist in localStorage on web and AsyncStorage on native
+// (authStorage.native.ts); static rendering has no storage and no session.
 export function createSupabaseClient(env: SupabaseEnv): AppSupabaseClient {
-  const storage = browserStorage();
+  const storage = authStorage();
   return createClient<Database>(env.url, env.key, {
     auth: {
       storage,
       persistSession: storage !== undefined,
       autoRefreshToken: true,
       detectSessionInUrl: false,
+      lock: processLock,
     },
   });
+}
+
+// Expo inlines EXPO_PUBLIC_* only for literal `process.env.NAME` reads.
+function readEnv(): Record<string, unknown> {
+  return {
+    EXPO_PUBLIC_SUPABASE_URL: process.env.EXPO_PUBLIC_SUPABASE_URL,
+    EXPO_PUBLIC_SUPABASE_KEY: process.env.EXPO_PUBLIC_SUPABASE_KEY,
+  };
+}
+
+/** False in builds without Supabase settings (sign-in then shows a notice). */
+export function hasSupabaseEnv(): boolean {
+  return supabaseEnvSchema.safeParse(readEnv()).success;
 }
 
 let client: AppSupabaseClient | undefined;
@@ -63,12 +68,6 @@ let client: AppSupabaseClient | undefined;
  * Only hooks in src/api/ call this; components never do.
  */
 export function getSupabase(): AppSupabaseClient {
-  // Expo inlines EXPO_PUBLIC_* only for literal `process.env.NAME` reads.
-  client ??= createSupabaseClient(
-    parseSupabaseEnv({
-      EXPO_PUBLIC_SUPABASE_URL: process.env.EXPO_PUBLIC_SUPABASE_URL,
-      EXPO_PUBLIC_SUPABASE_KEY: process.env.EXPO_PUBLIC_SUPABASE_KEY,
-    }),
-  );
+  client ??= createSupabaseClient(parseSupabaseEnv(readEnv()));
   return client;
 }

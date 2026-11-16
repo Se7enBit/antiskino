@@ -3,6 +3,451 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type Database = {
   public: {
     Tables: {
+      camping_photos: {
+        Row: {
+          camping_id: string;
+          created_at: string;
+          id: string;
+          sort: number;
+          storage_path: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          camping_id: string;
+          created_at?: string;
+          id?: string;
+          sort?: number;
+          storage_path: string;
+        };
+        Update: {
+          camping_id?: string;
+          created_at?: string;
+          id?: string;
+          sort?: number;
+          storage_path?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'camping_photos_camping_id_fkey';
+            columns: ['camping_id'];
+            isOneToOne: false;
+            referencedRelation: 'campings';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      campings: {
+        Row: {
+          address: string | null;
+          amenities: string[];
+          cancellation_policy: Database['public']['Enums']['cancellation_policy'];
+          check_in_from: string | null;
+          check_out_until: string | null;
+          confirmation_mode: Database['public']['Enums']['confirmation_mode'];
+          created_at: string;
+          deposit_percent: number | null;
+          descr: NonNullable<Json>;
+          email: string | null;
+          house_rules: NonNullable<Json>;
+          id: string;
+          lat: number | null;
+          lng: number | null;
+          name: string;
+          partner_id: string;
+          payment_mode: Database['public']['Enums']['payment_mode'];
+          phone: string | null;
+          region: string | null;
+          request_expiry_hours: number;
+          same_day_cutoff: string;
+          short_descr: NonNullable<Json>;
+          slug: string;
+          status: Database['public']['Enums']['camping_status'];
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          address?: string | null;
+          amenities?: string[];
+          cancellation_policy?: Database['public']['Enums']['cancellation_policy'];
+          check_in_from?: string | null;
+          check_out_until?: string | null;
+          confirmation_mode?: Database['public']['Enums']['confirmation_mode'];
+          created_at?: string;
+          deposit_percent?: number | null;
+          descr?: NonNullable<Json>;
+          email?: string | null;
+          house_rules?: NonNullable<Json>;
+          id?: string;
+          lat?: number | null;
+          lng?: number | null;
+          name: string;
+          partner_id: string;
+          payment_mode?: Database['public']['Enums']['payment_mode'];
+          phone?: string | null;
+          region?: string | null;
+          request_expiry_hours?: number;
+          same_day_cutoff?: string;
+          short_descr?: NonNullable<Json>;
+          slug: string;
+          status?: Database['public']['Enums']['camping_status'];
+          updated_at?: string;
+        };
+        Update: {
+          address?: string | null;
+          amenities?: string[];
+          cancellation_policy?: Database['public']['Enums']['cancellation_policy'];
+          check_in_from?: string | null;
+          check_out_until?: string | null;
+          confirmation_mode?: Database['public']['Enums']['confirmation_mode'];
+          created_at?: string;
+          deposit_percent?: number | null;
+          descr?: NonNullable<Json>;
+          email?: string | null;
+          house_rules?: NonNullable<Json>;
+          id?: string;
+          lat?: number | null;
+          lng?: number | null;
+          name?: string;
+          partner_id?: string;
+          payment_mode?: Database['public']['Enums']['payment_mode'];
+          phone?: string | null;
+          region?: string | null;
+          request_expiry_hours?: number;
+          same_day_cutoff?: string;
+          short_descr?: NonNullable<Json>;
+          slug?: string;
+          status?: Database['public']['Enums']['camping_status'];
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'campings_partner_id_fkey';
+            columns: ['partner_id'];
+            isOneToOne: false;
+            referencedRelation: 'partners';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      extras: {
+        Row: {
+          active: boolean;
+          camping_id: string;
+          id: string;
+          max_qty: number;
+          name: NonNullable<Json>;
+          sort: number;
+          unit: Database['public']['Enums']['extra_unit'];
+        };
+        ComputedFields: never;
+        Insert: {
+          active?: boolean;
+          camping_id: string;
+          id?: string;
+          max_qty?: number;
+          name: NonNullable<Json>;
+          sort?: number;
+          unit: Database['public']['Enums']['extra_unit'];
+        };
+        Update: {
+          active?: boolean;
+          camping_id?: string;
+          id?: string;
+          max_qty?: number;
+          name?: NonNullable<Json>;
+          sort?: number;
+          unit?: Database['public']['Enums']['extra_unit'];
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'extras_camping_id_fkey';
+            columns: ['camping_id'];
+            isOneToOne: false;
+            referencedRelation: 'campings';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      fees: {
+        Row: {
+          amount_cents: number;
+          camping_id: string;
+          id: string;
+          name: NonNullable<Json>;
+          unit: Database['public']['Enums']['fee_unit'];
+        };
+        ComputedFields: never;
+        Insert: {
+          amount_cents: number;
+          camping_id: string;
+          id?: string;
+          name: NonNullable<Json>;
+          unit: Database['public']['Enums']['fee_unit'];
+        };
+        Update: {
+          amount_cents?: number;
+          camping_id?: string;
+          id?: string;
+          name?: NonNullable<Json>;
+          unit?: Database['public']['Enums']['fee_unit'];
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'fees_camping_id_fkey';
+            columns: ['camping_id'];
+            isOneToOne: false;
+            referencedRelation: 'campings';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      guest_categories: {
+        Row: {
+          camping_id: string;
+          id: string;
+          max_age: number | null;
+          min_age: number;
+          name: NonNullable<Json>;
+          sort: number;
+        };
+        ComputedFields: never;
+        Insert: {
+          camping_id: string;
+          id?: string;
+          max_age?: number | null;
+          min_age: number;
+          name: NonNullable<Json>;
+          sort?: number;
+        };
+        Update: {
+          camping_id?: string;
+          id?: string;
+          max_age?: number | null;
+          min_age?: number;
+          name?: NonNullable<Json>;
+          sort?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'guest_categories_camping_id_fkey';
+            columns: ['camping_id'];
+            isOneToOne: false;
+            referencedRelation: 'campings';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      inventory_nights: {
+        Row: {
+          allotment: number;
+          booked: number;
+          closed: boolean;
+          night: string;
+          pitch_type_id: string;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          allotment: number;
+          booked?: number;
+          closed?: boolean;
+          night: string;
+          pitch_type_id: string;
+          updated_at?: string;
+        };
+        Update: {
+          allotment?: number;
+          booked?: number;
+          closed?: boolean;
+          night?: string;
+          pitch_type_id?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'inventory_nights_pitch_type_id_fkey';
+            columns: ['pitch_type_id'];
+            isOneToOne: false;
+            referencedRelation: 'pitch_types';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      partner_invites: {
+        Row: {
+          accepted_at: string | null;
+          created_at: string;
+          email: string;
+          expires_at: string;
+          id: string;
+          partner_id: string;
+          role: Database['public']['Enums']['partner_role'];
+          token_hash: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          accepted_at?: string | null;
+          created_at?: string;
+          email: string;
+          expires_at: string;
+          id?: string;
+          partner_id: string;
+          role: Database['public']['Enums']['partner_role'];
+          token_hash: string;
+        };
+        Update: {
+          accepted_at?: string | null;
+          created_at?: string;
+          email?: string;
+          expires_at?: string;
+          id?: string;
+          partner_id?: string;
+          role?: Database['public']['Enums']['partner_role'];
+          token_hash?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'partner_invites_partner_id_fkey';
+            columns: ['partner_id'];
+            isOneToOne: false;
+            referencedRelation: 'partners';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      partner_members: {
+        Row: {
+          created_at: string;
+          email_prefs: NonNullable<Json>;
+          partner_id: string;
+          role: Database['public']['Enums']['partner_role'];
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          created_at?: string;
+          email_prefs?: NonNullable<Json>;
+          partner_id: string;
+          role: Database['public']['Enums']['partner_role'];
+          user_id: string;
+        };
+        Update: {
+          created_at?: string;
+          email_prefs?: NonNullable<Json>;
+          partner_id?: string;
+          role?: Database['public']['Enums']['partner_role'];
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'partner_members_partner_id_fkey';
+            columns: ['partner_id'];
+            isOneToOne: false;
+            referencedRelation: 'partners';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      partners: {
+        Row: {
+          billing_email: string | null;
+          commission_bps: number | null;
+          created_at: string;
+          id: string;
+          legal_name: string | null;
+          name: string;
+          payout_account_ref: string | null;
+          status: Database['public']['Enums']['partner_status'];
+          updated_at: string;
+          vat_number: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          billing_email?: string | null;
+          commission_bps?: number | null;
+          created_at?: string;
+          id?: string;
+          legal_name?: string | null;
+          name: string;
+          payout_account_ref?: string | null;
+          status?: Database['public']['Enums']['partner_status'];
+          updated_at?: string;
+          vat_number?: string | null;
+        };
+        Update: {
+          billing_email?: string | null;
+          commission_bps?: number | null;
+          created_at?: string;
+          id?: string;
+          legal_name?: string | null;
+          name?: string;
+          payout_account_ref?: string | null;
+          status?: Database['public']['Enums']['partner_status'];
+          updated_at?: string;
+          vat_number?: string | null;
+        };
+        Relationships: [];
+      };
+      pitch_types: {
+        Row: {
+          accepts: Database['public']['Enums']['equipment'][];
+          active: boolean;
+          camping_id: string;
+          created_at: string;
+          descr: NonNullable<Json>;
+          id: string;
+          included: NonNullable<Json>;
+          max_people: number;
+          name: NonNullable<Json>;
+          photos: string[];
+          size_m2: number | null;
+          sort: number;
+          unit_category: Database['public']['Enums']['unit_category'];
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          accepts: Database['public']['Enums']['equipment'][];
+          active?: boolean;
+          camping_id: string;
+          created_at?: string;
+          descr?: NonNullable<Json>;
+          id?: string;
+          included?: NonNullable<Json>;
+          max_people: number;
+          name: NonNullable<Json>;
+          photos?: string[];
+          size_m2?: number | null;
+          sort?: number;
+          unit_category?: Database['public']['Enums']['unit_category'];
+          updated_at?: string;
+        };
+        Update: {
+          accepts?: Database['public']['Enums']['equipment'][];
+          active?: boolean;
+          camping_id?: string;
+          created_at?: string;
+          descr?: NonNullable<Json>;
+          id?: string;
+          included?: NonNullable<Json>;
+          max_people?: number;
+          name?: NonNullable<Json>;
+          photos?: string[];
+          size_m2?: number | null;
+          sort?: number;
+          unit_category?: Database['public']['Enums']['unit_category'];
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'pitch_types_camping_id_fkey';
+            columns: ['camping_id'];
+            isOneToOne: false;
+            referencedRelation: 'campings';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       platform_settings: {
         Row: {
           default_commission_bps: number;
@@ -21,6 +466,36 @@ export type Database = {
           updated_at?: string;
         };
         Relationships: [];
+      };
+      prices: {
+        Row: {
+          amount_cents: number;
+          item_id: string;
+          item_type: Database['public']['Enums']['price_item_type'];
+          season_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          amount_cents: number;
+          item_id: string;
+          item_type: Database['public']['Enums']['price_item_type'];
+          season_id: string;
+        };
+        Update: {
+          amount_cents?: number;
+          item_id?: string;
+          item_type?: Database['public']['Enums']['price_item_type'];
+          season_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'prices_season_id_fkey';
+            columns: ['season_id'];
+            isOneToOne: false;
+            referencedRelation: 'seasons';
+            referencedColumns: ['id'];
+          },
+        ];
       };
       profiles: {
         Row: {
@@ -56,15 +531,89 @@ export type Database = {
         };
         Relationships: [];
       };
+      seasons: {
+        Row: {
+          camping_id: string;
+          dates: unknown;
+          id: string;
+          min_nights: number;
+          name: NonNullable<Json>;
+        };
+        ComputedFields: never;
+        Insert: {
+          camping_id: string;
+          dates: unknown;
+          id?: string;
+          min_nights?: number;
+          name: NonNullable<Json>;
+        };
+        Update: {
+          camping_id?: string;
+          dates?: unknown;
+          id?: string;
+          min_nights?: number;
+          name?: NonNullable<Json>;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'seasons_camping_id_fkey';
+            columns: ['camping_id'];
+            isOneToOne: false;
+            referencedRelation: 'campings';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
     };
     Functions: {
+      camping_is_live: { Args: { p_camping_id: string }; Returns: boolean };
+      camping_partner: { Args: { p_camping_id: string }; Returns: string };
+      check_night_range: {
+        Args: { p_first_night: string; p_last_night: string };
+        Returns: undefined;
+      };
       is_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
+      is_localized_text: { Args: { p_required?: boolean; p_value: Json }; Returns: boolean };
+      is_partner_member: { Args: { p_partner_id: string }; Returns: boolean };
+      is_partner_owner: { Args: { p_partner_id: string }; Returns: boolean };
+      set_allotment: {
+        Args: {
+          p_allotment: number;
+          p_first_night: string;
+          p_last_night: string;
+          p_pitch_type_id: string;
+        };
+        Returns: number;
+      };
+      set_camping_status: {
+        Args: { p_camping_id: string; p_status: Database['public']['Enums']['camping_status'] };
+        Returns: undefined;
+      };
+      set_closed: {
+        Args: {
+          p_closed: boolean;
+          p_first_night: string;
+          p_last_night: string;
+          p_pitch_type_id: string;
+        };
+        Returns: number;
+      };
     };
     Enums: {
-      [_ in never]: never;
+      camping_status: 'draft' | 'live' | 'paused';
+      cancellation_policy: 'flexible' | 'moderate' | 'strict';
+      confirmation_mode: 'instant' | 'request';
+      equipment: 'tent' | 'caravan' | 'camper';
+      extra_unit: 'per_night' | 'per_stay';
+      fee_unit: 'per_person_night' | 'per_pitch_night' | 'per_stay';
+      partner_role: 'owner' | 'staff';
+      partner_status: 'active' | 'suspended';
+      payment_mode: 'on_site' | 'deposit' | 'full';
+      price_item_type: 'pitch' | 'guest' | 'extra';
+      unit_category: 'pitch';
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -175,6 +724,18 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      camping_status: ['draft', 'live', 'paused'],
+      cancellation_policy: ['flexible', 'moderate', 'strict'],
+      confirmation_mode: ['instant', 'request'],
+      equipment: ['tent', 'caravan', 'camper'],
+      extra_unit: ['per_night', 'per_stay'],
+      fee_unit: ['per_person_night', 'per_pitch_night', 'per_stay'],
+      partner_role: ['owner', 'staff'],
+      partner_status: ['active', 'suspended'],
+      payment_mode: ['on_site', 'deposit', 'full'],
+      price_item_type: ['pitch', 'guest', 'extra'],
+      unit_category: ['pitch'],
+    },
   },
 } as const;
