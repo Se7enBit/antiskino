@@ -88,7 +88,6 @@
     },
     "exit": "Exit",
     "noCampings": "Your team has no campings yet. The Antiskino team adds them.",
-    "comingSoon": "This screen is coming in the next update.",
     "ownersOnly": "Only the camping's owners can change this.",
     "profile": {
       "sections": {
@@ -261,6 +260,52 @@
         "maxQty": "Enter a whole number from 1 to 20.",
         "amount": "Enter an amount like 0,50.",
         "text": "Too long."
+      }
+    },
+    "availability": {
+      "earlier": "← Earlier",
+      "later": "Later →",
+      "today": "Today",
+      "noPitchTypes": "Add a pitch type first, then set its allotment.",
+      "pitchType": "Pitch type",
+      "tapHint": "Tap a night to fill in the forms below.",
+      "legend": {
+        "cells": "Each night shows booked / allotment.",
+        "full": "Full",
+        "closed": "Closed (not sold online)",
+        "none": "— no allotment"
+      },
+      "cell": {
+        "none": "{{pitchType}}, {{night}}: no allotment",
+        "open": "{{pitchType}}, {{night}}: {{booked}} of {{allotment}} booked",
+        "closed": "{{pitchType}}, {{night}}: {{booked}} of {{allotment}} booked, closed"
+      },
+      "allotment": {
+        "title": "Set allotment",
+        "hint": "How many pitches of this type Antiskino may sell each night. It can't go below the bookings a night already has.",
+        "ownersOnly": "Only owners can change the allotment.",
+        "value": "Pitches per night (0–1000)",
+        "save": "Set allotment",
+        "saved": "Nights updated: {{count}}"
+      },
+      "closing": {
+        "title": "Close or open nights",
+        "hint": "Closed nights are not sold online. Only nights with an allotment can be closed.",
+        "pitchTypes": "Pitch types",
+        "close": "Close nights",
+        "open": "Open nights",
+        "closed": "Nights closed: {{count}}",
+        "opened": "Nights opened: {{count}}"
+      },
+      "firstNight": "First night",
+      "lastNight": "Last night",
+      "errors": {
+        "pitchType": "Pick a pitch type.",
+        "firstNight": "Enter a date like 01/07/2027.",
+        "lastNight": "Enter a date on or after the first night.",
+        "tooLong": "Pick at most 400 nights at a time.",
+        "allotment": "Enter a whole number from 0 to 1000.",
+        "belowBooked": "Some of these nights already have more bookings than that. Nothing was changed."
       }
     }
   },
