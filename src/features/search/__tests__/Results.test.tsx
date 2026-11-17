@@ -129,4 +129,29 @@ describe('Results', () => {
       params: { slug: 'thalassa', ...PARAMS },
     });
   });
+
+  it('shows the results on a map', async () => {
+    await setup(PARAMS, {
+      isPending: false,
+      isError: false,
+      data: {
+        results: [
+          result('thalassa', 7000, { lat: 40.2, lng: 23.6 }),
+          result('pefka', 9050, { lat: 39.4, lng: 23.1 }),
+          result('nowhere', 9900),
+        ],
+      },
+    });
+    await fireEvent.press(screen.getByTestId('results-map'));
+    expect(screen.queryByTestId('result-thalassa')).toBeNull();
+    expect(screen.getByTestId('pins-map')).toBeTruthy();
+    expect(screen.getByText('Without a map location: 1')).toBeTruthy();
+    await fireEvent.press(screen.getByTestId('pin-pefka'));
+    expect(router.push).toHaveBeenCalledWith({
+      pathname: '/c/[slug]',
+      params: { slug: 'pefka', ...PARAMS },
+    });
+    await fireEvent.press(screen.getByTestId('results-list'));
+    expect(screen.getByTestId('result-thalassa')).toBeTruthy();
+  });
 });

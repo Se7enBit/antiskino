@@ -1,8 +1,8 @@
 import { router, useLocalSearchParams } from 'expo-router';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { useSearch } from '@/api/search';
+import { useSearch, type SearchResult } from '@/api/search';
 import {
   paramsFromRequest,
   queryFromRequest,
@@ -15,6 +15,7 @@ import { useHydrated } from '@/lib/useHydrated';
 import { Button, Card, Loading, Notice, Screen, colors, spacing } from '@/ui';
 
 import { ResultCard } from './ResultCard';
+import { ResultsMap } from './ResultsMap';
 import { StaySummary } from './StaySummary';
 import { useSearchStore } from './searchStore';
 
@@ -59,6 +60,7 @@ export function ResultsScreen() {
 function Results({ request }: { request: SearchRequest }) {
   const t = useT();
   const search = useSearch(request);
+  const [view, setView] = useState<'list' | 'map'>('list');
   if (search.isPending) return <Loading label={t('search.searching')} />;
   if (search.isError)
     return (
@@ -69,28 +71,54 @@ function Results({ request }: { request: SearchRequest }) {
     );
   const { results } = search.data;
   if (results.length === 0) return <Notice message={t('search.noResults')} />;
+  const open = (result: SearchResult) =>
+    router.push({
+      pathname: '/c/[slug]',
+      params: { slug: result.camping.slug, ...paramsFromRequest(withoutRegion(request)) },
+    });
   return (
     <View style={styles.list}>
-      <Text style={styles.heading} accessibilityRole="header">
-        {t('search.results')}
-      </Text>
-      {results.map((result) => (
-        <ResultCard
-          key={result.camping.id}
-          result={result}
-          onOpen={() =>
-            router.push({
-              pathname: '/c/[slug]',
-              params: { slug: result.camping.slug, ...paramsFromRequest(withoutRegion(request)) },
-            })
-          }
-        />
-      ))}
+      <View style={styles.header}>
+        <Text style={styles.heading} accessibilityRole="header">
+          {t('search.results')}
+        </Text>
+        <View style={styles.toggle}>
+          <Button
+            label={t('search.list')}
+            icon="format-list-bulleted"
+            selected={view === 'list'}
+            onPress={() => setView('list')}
+            testID="results-list"
+          />
+          <Button
+            label={t('search.map')}
+            icon="map"
+            selected={view === 'map'}
+            onPress={() => setView('map')}
+            testID="results-map"
+          />
+        </View>
+      </View>
+      {view === 'map' ? (
+        <ResultsMap results={results} onOpen={open} />
+      ) : (
+        results.map((result) => (
+          <ResultCard key={result.camping.id} result={result} onOpen={() => open(result)} />
+        ))
+      )}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
   list: { gap: spacing.md },
+  header: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: spacing.sm,
+  },
+  toggle: { flexDirection: 'row', gap: spacing.sm },
   heading: { fontSize: 20, fontWeight: '700', color: colors.text },
 });

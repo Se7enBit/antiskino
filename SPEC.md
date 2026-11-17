@@ -2,7 +2,7 @@
 
 > Book a camping pitch in Greece in under a minute. (*αντίσκηνο* = tent)
 
-Last updated: 2026-11-17 · Status: M1 done, M2 built (awaiting the owner's check), M3 in progress (search and quote functions, Home search and results, camping page)
+Last updated: 2026-11-17 · Status: M1 done, M2 built (awaiting the owner's check), M3 built and awaiting the owner's check (search and quote functions, Home search, results list and map, camping page)
 
 ## 0. Decisions log
 
@@ -61,6 +61,7 @@ Last updated: 2026-11-17 · Status: M1 done, M2 built (awaiting the owner's chec
 | Static web and the browser | Output that differs between the build and the browser (icon fonts, URL parameters, today's date) renders after hydration (`useHydrated()`) | Avoids React hydration errors on GitHub Pages |
 | Camping page (M3) | `/c/<slug>` carries the stay in its URL like the results (`?arrival=…`); without dates each pitch type shows "Pitch from €X / night", the lowest stored pitch rate of the seasons not yet over (display only; totals always come from `search`) | Book stays disabled until M4. A region filter from the results is dropped on the camping's own page. Single-camping mode: Home shows the page, and its search opens `/c/<slug>?…` |
 | Pre-rendered camping pages | `generateStaticParams` loads the live campings at build time (`src/api/staticCampings.ts`); the page's `<title>`, description and og tags are plain React DOM tags, which React hoists into `<head>` in the static export | `expo-router/head` only applies in the browser in SDK 58, so link previews need the static tags. A camping that goes live after a deploy still opens (GitHub Pages serves 404.html and the app renders it) but has no link preview until the next deploy: re-run CI on `main` (Actions → CI → Run workflow). The automatic rebuild of §5 needs a GitHub token for Supabase and comes later |
+| Maps (M3) | One `PinsMap` component: `react-native-maps` on native, Leaflet + OpenStreetMap tiles on web, loaded only in the browser after hydration (Leaflet needs `window`) | Results: a List / Map toggle with a price pin per camping (tap or Tab + Enter opens it); campings without coordinates are counted under the map. Camping page: a small map in Location. Leaflet's map-level keyboard handler is off: it focused the map on tap, the page scrolled and the tap was lost. OSM's public tiles are fine for previews; pick a tile provider before launch (M8). **Android builds need a Google Maps API key** (M6, with EAS); Expo Go works without |
 
 ## 1. Core problem
 
