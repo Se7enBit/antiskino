@@ -66,6 +66,9 @@ jobs:
         run: supabase start -x realtime,imgproxy,mailpit,studio,edge-runtime,logflare,vector,supavisor
       - name: pgTAP tests
         run: supabase test db
+      - name: Concurrency test (20 attempts at the last pitch)
+        # Separate connections, so not pgTAP; uses psql from the runner image.
+        run: bash supabase/tests/concurrency/last_pitch.sh
       - name: Generated types are up to date
         run: |
           npm run db:types
