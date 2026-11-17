@@ -1,7 +1,3 @@
-import { useT } from '@/i18n';
-import { Placeholder } from '@/ui';
+import { MyBookingsScreen } from '@/features/myBookings/MyBookingsScreen';
 
-export default function MyBookingsScreen() {
-  const t = useT();
-  return <Placeholder title={t('bookings.title')} body={t('bookings.body')} />;
-}
+export default MyBookingsScreen;

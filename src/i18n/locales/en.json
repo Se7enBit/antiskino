@@ -206,7 +206,14 @@
   },
   "bookings": {
     "title": "My bookings",
-    "body": "Sign in to see your bookings here."
+    "body": "Sign in to see your bookings here.",
+    "signIn": "Sign in",
+    "guestHint": "Booked without an account? Open the link you got when you booked.",
+    "upcoming": "Upcoming",
+    "past": "Past and cancelled",
+    "empty": "No bookings yet.",
+    "findCamping": "Find a camping",
+    "detail": "Booking"
   },
   "account": {
     "title": "Account",

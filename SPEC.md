@@ -70,6 +70,7 @@ Last updated: 2026-11-17 · Status: M1–M3 done, M4 in progress (booking)
 | Booking route | `/book?pitchType=…&arrival=…` (query parameters) instead of `/c/[slug]/book` | Static hosting: no pre-rendered page per camping is needed for the flow |
 | Booking flow (M4) | Stay (the party mapped to the camping's categories, extras priced for the whole stay, live breakdown) → details → review with the terms checkbox → Book / Send request | Details are prefilled for signed-in users. Country: a list of 20 common countries or a typed 2-letter code. The result shows the reference and the **manage link with a Share button**: until booking emails work (verified Resend domain) it is the guest's only copy. If the pitch was taken meanwhile, the flow goes back to step 1 with a notice |
 | Manage page (M4) | `/m?ref=…&t=…` outside the tabs, shows status, stay, the price snapshot (names at booking time), terms and the camping's contact; Cancel with a second tap until the end of the arrival day | Shows "to change dates, cancel and book again" (F6). The same view is reused for My bookings |
+| My bookings (M4) | The Bookings tab calls `claim_bookings()` each time it loads the list, then lists the user's bookings (upcoming first); details at `/bookings/detail?ref=` | Claiming on load covers sign-ins on any device and sessions restored from storage. `my_booking()` returns the same JSON as the manage link (both use `booking_view()`), plus the id for `cancel_my_booking()` |
 
 ## 1. Core problem
 
@@ -299,7 +300,7 @@ app/
       book.tsx                 # 3-step booking flow (?pitchType=&arrival=&departure=&adults=&children=&equipment=)
     favorites.tsx
     bookings/index.tsx         # My bookings (signed in)
-    bookings/[ref].tsx         # detail, cancel, review
+    bookings/detail.tsx        # ?ref=: detail, cancel, review
     account.tsx                # sign in (email code), language, sign out
   m.tsx                        # guest manage link (?ref=&t=)
   partner/

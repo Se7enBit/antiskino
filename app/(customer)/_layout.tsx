@@ -39,6 +39,8 @@ export default function CustomerLayout() {
         name="bookings"
         options={{
           title: t('tabs.bookings'),
+          // The Bookings stack shows its own headers (with a back button on details).
+          headerShown: false,
           tabBarIcon: ({ color }) => <TabIcon name="calendar-check-outline" color={color} />,
         }}
       />
