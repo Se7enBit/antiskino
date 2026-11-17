@@ -1,13 +1,17 @@
 import {
   addDays,
+  addMonths,
   daysBetween,
   formatDateInput,
   isIsoDate,
   isoDateSchema,
+  monthGrid,
+  monthStart,
   nightsBetween,
   parseDateInput,
   stayNights,
   todayInAthens,
+  weekdayIndex,
 } from '../dates';
 
 describe('isIsoDate', () => {
@@ -109,5 +113,46 @@ describe('date inputs', () => {
   it('formats dates the Greek way', () => {
     expect(formatDateInput('2027-07-01')).toBe('01/07/2027');
     expect(parseDateInput(formatDateInput('2027-12-31'))).toBe('2027-12-31');
+  });
+});
+
+describe('calendar helpers', () => {
+  it('numbers weekdays from Monday', () => {
+    expect(weekdayIndex('2027-07-05')).toBe(0); // Monday
+    expect(weekdayIndex('2027-07-11')).toBe(6); // Sunday
+    expect(weekdayIndex('1999-12-31')).toBe(4); // Friday, before the reference Monday
+  });
+
+  it('moves between months across years', () => {
+    expect(monthStart('2027-07-14')).toBe('2027-07-01');
+    expect(addMonths('2027-12-01', 1)).toBe('2028-01-01');
+    expect(addMonths('2027-01-01', -1)).toBe('2026-12-01');
+    expect(addMonths('2027-07-01', 0)).toBe('2027-07-01');
+  });
+
+  it('lays a month out in Monday-first weeks', () => {
+    const weeks = monthGrid('2027-02-01'); // starts on a Monday, 28 days
+    expect(weeks).toHaveLength(4);
+    expect(weeks[0]?.[0]).toBe('2027-02-01');
+    const july = monthGrid('2027-07-01'); // starts on a Thursday, 31 days
+    expect(july[0]).toEqual([
+      null,
+      null,
+      null,
+      '2027-07-01',
+      '2027-07-02',
+      '2027-07-03',
+      '2027-07-04',
+    ]);
+    expect(july.at(-1)).toEqual([
+      '2027-07-26',
+      '2027-07-27',
+      '2027-07-28',
+      '2027-07-29',
+      '2027-07-30',
+      '2027-07-31',
+      null,
+    ]);
+    expect(monthGrid('2028-02-10').flat().filter(Boolean)).toHaveLength(29); // leap year
   });
 });

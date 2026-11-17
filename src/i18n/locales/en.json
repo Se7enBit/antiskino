@@ -19,9 +19,38 @@
     "bookings": "Bookings",
     "account": "Account"
   },
-  "explore": {
+  "search": {
     "title": "Find a camping pitch",
-    "body": "Search by dates, guests and equipment will appear here."
+    "subtitle": "Pick your dates, who's coming and what you camp with.",
+    "dates": "Dates",
+    "addDates": "Add dates",
+    "nights": "nights: {{count}}",
+    "datesHint": "Tap your arrival day, then your departure day.",
+    "previousMonth": "Previous month",
+    "nextMonth": "Next month",
+    "guests": "Guests",
+    "adults": "Adults",
+    "children": "Children (0–17)",
+    "childAge": "Child {{number}}: age",
+    "fewer": "Fewer",
+    "more": "More",
+    "equipment": "Equipment",
+    "region": "Region",
+    "allRegions": "All regions",
+    "search": "Search",
+    "problems": {
+      "noDates": "Pick your arrival and departure days.",
+      "past": "The arrival day has passed. Pick new dates.",
+      "tooLong": "Stays are up to 30 nights."
+    },
+    "results": "Available campings",
+    "change": "Change search",
+    "party": "Adults: {{adults}} · Children: {{children}}",
+    "searching": "Searching…",
+    "noResults": "No availability for these dates — try other dates.",
+    "badLink": "This search link is incomplete. Start a new search.",
+    "newSearch": "New search",
+    "from": "from {{price}} total"
   },
   "favorites": {
     "title": "Favorites",

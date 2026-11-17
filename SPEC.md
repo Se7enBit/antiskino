@@ -2,7 +2,7 @@
 
 > Book a camping pitch in Greece in under a minute. (*αντίσκηνο* = tent)
 
-Last updated: 2026-11-17 · Status: M1 done, M2 built (awaiting the owner's check), M3 in progress (search and quote functions)
+Last updated: 2026-11-17 · Status: M1 done, M2 built (awaiting the owner's check), M3 in progress (search and quote functions, Home search and results)
 
 ## 0. Decisions log
 
@@ -57,6 +57,8 @@ Last updated: 2026-11-17 · Status: M1 done, M2 built (awaiting the owner's chec
 | Missing prices (M3) | A price the stay needs but the season lacks makes it **not sellable** | Missing pitch or guest price: the pitch type is unavailable for those dates. Missing extra price: the extra isn't offered. Partners type 0 for free |
 | Search & quote functions (M3) | `sellable_pitch_types()` (SQL, security definer, callable by anon, returns ids only) applies §4.1; the edge functions price with `_shared/pricing.ts` | They read with the caller's public API key, so RLS limits them to live campings; no secret key needed. JWT verification is off for both (publishable keys aren't JWTs). Results are cheapest first. Arrival today only before the camping's same-day cutoff; at most 30 nights |
 | Icons | `@expo/vector-icons` (Material Community Icons) | Equipment and amenity icons |
+| Explore tab (M3) | A stack inside the tab: Home → results → camping page | expo-router redirects navigation to a tab hidden with `href: null`, so screens opened from Home live in the tab's own stack. The results URL carries the whole search (`/search?arrival=…&children=4,7…`), so it can be shared and reloaded |
+| Static web and the browser | Output that differs between the build and the browser (icon fonts, URL parameters, today's date) renders after hydration (`useHydrated()`) | Avoids React hydration errors on GitHub Pages |
 
 ## 1. Core problem
 
@@ -279,10 +281,11 @@ app/
   _layout.tsx                  # providers: i18n, QueryClient, auth session, theme
   (customer)/
     _layout.tsx                # tabs: Explore · Favorites · Bookings · Account
-    index.tsx                  # Home: search, or the single live camping
-    search.tsx                 # results: list / map
-    c/[slug]/index.tsx         # camping page (static on web)
-    c/[slug]/book.tsx          # 3-step booking flow
+    (explore)/                 # the Explore tab is a stack (back button on results and camping pages)
+      index.tsx                # Home: search, or the single live camping
+      search.tsx               # results: list / map (?arrival=&departure=&adults=&children=4,7&equipment=&region=)
+      c/[slug]/index.tsx       # camping page (static on web)
+      c/[slug]/book.tsx        # 3-step booking flow
     favorites.tsx
     bookings/index.tsx         # My bookings (signed in)
     bookings/[ref].tsx         # detail, cancel, review

@@ -1,9 +1,13 @@
 import { Tabs } from 'expo-router/tabs';
+import type { ColorValue } from 'react-native';
 
 import { useT } from '@/i18n';
-import { colors } from '@/ui';
+import { Icon, colors, type IconName } from '@/ui';
 
-// Icons come later (icon set not chosen yet); labels only for now.
+function TabIcon({ name, color }: { name: IconName; color: ColorValue }) {
+  return <Icon name={name} color={typeof color === 'string' ? color : colors.muted} size={22} />;
+}
+
 export default function CustomerLayout() {
   const t = useT();
   return (
@@ -11,16 +15,40 @@ export default function CustomerLayout() {
       screenOptions={{
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.muted,
-        tabBarIcon: () => null,
-        tabBarIconStyle: { display: 'none' },
         tabBarLabelStyle: { fontSize: 12, fontWeight: '600' },
         tabBarLabelPosition: 'below-icon',
       }}
     >
-      <Tabs.Screen name="index" options={{ title: t('tabs.explore') }} />
-      <Tabs.Screen name="favorites" options={{ title: t('tabs.favorites') }} />
-      <Tabs.Screen name="bookings" options={{ title: t('tabs.bookings') }} />
-      <Tabs.Screen name="account" options={{ title: t('tabs.account') }} />
+      <Tabs.Screen
+        name="(explore)"
+        options={{
+          title: t('tabs.explore'),
+          // The Explore stack shows its own headers (with a back button on results).
+          headerShown: false,
+          tabBarIcon: ({ color }) => <TabIcon name="magnify" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="favorites"
+        options={{
+          title: t('tabs.favorites'),
+          tabBarIcon: ({ color }) => <TabIcon name="heart-outline" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="bookings"
+        options={{
+          title: t('tabs.bookings'),
+          tabBarIcon: ({ color }) => <TabIcon name="calendar-check-outline" color={color} />,
+        }}
+      />
+      <Tabs.Screen
+        name="account"
+        options={{
+          title: t('tabs.account'),
+          tabBarIcon: ({ color }) => <TabIcon name="account-circle-outline" color={color} />,
+        }}
+      />
     </Tabs>
   );
 }
