@@ -422,6 +422,10 @@ verify_jwt = false
 [functions.quote]
 verify_jwt = false
 
+# Guests book without signing in; a signed-in user's token is checked inside.
+[functions.create-booking]
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 54327

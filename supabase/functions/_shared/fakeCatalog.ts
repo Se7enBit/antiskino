@@ -23,7 +23,12 @@ export function fakeCatalog(data: FakeData): Catalog & { queries: SellableQuery[
       Promise.resolve(
         new Map(ids.flatMap((id) => (data.rates[id] ? [[id, data.rates[id]!]] : []))),
       ),
-    pitchTypeCamping: (id) => Promise.resolve(data.pitchTypes[id] ?? null),
+    pitchType: (id) =>
+      Promise.resolve(
+        data.pitchTypes[id]
+          ? { campingId: data.pitchTypes[id]!, name: { en: `Pitch ${id}` } }
+          : null,
+      ),
   };
 }
 
@@ -62,6 +67,7 @@ export function rates(
     ],
     extras: [],
     fees: [],
+    names: { guest: { adult: { en: 'Adult' }, child: { en: 'Child' } }, extra: {}, fee: {} },
     ...patch,
   };
 }

@@ -12,8 +12,15 @@ import { HttpError } from './http.ts';
 import type { AgeCategory } from './party.ts';
 import { parseDateRange, type RateCard } from './pricing.ts';
 
-/** The rate card of one camping plus its guest categories. */
-export type CampingRates = RateCard & { categories: AgeCategory[] };
+/** Display names (jsonb {"el", "en"}) of a camping's guest categories, extras and fees. */
+export type ItemNames = {
+  guest: Record<string, unknown>;
+  extra: Record<string, unknown>;
+  fee: Record<string, unknown>;
+};
+
+/** The rate card of one camping plus its guest categories and item names. */
+export type CampingRates = RateCard & { categories: AgeCategory[]; names: ItemNames };
 
 export type SellableQuery = {
   arrival: string;
@@ -27,8 +34,8 @@ export interface Catalog {
   sellable(query: SellableQuery): Promise<{ campingId: string; pitchTypeId: string }[]>;
   campings(ids: string[]): Promise<SearchCamping[]>;
   rates(campingIds: string[]): Promise<Map<string, CampingRates>>;
-  /** The camping of an active pitch type, or null. */
-  pitchTypeCamping(pitchTypeId: string): Promise<string | null>;
+  /** An active pitch type's camping and name, or null. */
+  pitchType(pitchTypeId: string): Promise<{ campingId: string; name: unknown } | null>;
 }
 
 /** A catalog reading with the API key of the request. */
@@ -57,18 +64,21 @@ const seasonRow = z.object({ id: z.string(), camping_id: z.string(), dates: z.st
 const categoryRow = z.object({
   id: z.string(),
   camping_id: z.string(),
+  name: z.unknown(),
   min_age: z.int(),
   max_age: z.int().nullable(),
 });
 const extraRow = z.object({
   id: z.string(),
   camping_id: z.string(),
+  name: z.unknown(),
   unit: z.enum(['per_night', 'per_stay']),
   max_qty: z.int(),
 });
 const feeRow = z.object({
   id: z.string(),
   camping_id: z.string(),
+  name: z.unknown(),
   unit: z.enum(['per_person_night', 'per_pitch_night', 'per_stay']),
   amount_cents: z.int(),
 });
@@ -124,7 +134,14 @@ export function supabaseCatalog(client: SupabaseClient): Catalog {
       const cards = new Map<string, CampingRates>(
         campingIds.map((id) => [
           id,
-          { seasons: [], prices: [], extras: [], fees: [], categories: [] },
+          {
+            seasons: [],
+            prices: [],
+            extras: [],
+            fees: [],
+            categories: [],
+            names: { guest: {}, extra: {}, fee: {} },
+          },
         ]),
       );
       if (campingIds.length === 0) return cards;
@@ -132,17 +149,17 @@ export function supabaseCatalog(client: SupabaseClient): Catalog {
         client.from('seasons').select('id, camping_id, dates').in('camping_id', campingIds),
         client
           .from('guest_categories')
-          .select('id, camping_id, min_age, max_age')
+          .select('id, camping_id, name, min_age, max_age')
           .in('camping_id', campingIds),
         // Partner members also see hidden extras: never offer those.
         client
           .from('extras')
-          .select('id, camping_id, unit, max_qty')
+          .select('id, camping_id, name, unit, max_qty')
           .in('camping_id', campingIds)
           .eq('active', true),
         client
           .from('fees')
-          .select('id, camping_id, unit, amount_cents')
+          .select('id, camping_id, name, unit, amount_cents')
           .in('camping_id', campingIds),
       ]);
       const seasonRows = rows(seasonRow, seasons);
@@ -151,14 +168,21 @@ export function supabaseCatalog(client: SupabaseClient): Catalog {
         const range = parseDateRange(s.dates);
         if (range) cards.get(s.camping_id)?.seasons.push({ id: s.id, ...range });
       }
-      for (const c of rows(categoryRow, categories))
-        cards
-          .get(c.camping_id)
-          ?.categories.push({ id: c.id, minAge: c.min_age, maxAge: c.max_age });
-      for (const e of rows(extraRow, extras))
-        cards.get(e.camping_id)?.extras.push({ id: e.id, unit: e.unit, maxQty: e.max_qty });
-      for (const f of rows(feeRow, fees))
-        cards.get(f.camping_id)?.fees.push({ id: f.id, unit: f.unit, amountCents: f.amount_cents });
+      for (const c of rows(categoryRow, categories)) {
+        const card = cards.get(c.camping_id);
+        card?.categories.push({ id: c.id, minAge: c.min_age, maxAge: c.max_age });
+        if (card) card.names.guest[c.id] = c.name;
+      }
+      for (const e of rows(extraRow, extras)) {
+        const card = cards.get(e.camping_id);
+        card?.extras.push({ id: e.id, unit: e.unit, maxQty: e.max_qty });
+        if (card) card.names.extra[e.id] = e.name;
+      }
+      for (const f of rows(feeRow, fees)) {
+        const card = cards.get(f.camping_id);
+        card?.fees.push({ id: f.id, unit: f.unit, amountCents: f.amount_cents });
+        if (card) card.names.fee[f.id] = f.name;
+      }
 
       if (seasonRows.length > 0) {
         // PostgREST returns at most 1000 rows by default: plenty for the campings
@@ -181,15 +205,19 @@ export function supabaseCatalog(client: SupabaseClient): Catalog {
       return cards;
     },
 
-    async pitchTypeCamping(pitchTypeId) {
+    async pitchType(pitchTypeId) {
       const result = await client
         .from('pitch_types')
-        .select('camping_id')
+        .select('camping_id, name')
         .eq('id', pitchTypeId)
         .eq('active', true)
         .maybeSingle();
       if (result.error) throw new Error(result.error.message);
-      return z.object({ camping_id: z.string() }).nullable().parse(result.data)?.camping_id ?? null;
+      const row = z
+        .object({ camping_id: z.string(), name: z.unknown() })
+        .nullable()
+        .parse(result.data);
+      return row && { campingId: row.camping_id, name: row.name };
     },
   };
 }
