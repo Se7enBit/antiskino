@@ -57,6 +57,11 @@ describe('seasonFormSchema', () => {
   ])('rejects %s', (_, patch) => {
     expect(seasonFormSchema.safeParse({ ...season, ...patch }).success).toBe(false);
   });
+
+  it('reports a missing name together with other field errors', () => {
+    const result = seasonFormSchema.safeParse({ ...season, nameEl: '', minNights: '0' });
+    expect(result.error?.issues.map((issue) => issue.path[0])).toEqual(['minNights', 'nameEl']);
+  });
 });
 
 describe('guestCategoryFormSchema', () => {

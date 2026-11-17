@@ -23,7 +23,12 @@ const dateInput = z.string().transform((value, ctx) => {
 });
 const hasName = (form: { nameEl: string; nameEn: string }) =>
   form.nameEl !== '' || form.nameEn !== '';
-const NAME_REQUIRED = { path: ['nameEl'] };
+const names = z.object({ nameEl: z.string(), nameEn: z.string() });
+const NAME_REQUIRED = {
+  path: ['nameEl'],
+  // Check the name even when other fields fail, so every error shows at once.
+  when: (payload: { value: unknown }) => names.safeParse(payload.value).success,
+};
 
 // ---------------------------------------------------------------------------
 // Night ranges: the form uses first and last night; Postgres stores [first, last + 1)
@@ -34,7 +39,10 @@ export function toNightRange(firstNight: IsoDate, lastNight: IsoDate): string {
 }
 
 /** "[2027-07-01,2027-09-01)" → first and last night (2027-07-01 … 2027-08-31). */
-export function parseNightRange(range: string): { firstNight: IsoDate; lastNight: IsoDate } | null {
+export function parseNightRange(
+  range: unknown,
+): { firstNight: IsoDate; lastNight: IsoDate } | null {
+  if (typeof range !== 'string') return null;
   const match = /^\[(\d{4}-\d{2}-\d{2}),(\d{4}-\d{2}-\d{2})\)$/.exec(range);
   if (!match) return null;
   return { firstNight: match[1]!, lastNight: addDays(match[2]!, -1) };
@@ -77,7 +85,8 @@ export const seasonFormSchema = z
 
 export function seasonToForm(row: {
   name: unknown;
-  dates: string;
+  /** daterange; the generated types call it unknown. */
+  dates: unknown;
   min_nights: number;
 }): SeasonForm {
   const range = parseNightRange(row.dates);
