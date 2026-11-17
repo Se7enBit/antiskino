@@ -125,3 +125,10 @@ export function regionsOf(campings: { region: string | null }[]): string[] {
     a.localeCompare(b, 'el'),
   );
 }
+
+/** The same search without the region filter (a camping's own page ignores it). */
+export function withoutRegion(request: SearchRequest): SearchRequest {
+  const copy = { ...request };
+  delete copy.region;
+  return copy;
+}

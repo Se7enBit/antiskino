@@ -3,13 +3,19 @@ import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { useSearch } from '@/api/search';
-import { queryFromRequest, requestFromParams, type SearchRequest } from '@/domain/search';
+import {
+  paramsFromRequest,
+  queryFromRequest,
+  requestFromParams,
+  withoutRegion,
+  type SearchRequest,
+} from '@/domain/search';
 import { useT } from '@/i18n';
-import { formatDateInput, nightsBetween } from '@/lib/dates';
 import { useHydrated } from '@/lib/useHydrated';
 import { Button, Card, Loading, Notice, Screen, colors, spacing } from '@/ui';
 
 import { ResultCard } from './ResultCard';
+import { StaySummary } from './StaySummary';
 import { useSearchStore } from './searchStore';
 
 /** /search?arrival=…: campings available for the stay (SPEC F1). */
@@ -42,32 +48,11 @@ export function ResultsScreen() {
     );
   return (
     <Screen>
-      <Summary request={request} />
+      <Card>
+        <StaySummary request={request} onChange={() => router.navigate('/')} />
+      </Card>
       <Results request={request} />
     </Screen>
-  );
-}
-
-function Summary({ request }: { request: SearchRequest }) {
-  const t = useT();
-  return (
-    <Card>
-      <Text style={styles.summary}>
-        {formatDateInput(request.arrival)} → {formatDateInput(request.departure)} ·{' '}
-        {t('search.nights', { count: nightsBetween(request.arrival, request.departure) })}
-      </Text>
-      <Text style={styles.muted}>
-        {t('search.party', { adults: request.adults, children: request.childAges.length })} ·{' '}
-        {t(`equipment.${request.equipment}`)}
-        {request.region ? ` · ${request.region}` : ''}
-      </Text>
-      <Button
-        label={t('search.change')}
-        icon="magnify"
-        onPress={() => router.navigate('/')}
-        testID="search-change"
-      />
-    </Card>
   );
 }
 
@@ -90,7 +75,16 @@ function Results({ request }: { request: SearchRequest }) {
         {t('search.results')}
       </Text>
       {results.map((result) => (
-        <ResultCard key={result.camping.id} result={result} />
+        <ResultCard
+          key={result.camping.id}
+          result={result}
+          onOpen={() =>
+            router.push({
+              pathname: '/c/[slug]',
+              params: { slug: result.camping.slug, ...paramsFromRequest(withoutRegion(request)) },
+            })
+          }
+        />
       ))}
     </View>
   );
@@ -99,6 +93,4 @@ function Results({ request }: { request: SearchRequest }) {
 const styles = StyleSheet.create({
   list: { gap: spacing.md },
   heading: { fontSize: 20, fontWeight: '700', color: colors.text },
-  summary: { fontSize: 17, fontWeight: '700', color: colors.text },
-  muted: { fontSize: 15, color: colors.muted },
 });
