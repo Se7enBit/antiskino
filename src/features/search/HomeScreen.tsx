@@ -2,16 +2,41 @@ import { router } from 'expo-router';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { useLiveCampings } from '@/api/search';
-import { paramsFromRequest, regionsOf } from '@/domain/search';
+import { paramsFromRequest, regionsOf, withoutRegion } from '@/domain/search';
 import { useT } from '@/i18n';
-import { BodyText, Screen, colors, spacing } from '@/ui';
+import { BodyText, Loading, Screen, colors, spacing } from '@/ui';
+
+import { CampingPage } from '../camping/CampingPage';
 
 import { SearchForm } from './SearchForm';
 
-/** Home: the search form (SPEC F1). */
+/** Home: the search form, or the camping's page when exactly one camping is live (SPEC F1). */
 export function HomeScreen() {
   const t = useT();
   const campings = useLiveCampings();
+  if (campings.isLoading)
+    return (
+      <Screen>
+        <Loading label={t('common.loading')} />
+      </Screen>
+    );
+  const only = campings.data?.length === 1 ? campings.data[0] : undefined;
+  if (only)
+    return (
+      <Screen>
+        <CampingPage
+          slug={only.slug}
+          request={null}
+          onSearch={(request) =>
+            router.push({
+              pathname: '/c/[slug]',
+              params: { slug: only.slug, ...paramsFromRequest(withoutRegion(request)) },
+            })
+          }
+          onNotFound={() => void campings.refetch()}
+        />
+      </Screen>
+    );
   return (
     <Screen>
       <View style={styles.intro}>

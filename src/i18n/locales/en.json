@@ -52,6 +52,47 @@
     "newSearch": "New search",
     "from": "from {{price}} total"
   },
+  "camping": {
+    "notFound": "This camping isn't on Antiskino right now.",
+    "draft": "Not published yet: guests can't see this page.",
+    "checkAvailability": "Check availability",
+    "yourStay": "Your stay",
+    "pitchTypes": "Pitch types",
+    "maxPeople": "Max. people: {{count}}",
+    "size": "{{size}} m²",
+    "included": "Included: {{items}}",
+    "total": "{{price}} total",
+    "fromPerNight": "Pitch from {{price}} / night",
+    "noPrice": "Pick dates to see prices.",
+    "unavailable": "Not available for these dates",
+    "book": "Book",
+    "bookingSoon": "Online booking opens in the next update.",
+    "about": "About",
+    "amenities": "Amenities",
+    "times": "Check-in and check-out",
+    "checkIn": "Check-in from {{time}}",
+    "checkOut": "Check-out until {{time}}",
+    "terms": "Booking terms",
+    "confirmation": {
+      "instant": "Instant confirmation.",
+      "request": "You send a request; the camping answers within {{hours}} hours."
+    },
+    "payment": {
+      "on_site": "You pay at reception. Nothing is charged online.",
+      "deposit": "You pay a deposit online and the rest at reception.",
+      "full": "You pay the whole amount online."
+    },
+    "cancellation": {
+      "flexible": "Flexible cancellation: full refund up to the day before arrival.",
+      "moderate": "Moderate cancellation: full refund up to 7 days before arrival, 50% from 6 to 1 day before.",
+      "strict": "Strict cancellation: full refund up to 30 days before arrival, 50% from 29 to 7 days before, no refund later."
+    },
+    "onSiteFree": "As you pay at reception, cancelling costs you nothing.",
+    "houseRules": "House rules",
+    "location": "Location",
+    "directions": "Directions",
+    "photo": "Photo {{number}} of {{count}}"
+  },
   "favorites": {
     "title": "Favorites",
     "body": "Campings you save with the heart will appear here."

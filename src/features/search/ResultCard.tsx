@@ -1,4 +1,4 @@
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { photoUrl } from '@/api/photos';
 import type { SearchResult } from '@/api/search';
@@ -7,13 +7,18 @@ import { formatMoney } from '@/lib/money';
 import { Icon, colors, spacing } from '@/ui';
 
 /** A camping in the results: photo, name, place, short text and "from €X total". */
-export function ResultCard({ result }: { result: SearchResult }) {
+export function ResultCard({ result, onOpen }: { result: SearchResult; onOpen: () => void }) {
   const t = useT();
   const { language } = useLanguage();
   const { camping } = result;
   const shortDescr = localized(camping.shortDescr, language);
   return (
-    <View style={styles.card} testID={`result-${camping.slug}`}>
+    <Pressable
+      accessibilityRole="link"
+      onPress={onOpen}
+      style={({ pressed }) => [styles.card, pressed && styles.pressed]}
+      testID={`result-${camping.slug}`}
+    >
       {camping.coverPhoto ? (
         <Image
           source={{ uri: photoUrl(camping.coverPhoto) }}
@@ -44,12 +49,13 @@ export function ResultCard({ result }: { result: SearchResult }) {
           {t('search.from', { price: formatMoney(result.fromTotalCents, language) })}
         </Text>
       </View>
-    </View>
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   card: { borderRadius: 12, backgroundColor: colors.surface, overflow: 'hidden' },
+  pressed: { opacity: 0.8 },
   photo: { width: '100%', aspectRatio: 16 / 9, backgroundColor: colors.border },
   noPhoto: { alignItems: 'center', justifyContent: 'center' },
   body: { gap: spacing.xs, padding: spacing.md },

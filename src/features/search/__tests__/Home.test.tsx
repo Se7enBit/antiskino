@@ -11,14 +11,42 @@ import { useSearchStore } from '../searchStore';
 
 jest.mock('expo-router', () => ({ router: { push: jest.fn(), navigate: jest.fn() } }));
 jest.mock('@/api/search', () => ({ useLiveCampings: jest.fn() }));
+jest.mock('../../camping/CampingPage', () => {
+  const { Text } = jest.requireActual<typeof import('react-native')>('react-native');
+  return {
+    CampingPage: ({
+      slug,
+      onSearch,
+    }: {
+      slug: string;
+      onSearch: (request: Record<string, unknown>) => void;
+    }) => (
+      <Text
+        onPress={() =>
+          onSearch({
+            arrival: '2027-07-10',
+            departure: '2027-07-12',
+            adults: 2,
+            childAges: [],
+            equipment: 'tent',
+            region: 'Χαλκιδική',
+          })
+        }
+      >{`camping page: ${slug}`}</Text>
+    ),
+  };
+});
 jest.mock('@/lib/dates', () => ({
   ...jest.requireActual<object>('@/lib/dates'),
   todayInAthens: () => '2027-07-05',
 }));
 
-async function setup(regions: (string | null)[] = ['Χαλκιδική']) {
+async function setup(regions: (string | null)[] = ['Χαλκιδική', 'Χαλκιδική'], isLoading = false) {
   jest.mocked(useLiveCampings).mockReturnValue({
-    data: regions.map((region, i) => ({ id: `c${i}`, slug: `c${i}`, name: `C${i}`, region })),
+    isLoading,
+    data: isLoading
+      ? undefined
+      : regions.map((region, i) => ({ id: `c${i}`, slug: `c${i}`, name: `C${i}`, region })),
   } as unknown as ReturnType<typeof useLiveCampings>);
   await renderWithLanguage(<HomeScreen />);
 }
@@ -100,6 +128,29 @@ describe('Home search', () => {
     expect(router.push).toHaveBeenCalledWith({
       pathname: '/search',
       params: expect.objectContaining({ region: 'Πήλιο' }),
+    });
+  });
+
+  it('waits for the live campings', async () => {
+    await setup([], true);
+    expect(screen.getByText('Loading…')).toBeTruthy();
+    expect(screen.queryByTestId('search-submit')).toBeNull();
+  });
+
+  it("shows the camping's page when exactly one camping is live", async () => {
+    await setup(['Χαλκιδική']);
+    expect(screen.getByText('camping page: c0')).toBeTruthy();
+    expect(screen.queryByTestId('search-submit')).toBeNull();
+    await fireEvent.press(screen.getByText('camping page: c0'));
+    expect(router.push).toHaveBeenCalledWith({
+      pathname: '/c/[slug]',
+      params: {
+        slug: 'c0',
+        arrival: '2027-07-10',
+        departure: '2027-07-12',
+        adults: '2',
+        equipment: 'tent',
+      },
     });
   });
 });

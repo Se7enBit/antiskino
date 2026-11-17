@@ -10,7 +10,7 @@ import { ResultsScreen } from '../ResultsScreen';
 import { useSearchStore } from '../searchStore';
 
 jest.mock('expo-router', () => ({
-  router: { navigate: jest.fn() },
+  router: { navigate: jest.fn(), push: jest.fn() },
   useLocalSearchParams: jest.fn(),
 }));
 jest.mock('@/api/search', () => ({ useSearch: jest.fn() }));
@@ -116,5 +116,17 @@ describe('Results', () => {
     await setup({ arrival: '2027-07-10' }, { isPending: true });
     expect(screen.getByText('This search link is incomplete. Start a new search.')).toBeTruthy();
     expect(useSearch).not.toHaveBeenCalled();
+  });
+
+  it("opens a camping's page for the same stay", async () => {
+    await setup(
+      { ...PARAMS, region: 'Χαλκιδική' },
+      { isPending: false, isError: false, data: { results: [result('thalassa', 7000)] } },
+    );
+    await fireEvent.press(screen.getByTestId('result-thalassa'));
+    expect(router.push).toHaveBeenCalledWith({
+      pathname: '/c/[slug]',
+      params: { slug: 'thalassa', ...PARAMS },
+    });
   });
 });

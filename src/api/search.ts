@@ -6,7 +6,7 @@ import type {
   SearchResponse,
   SearchResult,
 } from '../../supabase/functions/_shared/api';
-import { getSupabase } from '@/lib/supabase';
+import { getSupabase, hasSupabaseEnv } from '@/lib/supabase';
 
 export type { SearchResponse, SearchResult };
 
@@ -14,17 +14,20 @@ export type { SearchResponse, SearchResult };
 export function useLiveCampings() {
   return useQuery({
     queryKey: ['public', 'campings', 'live'],
-    queryFn: async () => {
-      // Partner members can also read their draft campings: ask for live ones only.
-      const { data, error } = await getSupabase()
-        .from('campings')
-        .select('id, slug, name, region')
-        .eq('status', 'live')
-        .order('name');
-      if (error) throw error;
-      return data;
-    },
+    // Without Supabase settings (tests, a misconfigured build) Home just shows the search.
+    queryFn: hasSupabaseEnv() ? fetchLiveCampings : skipToken,
   });
+}
+
+async function fetchLiveCampings() {
+  // Partner members can also read their draft campings: ask for live ones only.
+  const { data, error } = await getSupabase()
+    .from('campings')
+    .select('id, slug, name, region')
+    .eq('status', 'live')
+    .order('name');
+  if (error) throw error;
+  return data;
 }
 
 const searchResponseSchema = z.object({

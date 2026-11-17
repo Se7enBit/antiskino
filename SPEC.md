@@ -2,7 +2,7 @@
 
 > Book a camping pitch in Greece in under a minute. (*αντίσκηνο* = tent)
 
-Last updated: 2026-11-17 · Status: M1 done, M2 built (awaiting the owner's check), M3 in progress (search and quote functions, Home search and results)
+Last updated: 2026-11-17 · Status: M1 done, M2 built (awaiting the owner's check), M3 in progress (search and quote functions, Home search and results, camping page)
 
 ## 0. Decisions log
 
@@ -59,6 +59,8 @@ Last updated: 2026-11-17 · Status: M1 done, M2 built (awaiting the owner's chec
 | Icons | `@expo/vector-icons` (Material Community Icons) | Equipment and amenity icons |
 | Explore tab (M3) | A stack inside the tab: Home → results → camping page | expo-router redirects navigation to a tab hidden with `href: null`, so screens opened from Home live in the tab's own stack. The results URL carries the whole search (`/search?arrival=…&children=4,7…`), so it can be shared and reloaded |
 | Static web and the browser | Output that differs between the build and the browser (icon fonts, URL parameters, today's date) renders after hydration (`useHydrated()`) | Avoids React hydration errors on GitHub Pages |
+| Camping page (M3) | `/c/<slug>` carries the stay in its URL like the results (`?arrival=…`); without dates each pitch type shows "Pitch from €X / night", the lowest stored pitch rate of the seasons not yet over (display only; totals always come from `search`) | Book stays disabled until M4. A region filter from the results is dropped on the camping's own page. Single-camping mode: Home shows the page, and its search opens `/c/<slug>?…` |
+| Pre-rendered camping pages | `generateStaticParams` loads the live campings at build time (`src/api/staticCampings.ts`); the page's `<title>`, description and og tags are plain React DOM tags, which React hoists into `<head>` in the static export | `expo-router/head` only applies in the browser in SDK 58, so link previews need the static tags. A camping that goes live after a deploy still opens (GitHub Pages serves 404.html and the app renders it) but has no link preview until the next deploy: re-run CI on `main` (Actions → CI → Run workflow). The automatic rebuild of §5 needs a GitHub token for Supabase and comes later |
 
 ## 1. Core problem
 
