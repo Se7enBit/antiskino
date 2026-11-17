@@ -612,6 +612,7 @@ export type Database = {
         };
         Returns: number;
       };
+      set_season_prices: { Args: { p_prices: Json; p_season_id: string }; Returns: number };
     };
     Enums: {
       camping_status: 'draft' | 'live' | 'paused';
