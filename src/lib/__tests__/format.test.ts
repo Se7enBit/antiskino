@@ -1,4 +1,4 @@
-import { formatNight, formatShortDate } from '../format';
+import { formatMonth, formatNight, formatShortDate } from '../format';
 
 describe('formatShortDate', () => {
   it('shows the Athens calendar date in each language', () => {
@@ -12,5 +12,12 @@ describe('formatNight', () => {
   it('gives the weekday and day/month of a night', () => {
     expect(formatNight('2027-07-01', 'en')).toEqual({ weekday: 'Thu', day: '01/07' });
     expect(formatNight('2027-07-01', 'el')).toEqual({ weekday: 'Πέμ', day: '01/07' });
+  });
+});
+
+describe('formatMonth', () => {
+  it('names the month and year', () => {
+    expect(formatMonth('2027-07-14', 'en')).toBe('July 2027');
+    expect(formatMonth('2027-07-01', 'el')).toBe('Ιούλιος 2027');
   });
 });

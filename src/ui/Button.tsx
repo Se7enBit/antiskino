@@ -1,5 +1,6 @@
 import { ActivityIndicator, Pressable, StyleSheet, Text } from 'react-native';
 
+import { Icon, type IconName } from './Icon';
 import { colors, spacing } from './theme';
 
 type Props = {
@@ -10,6 +11,10 @@ type Props = {
   selected?: boolean;
   disabled?: boolean;
   loading?: boolean;
+  /** An icon before the label. */
+  icon?: IconName;
+  /** When the label alone doesn't say what the button does (e.g. "+"). */
+  accessibilityLabel?: string;
   testID?: string;
 };
 
@@ -20,6 +25,8 @@ export function Button({
   selected = false,
   disabled = false,
   loading = false,
+  icon,
+  accessibilityLabel,
   testID,
 }: Props) {
   const filled = variant === 'primary' || selected;
@@ -27,12 +34,14 @@ export function Button({
   return (
     <Pressable
       accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel}
       accessibilityState={{ selected, disabled: inactive, busy: loading }}
       disabled={inactive}
       onPress={onPress}
       testID={testID}
       style={({ pressed }) => [
         styles.button,
+        icon && styles.withIcon,
         filled && styles.filled,
         inactive && styles.inactive,
         pressed && styles.pressed,
@@ -41,7 +50,10 @@ export function Button({
       {loading ? (
         <ActivityIndicator color={filled ? colors.onPrimary : colors.primary} />
       ) : (
-        <Text style={[styles.label, filled && styles.filledLabel]}>{label}</Text>
+        <>
+          {icon ? <Icon name={icon} color={filled ? colors.onPrimary : colors.text} /> : null}
+          <Text style={[styles.label, filled && styles.filledLabel]}>{label}</Text>
+        </>
       )}
     </Pressable>
   );
@@ -58,6 +70,7 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     backgroundColor: colors.background,
   },
+  withIcon: { flexDirection: 'row', gap: spacing.sm },
   filled: { borderColor: colors.primary, backgroundColor: colors.primary },
   inactive: { opacity: 0.5 },
   pressed: { opacity: 0.7 },

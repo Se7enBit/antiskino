@@ -24,3 +24,12 @@ export function formatNight(night: IsoDate, language: Language): { weekday: stri
   }).format(new Date(`${year}-${month}-${day}T00:00:00Z`));
   return { weekday, day: `${day}/${month}` };
 }
+
+/** "2027-07-01" → "July 2027" / "Ιούλιος 2027". */
+export function formatMonth(month: IsoDate, language: Language): string {
+  return new Intl.DateTimeFormat(LOCALES[language], {
+    timeZone: 'UTC',
+    month: 'long',
+    year: 'numeric',
+  }).format(new Date(`${month.slice(0, 7)}-01T00:00:00Z`));
+}
