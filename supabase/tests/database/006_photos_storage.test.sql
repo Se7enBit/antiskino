@@ -37,6 +37,10 @@ insert into public.campings (id, partner_id, slug, name) values
   ('a0000000-0000-4000-8000-0000000000a1', 'aaaaaaaa-0000-4000-8000-000000000000', 'a1', 'A1'),
   ('b0000000-0000-4000-8000-0000000000b1', 'bbbbbbbb-0000-4000-8000-000000000000', 'b1', 'B1');
 
+-- Storage blocks direct SQL deletes unless this is set, as the Storage API
+-- does for its own delete queries; set it so the delete policies are tested.
+set local storage.allow_delete_query to 'true';
+
 -- ---------------------------------------------------------------------------
 
 select results_eq(
