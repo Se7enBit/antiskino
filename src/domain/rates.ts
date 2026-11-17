@@ -1,8 +1,9 @@
 import { z } from 'zod';
 
-import { addDays, parseDateInput, formatDateInput, type IsoDate } from '@/lib/dates';
+import { addDays, formatDateInput, type IsoDate } from '@/lib/dates';
 import { eurosInputSchema } from '@/lib/money';
 
+import { dateInput, text, wholeNumber } from './formFields';
 import { textIn, toLocalized } from './localizedText';
 
 export const EXTRA_UNITS = ['per_night', 'per_stay'] as const;
@@ -10,17 +11,6 @@ export const FEE_UNITS = ['per_person_night', 'per_pitch_night', 'per_stay'] as 
 export const PRICE_ITEM_TYPES = ['pitch', 'guest', 'extra'] as const;
 export type PriceItemType = (typeof PRICE_ITEM_TYPES)[number];
 
-const text = (max: number) => z.string().trim().max(max);
-const wholeNumber = (min: number, max: number) =>
-  z.string().trim().regex(/^\d+$/).transform(Number).pipe(z.number().int().min(min).max(max));
-const dateInput = z.string().transform((value, ctx) => {
-  const date = parseDateInput(value);
-  if (!date) {
-    ctx.addIssue({ code: 'custom', message: 'Expected a date like 01/07/2027' });
-    return z.NEVER;
-  }
-  return date;
-});
 const hasName = (form: { nameEl: string; nameEn: string }) =>
   form.nameEl !== '' || form.nameEn !== '';
 const names = z.object({ nameEl: z.string(), nameEn: z.string() });
