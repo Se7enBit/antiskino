@@ -187,6 +187,81 @@
         "maxPeople": "Enter a whole number from 1 to 50.",
         "sizeM2": "Enter a whole number from 1 to 10000, or leave it empty."
       }
+    },
+    "rates": {
+      "add": "Add",
+      "edit": "Edit",
+      "delete": "Delete",
+      "confirmDelete": "Delete for good?",
+      "yes": "Yes, delete",
+      "no": "No",
+      "nameEl": "Name (Greek)",
+      "nameEn": "Name (English)",
+      "seasons": {
+        "title": "Seasons",
+        "add": "Add season",
+        "empty": "No seasons yet. Prices are set per season.",
+        "firstNight": "First night",
+        "lastNight": "Last night",
+        "dateHint": "Dates like 01/07/2027. The last night is the night before departure.",
+        "minNights": "Minimum nights (1–30)",
+        "summary": "{{from}} – {{to}} · min. nights: {{nights}}",
+        "overlap": "This season overlaps another one."
+      },
+      "guests": {
+        "title": "Guest categories",
+        "add": "Add guest category",
+        "empty": "No guest categories yet (e.g. Adult 12+, Child 4–11, Infant 0–3).",
+        "minAge": "From age",
+        "maxAge": "To age (optional)",
+        "agesFrom": "Ages {{min}}+",
+        "agesRange": "Ages {{min}}–{{max}}",
+        "overlap": "These ages overlap another category."
+      },
+      "extras": {
+        "title": "Extras",
+        "add": "Add extra",
+        "empty": "No extras yet (e.g. car, pet, electricity).",
+        "unit": "Charged",
+        "maxQty": "Most per booking (1–20)",
+        "summary": "{{unit}} · up to {{qty}}",
+        "hidden": "Hidden"
+      },
+      "units": {
+        "per_night": "Per night",
+        "per_stay": "Per stay",
+        "per_person_night": "Per person per night",
+        "per_pitch_night": "Per pitch per night"
+      },
+      "fees": {
+        "title": "Fixed fees",
+        "add": "Add fee",
+        "empty": "No fixed fees. Add one only for a local charge that applies to every booking.",
+        "amount": "Amount (€)"
+      },
+      "prices": {
+        "title": "Prices",
+        "season": "Season",
+        "noSeasons": "Add a season first, then set its prices.",
+        "pitchTypes": "Pitch, per night",
+        "guests": "Per person, per night",
+        "extras": "Extras",
+        "hint": "Prices in euros, VAT included. Leave a field empty when it doesn't apply in this season.",
+        "save": "Save prices",
+        "saved": "Prices saved.",
+        "invalid": "Fix the highlighted amounts, e.g. 12 or 12,50."
+      },
+      "errors": {
+        "nameEl": "Enter a name in at least one language.",
+        "firstNight": "Enter a date like 01/07/2027.",
+        "lastNight": "Enter a date on or after the first night.",
+        "minNights": "Enter a whole number from 1 to 30.",
+        "minAge": "Enter an age from 0 to 120.",
+        "maxAge": "Enter an age from the minimum up to 120, or leave it empty.",
+        "maxQty": "Enter a whole number from 1 to 20.",
+        "amount": "Enter an amount like 0,50.",
+        "text": "Too long."
+      }
     }
   },
   "admin": {
