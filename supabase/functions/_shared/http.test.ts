@@ -38,6 +38,11 @@ Deno.test('validates the body and fills defaults', async () => {
     'childAges.0',
     'departure',
   ]);
+  const impossible = await post({ ...STAY, arrival: '2027-02-30' });
+  assertEquals(
+    [impossible.status, (await impossible.json()).issues],
+    [400, [{ path: 'arrival', code: 'custom' }]],
+  );
   const tooLong = await post({ ...STAY, departure: '2027-08-10' });
   assertEquals((await tooLong.json()).issues, [{ path: 'departure', code: 'custom' }]);
 });

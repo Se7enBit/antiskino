@@ -17,6 +17,8 @@ const stayQuery = z.object({
 
 const stayLength = {
   check: (s: { arrival: string; departure: string }) => {
+    // Runs even when a date failed above; those errors are already reported.
+    if (!isIsoDate(s.arrival) || !isIsoDate(s.departure)) return true;
     const nights = nightsBetween(s.arrival, s.departure);
     return nights >= 1 && nights <= MAX_NIGHTS;
   },
