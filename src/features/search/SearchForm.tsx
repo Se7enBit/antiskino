@@ -10,7 +10,6 @@ import {
   MAX_NIGHTS,
   stayProblem,
   toRequest,
-  type Equipment,
   type SearchRequest,
   type StayProblem,
 } from '@/domain/search';
@@ -25,16 +24,11 @@ import {
   SectionLabel,
   Stepper,
   spacing,
-  type IconName,
 } from '@/ui';
 
-import { useSearchStore } from './searchStore';
+import { EQUIPMENT_ICONS } from '../camping/icons';
 
-export const EQUIPMENT_ICONS: Record<Equipment, IconName> = {
-  tent: 'tent',
-  caravan: 'caravan',
-  camper: 'rv-truck',
-};
+import { useSearchStore } from './searchStore';
 
 type Props = {
   /** Regions of the live campings; the filter shows with two or more. */
