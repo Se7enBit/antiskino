@@ -52,6 +52,7 @@ The owner mostly works from a phone, so:
 - Grant explicitly: every new table/function revokes all from `anon` and `authenticated` (functions also from `public`), then grants only what it needs. Supabase projects differ in default privileges.
 - **RLS on every table.** Policies use `is_admin()`, `is_partner_member()`, `is_partner_owner()` (with `camping_partner()` / `camping_is_live()` for camping-scoped rows). Each new policy gets a pgTAP test.
 - pgTAP files run against the seeded database: start each one by deleting partners and campings inside its transaction, as the existing files do.
+- Storage blocks direct SQL deletes on `storage.objects`; tests that delete set `storage.allow_delete_query` to `'true'` like the Storage API does.
 - Bookings have no direct insert/update policies; writes go through edge functions and `security definer` SQL functions.
 - The Supabase secret (service role) key is used only inside edge functions. Never put it in the app. Never log secrets, tokens or guest personal data.
 - Regenerate `src/api/database.types.ts` after every migration (`npm run db:types`). CI fails when it is stale.

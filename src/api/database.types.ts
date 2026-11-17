@@ -572,6 +572,7 @@ export type Database = {
       accept_partner_invite: { Args: { p_token: string }; Returns: Json };
       camping_is_live: { Args: { p_camping_id: string }; Returns: boolean };
       camping_partner: { Args: { p_camping_id: string }; Returns: string };
+      can_manage_camping_files: { Args: { p_object_name: string }; Returns: boolean };
       check_night_range: {
         Args: { p_first_night: string; p_last_night: string };
         Returns: undefined;

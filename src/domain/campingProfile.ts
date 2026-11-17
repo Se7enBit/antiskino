@@ -3,6 +3,7 @@ import { z } from 'zod';
 import type { Database } from '@/api/database.types';
 
 import { AMENITIES, isAmenity } from './amenities';
+import { textIn, toLocalized } from './localizedText';
 
 type CampingRow = Database['public']['Tables']['campings']['Row'];
 type CampingUpdate = Database['public']['Tables']['campings']['Update'];
@@ -50,11 +51,6 @@ export type CampingProfileForm = {
 
 export type CampingProfileField = keyof CampingProfileForm;
 
-const localizedPair = (el: string, en: string) => ({
-  ...(el ? { el } : {}),
-  ...(en ? { en } : {}),
-});
-
 /** Validates the form and maps it to the columns owners may update. */
 export const campingProfileSchema = z
   .object({
@@ -101,9 +97,9 @@ export const campingProfileSchema = z
   })
   .transform((form): CampingUpdate => ({
     name: form.name,
-    short_descr: localizedPair(form.shortDescrEl, form.shortDescrEn),
-    descr: localizedPair(form.descrEl, form.descrEn),
-    house_rules: localizedPair(form.houseRulesEl, form.houseRulesEn),
+    short_descr: toLocalized(form.shortDescrEl, form.shortDescrEn),
+    descr: toLocalized(form.descrEl, form.descrEn),
+    house_rules: toLocalized(form.houseRulesEl, form.houseRulesEn),
     region: form.region,
     address: form.address,
     phone: form.phone,
@@ -121,12 +117,6 @@ export const campingProfileSchema = z
     cancellation_policy: form.cancellationPolicy,
   }));
 
-const textOf = (value: unknown, language: 'el' | 'en'): string => {
-  if (typeof value !== 'object' || value === null || Array.isArray(value)) return '';
-  const entry = (value as Record<string, unknown>)[language];
-  return typeof entry === 'string' ? entry : '';
-};
-
 /** "14:00:00" → "14:00". */
 const hhmm = (time: string | null) => (time ? time.slice(0, 5) : '');
 
@@ -134,12 +124,12 @@ const hhmm = (time: string | null) => (time ? time.slice(0, 5) : '');
 export function campingToForm(camping: CampingRow): CampingProfileForm {
   return {
     name: camping.name,
-    shortDescrEl: textOf(camping.short_descr, 'el'),
-    shortDescrEn: textOf(camping.short_descr, 'en'),
-    descrEl: textOf(camping.descr, 'el'),
-    descrEn: textOf(camping.descr, 'en'),
-    houseRulesEl: textOf(camping.house_rules, 'el'),
-    houseRulesEn: textOf(camping.house_rules, 'en'),
+    shortDescrEl: textIn(camping.short_descr, 'el'),
+    shortDescrEn: textIn(camping.short_descr, 'en'),
+    descrEl: textIn(camping.descr, 'el'),
+    descrEn: textIn(camping.descr, 'en'),
+    houseRulesEl: textIn(camping.house_rules, 'el'),
+    houseRulesEn: textIn(camping.house_rules, 'en'),
     region: camping.region ?? '',
     address: camping.address ?? '',
     phone: camping.phone ?? '',
