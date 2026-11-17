@@ -412,6 +412,16 @@ deno_version = 2
 # [edge_runtime.secrets]
 # secret_key = "env(SECRET_VALUE)"
 
+# Public functions: the app calls them without a signed-in user, and new-style
+# publishable keys are not JWTs. They read with the caller's API key, so RLS
+# still applies. If a deployed function answers 401, turn off "Enforce JWT
+# verification" for it in the dashboard (Edge Functions > the function > Details).
+[functions.search]
+verify_jwt = false
+
+[functions.quote]
+verify_jwt = false
+
 [analytics]
 enabled = true
 port = 54327
