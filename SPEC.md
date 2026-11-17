@@ -2,7 +2,7 @@
 
 > Book a camping pitch in Greece in under a minute. (*αντίσκηνο* = tent)
 
-Last updated: 2026-11-16 · Status: M1 done, M2 in progress (database layer, sign-in, admin and partner profile built)
+Last updated: 2026-11-17 · Status: M1 done, M2 in progress (database layer, sign-in, admin, partner profile and pitch types built)
 
 ## 0. Decisions log
 
@@ -46,6 +46,8 @@ Last updated: 2026-11-16 · Status: M1 done, M2 in progress (database layer, sig
 | Partner area navigation | Sidebar ≥ 768 px wide, bottom tabs below; `/partner` opens Profile until Today ships (M5) | Short tab labels on phones (Availability → "Calendar" / "Ημερολόγιο"); a camping switcher appears with more than one camping |
 | Amenities | Fixed list of 14 keys in `src/domain/amenities.ts` | The 11 from F2 plus bar, shared kitchen and barbecue area; labels in the locale files |
 | Map pin (M2) | Typed or pasted as "latitude, longitude" | A map picker comes with maps in M3 |
+| Photo storage | One public `photos` bucket; files under `<camping_id>/`; JPEG, PNG or WebP up to 5 MB | Owners and admins write (`can_manage_camping_files()` storage policies). `camping_photos` rows keep the gallery order (first = cover); pitch type photos are paths in `pitch_types.photos`. Files of deleted campings or pitch types are not cleaned up yet |
+| Pitch type removal | Hidden (`active = false`), not deleted, in the partner UI | Keeps history once bookings reference pitch types (M4) |
 | URLs with ids on web | Private screens take ids as query parameters (`/admin/partner?id=`, `/invite?t=`) | Static hosting can't pre-render unknown ids. Dynamic segments only for pages pre-rendered with `generateStaticParams` (e.g. `/c/[slug]`). Decide `/m/<ref>` in M4 |
 | Allotment edits | `set_allotment` / `set_closed` take a night range with both ends included, at most 400 nights per call | `set_allotment` refuses (does not clamp) a value below `booked`, changing nothing; `set_closed` skips nights without inventory |
 
