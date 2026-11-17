@@ -590,6 +590,33 @@ export type Database = {
       is_localized_text: { Args: { p_required?: boolean; p_value: Json }; Returns: boolean };
       is_partner_member: { Args: { p_partner_id: string }; Returns: boolean };
       is_partner_owner: { Args: { p_partner_id: string }; Returns: boolean };
+      sellable_pitch_types: {
+        Args: {
+          p_arrival: string;
+          p_camping_id?: string;
+          p_departure: string;
+          p_equipment: Database['public']['Enums']['equipment'];
+          p_party_size: number;
+        };
+        Returns: {
+          camping_id: string;
+          pitch_type_id: string;
+        }[];
+      };
+      sellable_pitch_types_at: {
+        Args: {
+          p_arrival: string;
+          p_camping_id?: string;
+          p_departure: string;
+          p_equipment: Database['public']['Enums']['equipment'];
+          p_now: string;
+          p_party_size: number;
+        };
+        Returns: {
+          camping_id: string;
+          pitch_type_id: string;
+        }[];
+      };
       set_allotment: {
         Args: {
           p_allotment: number;
