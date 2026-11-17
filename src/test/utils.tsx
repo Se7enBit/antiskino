@@ -16,6 +16,7 @@ export function fakeMutation<T>(outcome: { data?: T; error?: unknown } = {}) {
   );
   return {
     mutate,
+    reset: jest.fn(),
     isPending: false,
     isError: Boolean(outcome.error),
     isSuccess: false,

@@ -1,9 +1,11 @@
 import {
   addDays,
   daysBetween,
+  formatDateInput,
   isIsoDate,
   isoDateSchema,
   nightsBetween,
+  parseDateInput,
   stayNights,
   todayInAthens,
 } from '../dates';
@@ -83,5 +85,29 @@ describe('todayInAthens', () => {
     ['2026-12-31T22:00:00Z', '2027-01-01'],
   ])('%s is %s in Athens', (instant, expected) => {
     expect(todayInAthens(new Date(instant))).toBe(expected);
+  });
+});
+
+describe('date inputs', () => {
+  it.each([
+    ['1/7/2027', '2027-07-01'],
+    ['01/07/2027', '2027-07-01'],
+    ['31.12.2027', '2027-12-31'],
+    [' 2027-07-01 ', '2027-07-01'],
+    ['29/02/2028', '2028-02-29'],
+  ])('%s → %s', (text, iso) => {
+    expect(parseDateInput(text)).toBe(iso);
+  });
+
+  it.each(['31/06/2027', '29/02/2027', '7/1', '2027/07/01', 'tomorrow', ''])(
+    'rejects %s',
+    (text) => {
+      expect(parseDateInput(text)).toBeNull();
+    },
+  );
+
+  it('formats dates the Greek way', () => {
+    expect(formatDateInput('2027-07-01')).toBe('01/07/2027');
+    expect(parseDateInput(formatDateInput('2027-12-31'))).toBe('2027-12-31');
   });
 });

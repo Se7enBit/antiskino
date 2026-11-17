@@ -50,6 +50,8 @@ Last updated: 2026-11-17 · Status: M1 done, M2 in progress (database layer, sig
 | Pitch type removal | Hidden (`active = false`), not deleted, in the partner UI | Keeps history once bookings reference pitch types (M4) |
 | URLs with ids on web | Private screens take ids as query parameters (`/admin/partner?id=`, `/invite?t=`) | Static hosting can't pre-render unknown ids. Dynamic segments only for pages pre-rendered with `generateStaticParams` (e.g. `/c/[slug]`). Decide `/m/<ref>` in M4 |
 | Allotment edits | `set_allotment` / `set_closed` take a night range with both ends included, at most 400 nights per call | `set_allotment` refuses (does not clamp) a value below `booked`, changing nothing; `set_closed` skips nights without inventory |
+| Rates editing (M2) | Seasons are entered as first and last night (DD/MM/YYYY) and stored as `[first, last + 1)`; prices are typed in euros (`12`, `12,50`) and stored as cents | A season's price grid is saved in one call, `set_season_prices()` (owners and admins, all or nothing). An empty price field means "not set" for that season; how search and quotes treat items without a price is decided in M3 |
+| Deleting rates items | Seasons, guest categories, extras and fees are deleted (with an inline "Delete for good?" confirm), not hidden | Deleting a season or item also deletes its prices. Extras can instead be hidden from guests (`active = false`). Revisit once bookings reference them (M4 snapshots keep booked prices) |
 
 ## 1. Core problem
 

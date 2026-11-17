@@ -32,3 +32,29 @@ export function formatMoney(cents: Cents, language: Language): string {
   if (!isCents(cents)) throw new RangeError(`Money must be integer cents, got ${cents}`);
   return formatter(language).format(cents / 100);
 }
+
+const EUROS = /^(\d{1,6})(?:[.,](\d{1,2}))?$/;
+
+/** Euros typed in a form ("12", "12,5", "12.50") → cents; empty → null. Integer math only. */
+export const eurosInputSchema = z
+  .string()
+  .trim()
+  .transform((value, ctx) => {
+    if (value === '') return null;
+    const match = EUROS.exec(value);
+    if (!match) {
+      ctx.addIssue({ code: 'custom', message: 'Expected an amount in euros' });
+      return z.NEVER;
+    }
+    return Number(match[1]) * 100 + Number((match[2] ?? '').padEnd(2, '0'));
+  });
+
+/** Cents → form text: 1250 → "12,50" (el) / "12.50" (en); whole euros have no decimals. */
+export function centsToInput(cents: Cents | null, language: Language): string {
+  if (cents === null) return '';
+  const whole = Math.trunc(cents / 100);
+  const rest = cents % 100;
+  return rest === 0
+    ? String(whole)
+    : `${whole}${language === 'el' ? ',' : '.'}${String(rest).padStart(2, '0')}`;
+}

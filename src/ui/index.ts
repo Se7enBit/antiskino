@@ -2,6 +2,8 @@ export { Badge } from './Badge';
 export { Button } from './Button';
 export { BodyText, Card, SectionLabel } from './Card';
 export { ChoiceGroup } from './ChoiceGroup';
+export { ConfirmButton } from './ConfirmButton';
+export { EditableList } from './EditableList';
 export { Loading } from './Loading';
 export { Notice } from './Notice';
 export { Placeholder } from './Placeholder';
