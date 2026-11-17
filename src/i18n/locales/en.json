@@ -268,7 +268,8 @@
       "pitchTypes": "Pitch types",
       "rates": "Rates",
       "availability": "Availability",
-      "availabilityShort": "Calendar"
+      "availabilityShort": "Calendar",
+      "bookings": "Bookings"
     },
     "exit": "Exit",
     "noCampings": "Your team has no campings yet. The Antiskino team adds them.",
@@ -491,6 +492,30 @@
         "allotment": "Enter a whole number from 0 to 1000.",
         "belowBooked": "Some of these nights already have more bookings than that. Nothing was changed."
       }
+    },
+    "bookings": {
+      "requests": "Requests to answer",
+      "upcoming": "Upcoming stays",
+      "past": "Past and cancelled",
+      "showPast": "Show past and cancelled",
+      "hidePast": "Hide past and cancelled",
+      "empty": "No bookings yet.",
+      "answerBy": "Answer by {{deadline}}",
+      "people": "People: {{count}}",
+      "eta": "Arrives around {{time}}",
+      "plate": "Plate: {{plate}}",
+      "note": "Note: {{note}}",
+      "accept": "Accept",
+      "decline": "Decline",
+      "declineQuestion": "Decline this request?",
+      "declineYes": "Yes, decline",
+      "cancel": "Cancel booking",
+      "cancelReason": "Reason for the guest (required)",
+      "cancelConfirm": "Cancel the booking",
+      "keep": "Keep it",
+      "reasonRequired": "Write a short reason for the guest.",
+      "call": "Call",
+      "emailGuest": "Email"
     }
   },
   "admin": {
