@@ -25,49 +25,49 @@ export const breakdownSchema = quoteSchema.extend({
   names: z.object({ pitch: z.unknown(), guest: names, extra: names, fee: names }).optional(),
 });
 
-const guestBookingSchema = z
-  .object({
-    ref: z.string(),
-    status: z.enum(STATUSES),
-    can_cancel: z.boolean(),
-    arrival: z.string(),
-    departure: z.string(),
-    nights: z.int(),
-    equipment: z.enum(['tent', 'caravan', 'camper']),
-    party: z.record(z.string(), z.int()),
-    extras: z.record(z.string(), z.int()),
-    total_cents: z.int(),
-    price_breakdown: breakdownSchema,
-    payment_mode: z.enum(['on_site', 'deposit', 'full']),
-    cancellation_policy: z.enum(['flexible', 'moderate', 'strict']),
-    request_expires_at: z.string().nullable(),
-    cancel_reason: z.string().nullable(),
-    created_at: z.string(),
-    guest: z.object({
-      name: z.string(),
-      email: z.string(),
-      phone: z.string(),
-      country: z.string(),
-      locale: z.enum(['el', 'en']),
-      vehicle_plate: z.string().nullable(),
-      arrival_eta: z.string().nullable(),
-      note: z.string().nullable(),
-    }),
-    camping: z.object({
-      name: z.string(),
-      slug: z.string(),
-      address: z.string().nullable(),
-      lat: z.number().nullable(),
-      lng: z.number().nullable(),
-      phone: z.string().nullable(),
-      email: z.string().nullable(),
-      check_in_from: z.string().nullable(),
-      check_out_until: z.string().nullable(),
-    }),
-    pitch_type: z.object({ id: z.string(), name: z.unknown() }),
-    names: z.object({ guest: names, extra: names, fee: names }),
-  })
-  .nullable();
+export const guestBookingObject = z.object({
+  ref: z.string(),
+  status: z.enum(STATUSES),
+  can_cancel: z.boolean(),
+  arrival: z.string(),
+  departure: z.string(),
+  nights: z.int(),
+  equipment: z.enum(['tent', 'caravan', 'camper']),
+  party: z.record(z.string(), z.int()),
+  extras: z.record(z.string(), z.int()),
+  total_cents: z.int(),
+  price_breakdown: breakdownSchema,
+  payment_mode: z.enum(['on_site', 'deposit', 'full']),
+  cancellation_policy: z.enum(['flexible', 'moderate', 'strict']),
+  request_expires_at: z.string().nullable(),
+  cancel_reason: z.string().nullable(),
+  created_at: z.string(),
+  guest: z.object({
+    name: z.string(),
+    email: z.string(),
+    phone: z.string(),
+    country: z.string(),
+    locale: z.enum(['el', 'en']),
+    vehicle_plate: z.string().nullable(),
+    arrival_eta: z.string().nullable(),
+    note: z.string().nullable(),
+  }),
+  camping: z.object({
+    name: z.string(),
+    slug: z.string(),
+    address: z.string().nullable(),
+    lat: z.number().nullable(),
+    lng: z.number().nullable(),
+    phone: z.string().nullable(),
+    email: z.string().nullable(),
+    check_in_from: z.string().nullable(),
+    check_out_until: z.string().nullable(),
+  }),
+  pitch_type: z.object({ id: z.string(), name: z.unknown() }),
+  names: z.object({ guest: names, extra: names, fee: names }),
+});
+
+const guestBookingSchema = guestBookingObject.nullable();
 
 export type GuestBooking = NonNullable<z.output<typeof guestBookingSchema>>;
 
