@@ -2,7 +2,7 @@
 
 > Book a camping pitch in Greece in under a minute. (*αντίσκηνο* = tent)
 
-Last updated: 2026-11-17 · Status: M1 done, M2 in progress (database layer, sign-in, admin, partner profile and pitch types built)
+Last updated: 2026-11-17 · Status: M1 done, M2 built and awaiting the owner's check (database layer, sign-in, admin, partner Profile, Pitch types, Rates and Availability)
 
 ## 0. Decisions log
 
@@ -52,6 +52,7 @@ Last updated: 2026-11-17 · Status: M1 done, M2 in progress (database layer, sig
 | Allotment edits | `set_allotment` / `set_closed` take a night range with both ends included, at most 400 nights per call | `set_allotment` refuses (does not clamp) a value below `booked`, changing nothing; `set_closed` skips nights without inventory |
 | Rates editing (M2) | Seasons are entered as first and last night (DD/MM/YYYY) and stored as `[first, last + 1)`; prices are typed in euros (`12`, `12,50`) and stored as cents | A season's price grid is saved in one call, `set_season_prices()` (owners and admins, all or nothing). An empty price field means "not set" for that season; how search and quotes treat items without a price is decided in M3 |
 | Deleting rates items | Seasons, guest categories, extras and fees are deleted (with an inline "Delete for good?" confirm), not hidden | Deleting a season or item also deletes its prices. Extras can instead be hidden from guests (`active = false`). Revisit once bookings reference them (M4 snapshots keep booked prices) |
+| Availability screen (M2) | Grid of pitch types × 14 nights from today (Athens), moved two weeks at a time; each cell shows `booked/allotment`, "—" without inventory; full and closed nights are coloured | Tapping a night fills in both forms. Allotment: one pitch type and night range per `set_allotment()` call (owners). Close/open: one or more pitch types, one `set_closed()` call each, not atomic across pitch types (whole team). Ranges over 400 nights are refused in the form |
 
 ## 1. Core problem
 

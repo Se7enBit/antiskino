@@ -1,3 +1,3 @@
-import { ComingSoon } from '@/features/partner/ComingSoon';
+import { AvailabilityScreen } from '@/features/partner/AvailabilityScreen';
 
-export default ComingSoon;
+export default AvailabilityScreen;
