@@ -17,6 +17,7 @@ describe('routes', () => {
     ['/partner', 'Sign in to continue'],
     ['/partner/profile', 'Sign in to continue'],
     ['/partner/availability', 'Sign in to continue'],
+    ['/partner/bookings', 'Sign in to continue'],
     ['/admin', 'Sign in to continue'],
     ['/admin/new-partner', 'Sign in to continue'],
     ['/admin/partner', 'Sign in to continue'],

@@ -32,7 +32,8 @@ function PartnerTabs() {
         tabBarInactiveTintColor: colors.muted,
         tabBarIcon: () => null,
         tabBarIconStyle: { display: 'none' },
-        tabBarLabelStyle: { fontSize: wide ? 15 : 12, fontWeight: '600' },
+        // Five tabs share 360 px on phones (62 px of label each): "Ημερολόγιο" fits at 10 px.
+        tabBarLabelStyle: { fontSize: wide ? 15 : 10, fontWeight: '600' },
         tabBarStyle: wide ? { width: 220, minWidth: 220 } : undefined,
         headerTintColor: colors.primary,
         headerRight: () => (
@@ -42,8 +43,9 @@ function PartnerTabs() {
         ),
       }}
     >
-      {/* Today (M5) will live at index; until then /partner opens the profile. */}
+      {/* Today (M5) will live at index; until then /partner opens the bookings. */}
       <Tabs.Screen name="index" options={{ href: null }} />
+      <Tabs.Screen name="bookings" options={{ title: t('partner.nav.bookings') }} />
       <Tabs.Screen name="profile" options={{ title: t('partner.nav.profile') }} />
       <Tabs.Screen name="pitch-types" options={{ title: t('partner.nav.pitchTypes') }} />
       <Tabs.Screen name="rates" options={{ title: t('partner.nav.rates') }} />
