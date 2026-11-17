@@ -1,3 +1,3 @@
-import { ComingSoon } from '@/features/partner/ComingSoon';
+import { PitchTypesScreen } from '@/features/partner/PitchTypesScreen';
 
-export default ComingSoon;
+export default PitchTypesScreen;

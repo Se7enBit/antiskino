@@ -154,6 +154,39 @@
         "requestExpiryHours": "Enter a number from 2 to 48.",
         "text": "Too long."
       }
+    },
+    "pitchTypes": {
+      "add": "Add pitch type",
+      "empty": "No pitch types yet.",
+      "edit": "Edit",
+      "save": "Save pitch type",
+      "nameEl": "Name (Greek)",
+      "nameEn": "Name (English)",
+      "descrEl": "Description (Greek)",
+      "descrEn": "Description (English)",
+      "includedEl": "What's included (Greek)",
+      "includedEn": "What's included (English)",
+      "accepts": "Accepted equipment",
+      "maxPeople": "Max people (infants count)",
+      "sizeM2": "Size (m², optional)",
+      "visibility": "Shown to guests",
+      "active": "Shown",
+      "inactive": "Hidden",
+      "hiddenBadge": "Hidden",
+      "people": "People: {{count}}",
+      "size": "{{size}} m²",
+      "photosAfterSave": "Save the pitch type first, then add photos.",
+      "errors": {
+        "nameEl": "Enter a name in at least one language.",
+        "nameEn": "Too long.",
+        "descrEl": "Too long.",
+        "descrEn": "Too long.",
+        "includedEl": "Too long.",
+        "includedEn": "Too long.",
+        "accepts": "Pick at least one kind of equipment.",
+        "maxPeople": "Enter a whole number from 1 to 50.",
+        "sizeM2": "Enter a whole number from 1 to 10000, or leave it empty."
+      }
     }
   },
   "admin": {
@@ -281,5 +314,10 @@
       "size": "The photo is larger than 5 MB.",
       "upload": "The photo couldn't be uploaded. Try again."
     }
+  },
+  "equipment": {
+    "tent": "Tent",
+    "caravan": "Caravan",
+    "camper": "Camper / motorhome"
   }
 }
