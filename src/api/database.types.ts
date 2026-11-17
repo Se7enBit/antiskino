@@ -806,6 +806,7 @@ export type Database = {
     Functions: {
       accept_partner_invite: { Args: { p_token: string }; Returns: Json };
       athens_today: { Args: Record<PropertyKey, never>; Returns: string };
+      booking_view: { Args: { p_booking_id: string }; Returns: Json };
       camping_is_live: { Args: { p_camping_id: string }; Returns: boolean };
       camping_partner: { Args: { p_camping_id: string }; Returns: string };
       can_manage_camping_files: { Args: { p_object_name: string }; Returns: boolean };
@@ -842,6 +843,7 @@ export type Database = {
       is_localized_text: { Args: { p_required?: boolean; p_value: Json }; Returns: boolean };
       is_partner_member: { Args: { p_partner_id: string }; Returns: boolean };
       is_partner_owner: { Args: { p_partner_id: string }; Returns: boolean };
+      my_booking: { Args: { p_ref: string }; Returns: Json };
       new_booking_ref: { Args: Record<PropertyKey, never>; Returns: string };
       partner_booking_action: {
         Args: { p_action: string; p_booking_id: string; p_note: string };
