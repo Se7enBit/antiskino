@@ -269,5 +269,17 @@
     "pets_allowed": "Pets allowed",
     "playground": "Playground",
     "shade": "Shade"
+  },
+  "photos": {
+    "title": "Photos",
+    "add": "Add photo",
+    "remove": "Remove",
+    "empty": "No photos yet.",
+    "firstIsCover": "The first photo is the cover.",
+    "errors": {
+      "type": "Use a JPEG, PNG or WebP photo.",
+      "size": "The photo is larger than 5 MB.",
+      "upload": "The photo couldn't be uploaded. Try again."
+    }
   }
 }
