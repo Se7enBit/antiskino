@@ -1,4 +1,5 @@
 import { fireEvent, screen } from '@testing-library/react-native';
+import { router } from 'expo-router';
 import { Linking } from 'react-native';
 
 import { useCampingPage, type CampingPage as Camping } from '@/api/camping';
@@ -10,7 +11,7 @@ import { renderWithLanguage } from '@/test/utils';
 import { useSearchStore } from '../../search/searchStore';
 import { CampingPage } from '../CampingPage';
 
-jest.mock('expo-router', () => ({ Stack: { Screen: () => null } }));
+jest.mock('expo-router', () => ({ Stack: { Screen: () => null }, router: { push: jest.fn() } }));
 jest.mock('@/api/camping', () => ({ useCampingPage: jest.fn() }));
 jest.mock('@/api/search', () => ({ useSearch: jest.fn() }));
 jest.mock('@/api/photos', () => ({ photoUrl: (path: string) => `https://cdn.test/${path}` }));
@@ -188,5 +189,26 @@ describe('CampingPage', () => {
     await setup({ page: { isError: true, data: undefined, refetch } as never });
     await fireEvent.press(screen.getByText('Try again'));
     expect(refetch).toHaveBeenCalled();
+  });
+
+  it('opens the booking flow from a priced pitch type only', async () => {
+    await setup({ request: REQUEST });
+    expect(screen.getByTestId('pitch-van-book').props.accessibilityState.disabled).toBe(true);
+    await fireEvent.press(screen.getByTestId('pitch-tent-book'));
+    expect(router.push).toHaveBeenCalledWith({
+      pathname: '/book',
+      params: {
+        pitchType: 'tent',
+        arrival: '2027-07-10',
+        departure: '2027-07-12',
+        adults: '2',
+        equipment: 'tent',
+      },
+    });
+  });
+
+  it('keeps Book disabled without dates', async () => {
+    await setup();
+    expect(screen.getByTestId('pitch-tent-book').props.accessibilityState.disabled).toBe(true);
   });
 });

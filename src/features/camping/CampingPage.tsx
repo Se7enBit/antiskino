@@ -1,9 +1,10 @@
-import { Stack } from 'expo-router';
+import { router, Stack } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { useCampingPage } from '@/api/camping';
 import { useSearch } from '@/api/search';
+import { bookingParams } from '@/domain/booking';
 import { pitchFromCents } from '@/domain/camping';
 import { queryFromRequest, type SearchRequest } from '@/domain/search';
 import { localized, useLanguage, useT } from '@/i18n';
@@ -140,10 +141,25 @@ export function CampingPage({ slug, request, onSearch, onNotFound }: Props) {
         </View>
       ) : null}
       {!request ? <BodyText>{t('camping.noPrice')}</BodyText> : null}
-      {camping.pitchTypes.map((pitchType) => (
-        <PitchTypeCard key={pitchType.id} pitchType={pitchType} price={priceOf(pitchType.id)} />
-      ))}
-      <BodyText>{t('camping.bookingSoon')}</BodyText>
+      {camping.pitchTypes.map((pitchType) => {
+        const price = priceOf(pitchType.id);
+        return (
+          <PitchTypeCard
+            key={pitchType.id}
+            pitchType={pitchType}
+            price={price}
+            onBook={
+              request && price.kind === 'total'
+                ? () =>
+                    router.push({
+                      pathname: '/book',
+                      params: bookingParams({ pitchTypeId: pitchType.id, stay: request }),
+                    })
+                : undefined
+            }
+          />
+        );
+      })}
       <CampingDetails camping={camping} />
     </View>
   );
