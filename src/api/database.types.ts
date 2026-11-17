@@ -3,6 +3,190 @@ export type Json = string | number | boolean | null | { [key: string]: Json | un
 export type Database = {
   public: {
     Tables: {
+      booking_events: {
+        Row: {
+          actor_kind: Database['public']['Enums']['booking_actor'];
+          actor_user_id: string | null;
+          at: string;
+          booking_id: string;
+          from_status: Database['public']['Enums']['booking_status'] | null;
+          id: number;
+          note: string | null;
+          to_status: Database['public']['Enums']['booking_status'];
+        };
+        ComputedFields: never;
+        Insert: {
+          actor_kind: Database['public']['Enums']['booking_actor'];
+          actor_user_id?: string | null;
+          at?: string;
+          booking_id: string;
+          from_status?: Database['public']['Enums']['booking_status'] | null;
+          id?: never;
+          note?: string | null;
+          to_status: Database['public']['Enums']['booking_status'];
+        };
+        Update: {
+          actor_kind?: Database['public']['Enums']['booking_actor'];
+          actor_user_id?: string | null;
+          at?: string;
+          booking_id?: string;
+          from_status?: Database['public']['Enums']['booking_status'] | null;
+          id?: never;
+          note?: string | null;
+          to_status?: Database['public']['Enums']['booking_status'];
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'booking_events_booking_id_fkey';
+            columns: ['booking_id'];
+            isOneToOne: false;
+            referencedRelation: 'bookings';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      bookings: {
+        Row: {
+          arrival: string;
+          arrival_eta: string | null;
+          assigned_pitch: string | null;
+          camping_id: string;
+          cancel_reason: string | null;
+          cancellation_policy: Database['public']['Enums']['cancellation_policy'];
+          commission_bps: number;
+          commission_cents: number;
+          created_at: string;
+          currency: string;
+          departure: string;
+          due_online_cents: number;
+          equipment: Database['public']['Enums']['equipment'];
+          extras: NonNullable<Json>;
+          guest_country: string;
+          guest_email: string;
+          guest_name: string;
+          guest_note: string | null;
+          guest_phone: string;
+          hold_expires_at: string | null;
+          id: string;
+          internal_note: string | null;
+          locale: string;
+          manage_token_hash: string;
+          nights: number | null;
+          paid_cents: number;
+          party: NonNullable<Json>;
+          party_size: number;
+          payment_mode: Database['public']['Enums']['payment_mode'];
+          pitch_type_id: string;
+          price_breakdown: NonNullable<Json>;
+          ref: string;
+          refunded_cents: number;
+          request_expires_at: string | null;
+          status: Database['public']['Enums']['booking_status'];
+          total_cents: number;
+          updated_at: string;
+          user_id: string | null;
+          vehicle_plate: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          arrival: string;
+          arrival_eta?: string | null;
+          assigned_pitch?: string | null;
+          camping_id: string;
+          cancel_reason?: string | null;
+          cancellation_policy: Database['public']['Enums']['cancellation_policy'];
+          commission_bps: number;
+          commission_cents: number;
+          created_at?: string;
+          currency?: string;
+          departure: string;
+          due_online_cents?: number;
+          equipment: Database['public']['Enums']['equipment'];
+          extras?: NonNullable<Json>;
+          guest_country: string;
+          guest_email: string;
+          guest_name: string;
+          guest_note?: string | null;
+          guest_phone: string;
+          hold_expires_at?: string | null;
+          id?: string;
+          internal_note?: string | null;
+          locale: string;
+          manage_token_hash: string;
+          nights?: never;
+          paid_cents?: number;
+          party: NonNullable<Json>;
+          party_size: number;
+          payment_mode: Database['public']['Enums']['payment_mode'];
+          pitch_type_id: string;
+          price_breakdown: NonNullable<Json>;
+          ref: string;
+          refunded_cents?: number;
+          request_expires_at?: string | null;
+          status: Database['public']['Enums']['booking_status'];
+          total_cents: number;
+          updated_at?: string;
+          user_id?: string | null;
+          vehicle_plate?: string | null;
+        };
+        Update: {
+          arrival?: string;
+          arrival_eta?: string | null;
+          assigned_pitch?: string | null;
+          camping_id?: string;
+          cancel_reason?: string | null;
+          cancellation_policy?: Database['public']['Enums']['cancellation_policy'];
+          commission_bps?: number;
+          commission_cents?: number;
+          created_at?: string;
+          currency?: string;
+          departure?: string;
+          due_online_cents?: number;
+          equipment?: Database['public']['Enums']['equipment'];
+          extras?: NonNullable<Json>;
+          guest_country?: string;
+          guest_email?: string;
+          guest_name?: string;
+          guest_note?: string | null;
+          guest_phone?: string;
+          hold_expires_at?: string | null;
+          id?: string;
+          internal_note?: string | null;
+          locale?: string;
+          manage_token_hash?: string;
+          nights?: never;
+          paid_cents?: number;
+          party?: NonNullable<Json>;
+          party_size?: number;
+          payment_mode?: Database['public']['Enums']['payment_mode'];
+          pitch_type_id?: string;
+          price_breakdown?: NonNullable<Json>;
+          ref?: string;
+          refunded_cents?: number;
+          request_expires_at?: string | null;
+          status?: Database['public']['Enums']['booking_status'];
+          total_cents?: number;
+          updated_at?: string;
+          user_id?: string | null;
+          vehicle_plate?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'bookings_camping_id_fkey';
+            columns: ['camping_id'];
+            isOneToOne: false;
+            referencedRelation: 'campings';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'bookings_pitch_type_id_fkey';
+            columns: ['pitch_type_id'];
+            isOneToOne: false;
+            referencedRelation: 'pitch_types';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       camping_photos: {
         Row: {
           camping_id: string;
@@ -269,6 +453,57 @@ export type Database = {
             columns: ['pitch_type_id'];
             isOneToOne: false;
             referencedRelation: 'pitch_types';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
+      notification_queue: {
+        Row: {
+          attempts: number;
+          audience: string;
+          booking_id: string;
+          channel: string;
+          created_at: string;
+          id: number;
+          kind: string;
+          last_error: string | null;
+          next_attempt_at: string;
+          sent_at: string | null;
+          status: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          attempts?: number;
+          audience: string;
+          booking_id: string;
+          channel: string;
+          created_at?: string;
+          id?: never;
+          kind: string;
+          last_error?: string | null;
+          next_attempt_at?: string;
+          sent_at?: string | null;
+          status?: string;
+        };
+        Update: {
+          attempts?: number;
+          audience?: string;
+          booking_id?: string;
+          channel?: string;
+          created_at?: string;
+          id?: never;
+          kind?: string;
+          last_error?: string | null;
+          next_attempt_at?: string;
+          sent_at?: string | null;
+          status?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'notification_queue_booking_id_fkey';
+            columns: ['booking_id'];
+            isOneToOne: false;
+            referencedRelation: 'bookings';
             referencedColumns: ['id'];
           },
         ];
@@ -570,13 +805,20 @@ export type Database = {
     };
     Functions: {
       accept_partner_invite: { Args: { p_token: string }; Returns: Json };
+      athens_today: { Args: Record<PropertyKey, never>; Returns: string };
       camping_is_live: { Args: { p_camping_id: string }; Returns: boolean };
       camping_partner: { Args: { p_camping_id: string }; Returns: string };
       can_manage_camping_files: { Args: { p_object_name: string }; Returns: boolean };
+      cancel_my_booking: {
+        Args: { p_booking_id: string };
+        Returns: Database['public']['Enums']['booking_status'];
+      };
       check_night_range: {
         Args: { p_first_night: string; p_last_night: string };
         Returns: undefined;
       };
+      claim_bookings: { Args: Record<PropertyKey, never>; Returns: number };
+      complete_past_stays: { Args: Record<PropertyKey, never>; Returns: number };
       create_partner_invite: {
         Args: {
           p_email: string;
@@ -585,11 +827,62 @@ export type Database = {
         };
         Returns: string;
       };
+      expire_overdue_bookings: { Args: Record<PropertyKey, never>; Returns: number };
+      guest_booking: { Args: { p_ref: string; p_token: string }; Returns: Json };
+      guest_can_cancel: {
+        Args: { p_arrival: string; p_status: Database['public']['Enums']['booking_status'] };
+        Returns: boolean;
+      };
+      guest_cancel_booking: {
+        Args: { p_ref: string; p_token: string };
+        Returns: Database['public']['Enums']['booking_status'];
+      };
       invite_token_hash: { Args: { p_token: string }; Returns: string };
       is_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
       is_localized_text: { Args: { p_required?: boolean; p_value: Json }; Returns: boolean };
       is_partner_member: { Args: { p_partner_id: string }; Returns: boolean };
       is_partner_owner: { Args: { p_partner_id: string }; Returns: boolean };
+      new_booking_ref: { Args: Record<PropertyKey, never>; Returns: string };
+      partner_booking_action: {
+        Args: { p_action: string; p_booking_id: string; p_note: string };
+        Returns: Database['public']['Enums']['booking_status'];
+      };
+      queue_booking_notifications: {
+        Args: { p_booking_id: string; p_status: Database['public']['Enums']['booking_status'] };
+        Returns: undefined;
+      };
+      record_booking_event: {
+        Args: {
+          p_actor: Database['public']['Enums']['booking_actor'];
+          p_actor_user_id: string;
+          p_booking_id: string;
+          p_from: Database['public']['Enums']['booking_status'];
+          p_note: string;
+          p_to: Database['public']['Enums']['booking_status'];
+        };
+        Returns: undefined;
+      };
+      reserve_and_create_booking: {
+        Args: {
+          p_arrival: string;
+          p_departure: string;
+          p_equipment: Database['public']['Enums']['equipment'];
+          p_extras: Json;
+          p_guest: Json;
+          p_manage_token_hash: string;
+          p_party: Json;
+          p_pitch_type_id: string;
+          p_price_breakdown: Json;
+          p_total_cents: number;
+          p_user_id: string;
+        };
+        Returns: {
+          booking_id: string;
+          ref: string;
+          request_expires_at: string;
+          status: Database['public']['Enums']['booking_status'];
+        }[];
+      };
       sellable_pitch_types: {
         Args: {
           p_arrival: string;
@@ -640,8 +933,30 @@ export type Database = {
         Returns: number;
       };
       set_season_prices: { Args: { p_prices: Json; p_season_id: string }; Returns: number };
+      sha256_hex: { Args: { p_text: string }; Returns: string };
+      transition_booking: {
+        Args: {
+          p_actor: Database['public']['Enums']['booking_actor'];
+          p_actor_user_id: string;
+          p_booking_id: string;
+          p_note: string;
+          p_to: Database['public']['Enums']['booking_status'];
+        };
+        Returns: Database['public']['Enums']['booking_status'];
+      };
     };
     Enums: {
+      booking_actor: 'guest' | 'partner' | 'admin' | 'system';
+      booking_status:
+        | 'held'
+        | 'requested'
+        | 'confirmed'
+        | 'declined'
+        | 'expired'
+        | 'cancelled'
+        | 'checked_in'
+        | 'completed'
+        | 'no_show';
       camping_status: 'draft' | 'live' | 'paused';
       cancellation_policy: 'flexible' | 'moderate' | 'strict';
       confirmation_mode: 'instant' | 'request';
@@ -764,6 +1079,18 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      booking_actor: ['guest', 'partner', 'admin', 'system'],
+      booking_status: [
+        'held',
+        'requested',
+        'confirmed',
+        'declined',
+        'expired',
+        'cancelled',
+        'checked_in',
+        'completed',
+        'no_show',
+      ],
       camping_status: ['draft', 'live', 'paused'],
       cancellation_policy: ['flexible', 'moderate', 'strict'],
       confirmation_mode: ['instant', 'request'],
