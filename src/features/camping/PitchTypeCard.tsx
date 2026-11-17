@@ -14,9 +14,14 @@ export type PitchPrice =
   | { kind: 'from'; cents: number | null }
   | { kind: 'loading' };
 
-type Props = { pitchType: CampingPage['pitchTypes'][number]; price: PitchPrice };
+type Props = {
+  pitchType: CampingPage['pitchTypes'][number];
+  price: PitchPrice;
+  /** Opens the booking flow; without it (no dates, unavailable) Book is disabled. */
+  onBook?: () => void;
+};
 
-export function PitchTypeCard({ pitchType, price }: Props) {
+export function PitchTypeCard({ pitchType, price, onBook }: Props) {
   const t = useT();
   const { language } = useLanguage();
   const unavailable = price.kind === 'unavailable';
@@ -61,8 +66,13 @@ export function PitchTypeCard({ pitchType, price }: Props) {
                   ? '…'
                   : ''}
         </Text>
-        {/* Booking arrives in M4. */}
-        <Button label={t('camping.book')} variant="primary" onPress={() => {}} disabled />
+        <Button
+          label={t('camping.book')}
+          variant="primary"
+          onPress={() => onBook?.()}
+          disabled={!onBook}
+          testID={`pitch-${pitchType.id}-book`}
+        />
       </View>
     </View>
   );

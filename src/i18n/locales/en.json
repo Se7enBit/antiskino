@@ -69,7 +69,6 @@
     "noPrice": "Pick dates to see prices.",
     "unavailable": "Not available for these dates",
     "book": "Book",
-    "bookingSoon": "Online booking opens in the next update.",
     "about": "About",
     "amenities": "Amenities",
     "times": "Check-in and check-out",
@@ -95,6 +94,111 @@
     "location": "Location",
     "directions": "Directions",
     "photo": "Photo {{number}} of {{count}}"
+  },
+  "booking": {
+    "title": "Booking",
+    "steps": {
+      "stay": "Stay",
+      "details": "Your details",
+      "review": "Review"
+    },
+    "stepOf": "Step {{step}} of 3: {{name}}",
+    "guests": "Guests",
+    "guestCount": "{{name}}: {{count}}",
+    "noCategory": "Someone's age isn't covered by this camping's guest categories. Go back and change the guests.",
+    "extras": "Extras",
+    "noExtras": "No extras on offer for these dates.",
+    "price": "Price",
+    "pricing": "Pricing…",
+    "total": "Total",
+    "lines": {
+      "nights": "{{name}} · nights: {{nights}}",
+      "perNight": "{{name}} × {{count}} · nights: {{nights}}",
+      "perStay": "{{name}} × {{count}}"
+    },
+    "unavailable": {
+      "not_found": "This pitch type isn't on sale.",
+      "unavailable": "This pitch type isn't available for these dates any more.",
+      "party": "Someone's age isn't covered by this camping's guest categories.",
+      "no_price": "The camping hasn't set all prices for these dates.",
+      "extras": "One of the extras isn't available for these dates."
+    },
+    "continue": "Continue",
+    "back": "Back",
+    "details": {
+      "name": "Full name",
+      "email": "Email",
+      "phone": "Mobile phone",
+      "phoneHint": "With the country code, e.g. +30 690 123 4567.",
+      "country": "Country",
+      "otherCountry": "Other",
+      "countryCode": "Country code (2 letters, e.g. SE)",
+      "language": "Language for messages",
+      "vehiclePlate": "Vehicle plate (optional)",
+      "arrivalEta": "Estimated arrival time (optional, e.g. 16:30)",
+      "note": "Note to the camping (optional)"
+    },
+    "errors": {
+      "name": "Enter your full name.",
+      "email": "Enter a valid email address.",
+      "phone": "Enter the number with the country code, e.g. +30 690 123 4567.",
+      "country": "Pick your country or type its 2-letter code.",
+      "arrivalEta": "Enter a time like 16:30.",
+      "tooLong": "Too long."
+    },
+    "review": {
+      "payment": "Payment",
+      "payOnSite": "You pay {{price}} at reception. Nothing is charged online.",
+      "request": "This camping confirms each booking itself: it answers your request within {{hours}} hours. Nothing is booked until then.",
+      "cancellation": "Cancellation",
+      "terms": "I accept the booking terms and the camping's policies.",
+      "termsRequired": "Please accept the terms to continue.",
+      "book": "Book",
+      "sendRequest": "Send request"
+    },
+    "done": {
+      "confirmed": "Booking confirmed",
+      "requested": "Request sent",
+      "ref": "Reference: {{ref}}",
+      "confirmedBody": "See you at {{camping}}! You pay {{price}} at reception.",
+      "requestedBody": "{{camping}} answers within {{hours}} hours. Nothing is booked until then.",
+      "keepLink": "Keep this link: it lets you view or cancel your booking.",
+      "share": "Share the link",
+      "open": "View booking"
+    },
+    "taken": "Sorry, this pitch was just taken. Pick another pitch type or other dates.",
+    "backToCamping": "Back to the camping",
+    "badLink": "This booking link is incomplete. Start from the camping's page."
+  },
+  "bookingStatus": {
+    "held": "On hold",
+    "requested": "Request sent",
+    "confirmed": "Confirmed",
+    "declined": "Declined",
+    "expired": "Expired",
+    "cancelled": "Cancelled",
+    "checked_in": "Checked in",
+    "completed": "Completed",
+    "no_show": "No-show"
+  },
+  "manage": {
+    "title": "Your booking",
+    "notFound": "We couldn't find this booking. Check that you opened the whole link.",
+    "ref": "Reference {{ref}}",
+    "requestedUntil": "The camping answers by {{deadline}}. Nothing is booked until then.",
+    "declined": "The camping couldn't accept this request. Nothing is booked.",
+    "expired": "The camping didn't answer in time. Nothing is booked.",
+    "cancelled": "This booking is cancelled.",
+    "cancelReason": "Reason: {{reason}}",
+    "stay": "Stay",
+    "contact": "The camping",
+    "openCamping": "See the camping",
+    "cancel": "Cancel booking",
+    "cancelQuestion": "Cancel this booking?",
+    "cancelYes": "Yes, cancel",
+    "cancelNo": "No",
+    "changeHint": "To change dates, cancel and book again.",
+    "backToApp": "Go to Antiskino"
   },
   "favorites": {
     "title": "Favorites",
@@ -512,5 +616,27 @@
     "tent": "Tent",
     "caravan": "Caravan",
     "camper": "Camper / motorhome"
+  },
+  "countries": {
+    "GR": "Greece",
+    "CY": "Cyprus",
+    "DE": "Germany",
+    "AT": "Austria",
+    "CH": "Switzerland",
+    "IT": "Italy",
+    "FR": "France",
+    "NL": "Netherlands",
+    "BE": "Belgium",
+    "GB": "United Kingdom",
+    "BG": "Bulgaria",
+    "RO": "Romania",
+    "RS": "Serbia",
+    "PL": "Poland",
+    "CZ": "Czechia",
+    "HU": "Hungary",
+    "SE": "Sweden",
+    "DK": "Denmark",
+    "ES": "Spain",
+    "US": "United States"
   }
 }

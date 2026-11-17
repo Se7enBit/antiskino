@@ -1,6 +1,7 @@
 export { Badge } from './Badge';
 export { Button } from './Button';
 export { BodyText, Card, SectionLabel } from './Card';
+export { Checkbox } from './Checkbox';
 export { ChoiceGroup } from './ChoiceGroup';
 export { ConfirmButton } from './ConfirmButton';
 export { DateRangePicker, type DateRange } from './DateRangePicker';

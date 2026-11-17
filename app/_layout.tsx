@@ -16,6 +16,7 @@ export default function RootLayout() {
             <Stack.Screen name="partner" />
             <Stack.Screen name="admin" />
             <Stack.Screen name="invite" />
+            <Stack.Screen name="m" />
           </Stack>
         </AuthProvider>
       </QueryProvider>

@@ -33,3 +33,16 @@ export function formatMonth(month: IsoDate, language: Language): string {
     year: 'numeric',
   }).format(new Date(`${month.slice(0, 7)}-01T00:00:00Z`));
 }
+
+/** A timestamp as date and time in Athens: "1 Jul 2027, 14:00" / "1 Ιουλ 2027, 14:00". */
+export function formatDateTime(timestamp: string, language: Language): string {
+  return new Intl.DateTimeFormat(LOCALES[language], {
+    timeZone: TIME_ZONE,
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    hourCycle: 'h23',
+  }).format(new Date(timestamp));
+}
