@@ -8,6 +8,8 @@ import type {
 } from '../../supabase/functions/_shared/api';
 import { getSupabase, hasSupabaseEnv } from '@/lib/supabase';
 
+import { invokeFunction } from './functions';
+
 export type { SearchResponse, SearchResult };
 
 /** Live campings (id, slug, name, region) for Home: single-camping mode and the region filter. */
@@ -49,19 +51,12 @@ const searchResponseSchema = z.object({
   ),
 });
 
-/** Calls an edge function and checks its answer. */
-async function invoke<T>(name: string, body: object, schema: z.ZodType<T>): Promise<T> {
-  const { data, error } = await getSupabase().functions.invoke<unknown>(name, { body });
-  if (error) throw error;
-  return schema.parse(data);
-}
-
 /** Campings available for a stay, cheapest first (the `search` edge function). */
 export function useSearch(request: SearchRequest | null) {
   return useQuery({
     queryKey: ['public', 'search', request],
     queryFn: request
-      ? (): Promise<SearchResponse> => invoke('search', request, searchResponseSchema)
+      ? (): Promise<SearchResponse> => invokeFunction('search', request, searchResponseSchema)
       : skipToken,
     // Availability changes; don't show results older than a minute without refetching.
     staleTime: 60_000,
