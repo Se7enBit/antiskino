@@ -50,7 +50,10 @@
     "noResults": "No availability for these dates — try other dates.",
     "badLink": "This search link is incomplete. Start a new search.",
     "newSearch": "New search",
-    "from": "from {{price}} total"
+    "from": "from {{price}} total",
+    "list": "List",
+    "map": "Map",
+    "notOnMap": "Without a map location: {{count}}"
   },
   "camping": {
     "notFound": "This camping isn't on Antiskino right now.",
