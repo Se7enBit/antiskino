@@ -2,7 +2,7 @@
 
 > Book a camping pitch in Greece in under a minute. (*αντίσκηνο* = tent)
 
-Last updated: 2026-11-17 · Status: M1 done, M2 built (awaiting the owner's check), M3 built and awaiting the owner's check (search and quote functions, Home search, results list and map, camping page)
+Last updated: 2026-11-17 · Status: M1–M3 done, M4 in progress (booking)
 
 ## 0. Decisions log
 
@@ -62,6 +62,10 @@ Last updated: 2026-11-17 · Status: M1 done, M2 built (awaiting the owner's chec
 | Camping page (M3) | `/c/<slug>` carries the stay in its URL like the results (`?arrival=…`); without dates each pitch type shows "Pitch from €X / night", the lowest stored pitch rate of the seasons not yet over (display only; totals always come from `search`) | Book stays disabled until M4. A region filter from the results is dropped on the camping's own page. Single-camping mode: Home shows the page, and its search opens `/c/<slug>?…` |
 | Pre-rendered camping pages | `generateStaticParams` loads the live campings at build time (`src/api/staticCampings.ts`); the page's `<title>`, description and og tags are plain React DOM tags, which React hoists into `<head>` in the static export | `expo-router/head` only applies in the browser in SDK 58, so link previews need the static tags. A camping that goes live after a deploy still opens (GitHub Pages serves 404.html and the app renders it) but has no link preview until the next deploy: re-run CI on `main` (Actions → CI → Run workflow). The automatic rebuild of §5 needs a GitHub token for Supabase and comes later |
 | Maps (M3) | One `PinsMap` component: `react-native-maps` on native, Leaflet + OpenStreetMap tiles on web, loaded only in the browser after hydration (Leaflet needs `window`) | Results: a List / Map toggle with a price pin per camping (tap or Tab + Enter opens it); campings without coordinates are counted under the map. Camping page: a small map in Location. Leaflet's map-level keyboard handler is off: it focused the map on tap, the page scrolled and the tap was lost. OSM's public tiles are fine for previews; pick a tile provider before launch (M8). **Android builds need a Google Maps API key** (M6, with EAS); Expo Go works without |
+| Booking writes (M4) | `reserve_and_create_booking()` (secret key only) re-checks the §4.1 rules, locks the nights in order and takes one pitch each, all or nothing; `transition_booking()` is the only status change | Errors: `ANT01` not available / sold out, `ANT02` move not allowed. The reference is made in SQL (`new_booking_ref()`). Commission is snapshotted at creation: `round_half_up(total × bps / 10000)` with the partner's rate or the platform default |
+| Guest and partner actions (M4) | SQL functions instead of the `guest-booking` and `booking-action` edge functions | `guest_booking()` / `guest_cancel_booking()` check the manage token's SHA-256 (anon may call them; 32 random bytes can't be guessed). `cancel_my_booking()` for signed-in guests, `claim_bookings()` on sign-in, `partner_booking_action()` for accept / decline / cancel (members and admins; a reason is required to cancel). Guests can cancel until the end of the arrival day |
+| Notification queue (M4) | Rows say who (`audience`: guest or partner members) and how (email / push); addresses are looked up when sending | No guest data is copied into the queue. Guests without an account get no push rows. Rows wait until the `notify` function and a verified Resend domain exist |
+| Last-pitch concurrency test | A script with 20 separate connections (`supabase/tests/concurrency/`), run in CI after pgTAP | pgTAP runs in one session, so it can't race connections. An advisory lock releases all attempts at once |
 
 ## 1. Core problem
 
@@ -125,7 +129,7 @@ Each camping picks one preset. The preset is snapshotted on every booking. `days
 
 ### F7. Guest checkout & accounts
 - No sign-in is needed to book. The booking stores the guest's email.
-- Each booking gets a **manage link** `/m/[ref]?t=<token>`. The token is 32 random bytes and only its SHA-256 hash is stored. It lets the holder view, cancel and review that one booking, and it is sent in every booking email.
+- Each booking gets a **manage link** `/m?ref=<ref>&t=<token>` (query parameters: static web hosting can't serve unknown paths). The token is 32 random bytes and only its SHA-256 hash is stored. It lets the holder view, cancel and review that one booking, and it is sent in every booking email.
 - **Sign-in** is by email one-time code (Supabase Auth OTP). There are no passwords and no social login in v1, which also avoids the Sign in with Apple requirement on iOS.
 - On sign-in, every booking with that verified email is attached to the user (`claim_bookings()`).
 - Signed-in users get a My bookings list, prefilled details, favorites sync and push notifications.
@@ -293,7 +297,7 @@ app/
     bookings/index.tsx         # My bookings (signed in)
     bookings/[ref].tsx         # detail, cancel, review
     account.tsx                # sign in (email code), language, sign out
-  m/[ref].tsx                  # guest manage link (token)
+  m.tsx                        # guest manage link (?ref=&t=)
   partner/
     _layout.tsx                # partner-member gate, sidebar/tabs, camping switcher
     index.tsx                  # Today (M5); redirects to profile until then
@@ -324,12 +328,11 @@ src/
 supabase/
   migrations/                  # schema, RLS, SQL functions, cron
   functions/
-    _shared/                   # pricing.ts, cancellation.ts, ref.ts, payments/provider.ts, email/, push.ts, auth.ts
+    _shared/                   # pricing.ts, party.ts, catalog.ts, payments/provider.ts, email/, push.ts
     search/                    # available pitch types (SQL) + prices (TS)
     quote/                     # price one stay
     create-booking/            # validate → price → reserve_and_create_booking RPC
-    booking-action/            # accept, decline, cancel, check-in, no-show, assign pitch
-    guest-booking/             # manage-link token: view / cancel / review
+    booking-action/            # (M5 if needed) check-in, no-show, assign pitch; M4's accept/decline/cancel are SQL functions
     notify/                    # email + push dispatcher for notification_queue
     invite/                    # partner invites
   tests/                       # pgTAP
@@ -394,7 +397,7 @@ reviews(id, booking_id unique, camping_id, user_id null, rating 1..5, body, loca
         partner_reply, partner_replied_at, hidden bool, hidden_reason, created_at)
 favorites(user_id, camping_id, pk(user_id, camping_id))
 push_tokens(user_id, token unique, platform, updated_at)
-notification_queue(id, kind, booking_id null, recipient, channel 'email'|'push', payload jsonb,
+notification_queue(id, kind, booking_id, audience 'guest'|'partner', channel 'email'|'push',
                    status 'pending'|'sent'|'failed', attempts int, next_attempt_at, created_at)
 commission_statements(id, partner_id, month date, total_cents, status 'open'|'sent'|'paid')
 platform_settings(id = 1, default_commission_bps int)
@@ -435,8 +438,8 @@ Hosted checkout (redirect to `checkoutUrl`) keeps card data out of the app on al
 - Honest expectation: big platforms (Booking.com, camping-specific ones like Pitchup) already list Greek campings. Antiskino's edge is being local, Greek-language, simple, cheaper and having a direct relationship with each camping. Growth is partner by partner, not through ads.
 
 ## 8. Acceptance criteria (MVP done when…)
-- [ ] 20 concurrent booking attempts for the last available pitch → exactly 1 succeeds and the rest get "no longer available". `booked` never exceeds `allotment` (pgTAP).
-- [ ] Pricing fixtures pass: a stay across a season boundary prices each night by its own season; per-stay extras count once; fees apply by unit (deno test).
+- [x] 20 concurrent booking attempts for the last available pitch → exactly 1 succeeds and the rest get "no longer available". `booked` never exceeds `allotment` (concurrency script in CI, after pgTAP).
+- [x] Pricing fixtures pass: a stay across a season boundary prices each night by its own season; per-stay extras count once; fees apply by unit (deno test).
 - [ ] Min nights, capacity, equipment and closed nights are enforced; nights without inventory or season are not sellable.
 - [ ] Request mode: an unanswered request expires at its deadline, releases inventory and emails the guest.
 - [ ] A guest books without an account, gets the email in their language, opens the manage link, sees and cancels the booking. Refund amounts follow the preset (0 in on-site mode).
