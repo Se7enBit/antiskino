@@ -66,6 +66,8 @@ Last updated: 2026-11-17 · Status: M1–M3 done, M4 in progress (booking)
 | Guest and partner actions (M4) | SQL functions instead of the `guest-booking` and `booking-action` edge functions | `guest_booking()` / `guest_cancel_booking()` check the manage token's SHA-256 (anon may call them; 32 random bytes can't be guessed). `cancel_my_booking()` for signed-in guests, `claim_bookings()` on sign-in, `partner_booking_action()` for accept / decline / cancel (members and admins; a reason is required to cancel). Guests can cancel until the end of the arrival day |
 | Notification queue (M4) | Rows say who (`audience`: guest or partner members) and how (email / push); addresses are looked up when sending | No guest data is copied into the queue. Guests without an account get no push rows. Rows wait until the `notify` function and a verified Resend domain exist |
 | Last-pitch concurrency test | A script with 20 separate connections (`supabase/concurrency/`, outside `supabase/tests` so `supabase test db` leaves it alone), run in CI after pgTAP | pgTAP runs in one session, so it can't race connections. An advisory lock releases all attempts at once |
+| create-booking (M4) | Prices the stay with the same code as `quote`, then calls `reserve_and_create_booking()` with the secret key (`SUPABASE_SERVICE_ROLE_KEY`, provided to edge functions) | Returns the reference, status and the manage token (shown once; only its SHA-256 is stored). A signed-in user's token links the booking to them. The price breakdown snapshot also keeps the item names at booking time. JWT verification is off: guests book without an account. Open risk: anyone can create bookings, so watch for spam holding inventory (rate limiting or a captcha later) |
+| Booking route | `/book?pitchType=…&arrival=…` (query parameters) instead of `/c/[slug]/book` | Static hosting: no pre-rendered page per camping is needed for the flow |
 
 ## 1. Core problem
 
@@ -292,7 +294,7 @@ app/
       index.tsx                # Home: search, or the single live camping
       search.tsx               # results: list / map (?arrival=&departure=&adults=&children=4,7&equipment=&region=)
       c/[slug]/index.tsx       # camping page (static on web)
-      c/[slug]/book.tsx        # 3-step booking flow
+      book.tsx                 # 3-step booking flow (?pitchType=&arrival=&departure=&adults=&children=&equipment=)
     favorites.tsx
     bookings/index.tsx         # My bookings (signed in)
     bookings/[ref].tsx         # detail, cancel, review
@@ -331,7 +333,7 @@ supabase/
     _shared/                   # pricing.ts, party.ts, catalog.ts, payments/provider.ts, email/, push.ts
     search/                    # available pitch types (SQL) + prices (TS)
     quote/                     # price one stay
-    create-booking/            # validate → price → reserve_and_create_booking RPC
+    create-booking/            # validate → price (shared with quote) → reserve_and_create_booking RPC → manage token
     booking-action/            # (M5 if needed) check-in, no-show, assign pitch; M4's accept/decline/cancel are SQL functions
     notify/                    # email + push dispatcher for notification_queue
     invite/                    # partner invites

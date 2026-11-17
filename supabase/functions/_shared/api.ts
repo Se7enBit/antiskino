@@ -89,3 +89,42 @@ export type ErrorResponse = {
   error: 'invalid_input' | 'unauthorized' | 'method_not_allowed' | 'server_error';
   issues?: { path: string; code: string }[];
 };
+
+/** The booking's price snapshot: the quote plus the item names at booking time. */
+export type BookingBreakdown = Quote & {
+  names: {
+    pitch: unknown;
+    guest: Record<string, unknown>;
+    extra: Record<string, unknown>;
+    fee: Record<string, unknown>;
+  };
+};
+
+export type GuestDetails = {
+  name: string;
+  email: string;
+  /** With the country code, e.g. "+30 690 123 4567". */
+  phone: string;
+  /** ISO 3166-1 alpha-2, e.g. "GR". */
+  country: string;
+  locale: 'el' | 'en';
+  vehiclePlate?: string;
+  /** "HH:MM" */
+  arrivalEta?: string;
+  note?: string;
+};
+
+export type CreateBookingRequest = QuoteRequest & { guest: GuestDetails; acceptTerms: true };
+
+export type CreateBookingResponse =
+  | {
+      booked: true;
+      ref: string;
+      status: 'confirmed' | 'requested';
+      /** When the camping must answer a request by. */
+      requestExpiresAt: string | null;
+      /** For the manage link /m?ref=…&t=…; shown once, never stored in clear. */
+      manageToken: string;
+      totalCents: number;
+    }
+  | { booked: false; reason: UnavailableReason };

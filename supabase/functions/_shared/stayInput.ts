@@ -37,3 +37,32 @@ export const quoteRequestSchema = stayQuery
   })
   .refine(stayLength.check, stayLength.params);
 export type QuoteInput = z.output<typeof quoteRequestSchema>;
+
+const phone = z
+  .string()
+  .transform((value) => value.trim().replace(/\s+/g, ' '))
+  .pipe(z.string().regex(/^\+[0-9][0-9 ]{5,23}$/));
+
+const guestDetails = z.object({
+  name: z.string().trim().min(1).max(120),
+  email: z.email().max(254),
+  phone,
+  country: z.string().regex(/^[A-Z]{2}$/),
+  locale: z.enum(['el', 'en']),
+  vehiclePlate: z.string().trim().min(1).max(20).optional(),
+  arrivalEta: z
+    .string()
+    .regex(/^([01][0-9]|2[0-3]):[0-5][0-9]$/)
+    .optional(),
+  note: z.string().trim().min(1).max(1000).optional(),
+});
+
+export const createBookingRequestSchema = stayQuery
+  .extend({
+    pitchTypeId: z.uuid(),
+    extras: z.record(z.uuid(), z.int().min(0).max(20)).default({}),
+    guest: guestDetails,
+    acceptTerms: z.literal(true),
+  })
+  .refine(stayLength.check, stayLength.params);
+export type CreateBookingInput = z.output<typeof createBookingRequestSchema>;

@@ -59,3 +59,34 @@ Deno.test('maps failures to status codes without details', async () => {
     console.error = originalError;
   }
 });
+
+Deno.test('checks booking requests', async () => {
+  const { createBookingRequestSchema } = await import('./stayInput.ts');
+  const booking = {
+    ...STAY,
+    pitchTypeId: '0b3f6a3c-5a8e-4c79-9f43-2b7b3a2c1d10',
+    guest: {
+      name: ' Maria ',
+      email: 'maria@example.com',
+      phone: ' +30  690 123 4567 ',
+      country: 'GR',
+      locale: 'el',
+    },
+    acceptTerms: true,
+  };
+  const ok = createBookingRequestSchema.safeParse(booking);
+  assertEquals(ok.success && [ok.data.guest.name, ok.data.guest.phone, ok.data.extras], [
+    'Maria',
+    '+30 690 123 4567',
+    {},
+  ]);
+  const paths = (patch: Record<string, unknown>) => {
+    const result = createBookingRequestSchema.safeParse({ ...booking, ...patch });
+    return result.success ? [] : result.error.issues.map((i) => i.path.join('.'));
+  };
+  assertEquals(paths({ acceptTerms: false }), ['acceptTerms']);
+  assertEquals(paths({ guest: { ...booking.guest, phone: '6901234567' } }), ['guest.phone']);
+  assertEquals(paths({ guest: { ...booking.guest, country: 'Greece' } }), ['guest.country']);
+  assertEquals(paths({ guest: { ...booking.guest, email: 'nope' } }), ['guest.email']);
+  assertEquals(paths({ guest: { ...booking.guest, arrivalEta: '25:00' } }), ['guest.arrivalEta']);
+});
