@@ -2,7 +2,7 @@
 
 > Book a camping pitch in Greece in under a minute. (*αντίσκηνο* = tent)
 
-Last updated: 2026-11-17 · Status: M1 done, M2 built and awaiting the owner's check (database layer, sign-in, admin, partner Profile, Pitch types, Rates and Availability)
+Last updated: 2026-11-17 · Status: M1 done, M2 built (awaiting the owner's check), M3 in progress (search and quote functions)
 
 ## 0. Decisions log
 
@@ -53,6 +53,10 @@ Last updated: 2026-11-17 · Status: M1 done, M2 built and awaiting the owner's c
 | Rates editing (M2) | Seasons are entered as first and last night (DD/MM/YYYY) and stored as `[first, last + 1)`; prices are typed in euros (`12`, `12,50`) and stored as cents | A season's price grid is saved in one call, `set_season_prices()` (owners and admins, all or nothing). An empty price field means "not set" for that season; how search and quotes treat items without a price is decided in M3 |
 | Deleting rates items | Seasons, guest categories, extras and fees are deleted (with an inline "Delete for good?" confirm), not hidden | Deleting a season or item also deletes its prices. Extras can instead be hidden from guests (`active = false`). Revisit once bookings reference them (M4 snapshots keep booked prices) |
 | Availability screen (M2) | Grid of pitch types × 14 nights from today (Athens), moved two weeks at a time; each cell shows `booked/allotment`, "—" without inventory; full and closed nights are coloured | Tapping a night fills in both forms. Allotment: one pitch type and night range per `set_allotment()` call (owners). Close/open: one or more pitch types, one `set_closed()` call each, not atomic across pitch types (whole team). Ranges over 400 nights are refused in the form |
+| Guests in search (M3) | The party is **adults + each child's age** (0–17) | Each camping defines its own age categories, so each person is matched to the category covering their age (adults count as 18). A party with an age no category covers can't be priced at that camping. The booking step shows the camping's categories, pre-filled |
+| Missing prices (M3) | A price the stay needs but the season lacks makes it **not sellable** | Missing pitch or guest price: the pitch type is unavailable for those dates. Missing extra price: the extra isn't offered. Partners type 0 for free |
+| Search & quote functions (M3) | `sellable_pitch_types()` (SQL, security definer, callable by anon, returns ids only) applies §4.1; the edge functions price with `_shared/pricing.ts` | They read with the caller's public API key, so RLS limits them to live campings; no secret key needed. JWT verification is off for both (publishable keys aren't JWTs). Results are cheapest first. Arrival today only before the camping's same-day cutoff; at most 30 nights |
+| Icons | `@expo/vector-icons` (Material Community Icons) | Equipment and amenity icons |
 
 ## 1. Core problem
 
@@ -251,6 +255,7 @@ expired        ├──► cancelled (guest / partner / admin)
 | Dates | date-fns + small helpers in `src/lib/dates.ts`; nights as `YYYY-MM-DD` strings, Europe/Athens |
 | Maps | `react-native-maps` on native (`*.native.tsx`), `react-leaflet` + OpenStreetMap tiles on web (`*.web.tsx`) |
 | Photos | `expo-image-picker` for choosing photos; files in Supabase Storage |
+| Icons | `@expo/vector-icons` (Material Community Icons) |
 | Backend | Supabase: Postgres + RLS, Auth (email OTP), Storage (photos), Edge Functions (Deno/TS), Realtime (partner Today/Bookings), pg_cron + pg_net |
 | Email | Resend, called from edge functions; EL/EN templates |
 | Push | expo-notifications + Expo Push API from edge functions |
@@ -455,4 +460,3 @@ Hosted checkout (redirect to `checkoutUrl`) keeps card data out of the app on al
 - **The first camping's setup:** does it use a PMS or sell on other sites? This sets allotment sizes and whether sync is needed later.
 - **Domain and store names:** check that antiskino.gr / .com and the app store name are available.
 - **Legal:** terms of service, privacy policy (GDPR), partner agreement.
-- **Icon set** (not in §5): the tab bar shows labels only until one is chosen. Amenity and equipment icons need it by M3.
