@@ -7,6 +7,8 @@ import { usePitchTypes } from '@/api/pitchTypes';
 import { localized, useLanguage, useT } from '@/i18n';
 import { Badge, BodyText, Button, Card, Loading, Notice, spacing } from '@/ui';
 
+import { ErrorState } from '../common/ErrorState';
+
 import { PartnerScreen } from './PartnerScreen';
 import { PitchTypeEditor } from './PitchTypeEditor';
 
@@ -27,7 +29,7 @@ function PitchTypesBody({ campingId, canEdit }: { campingId: string; canEdit: bo
   const [editing, setEditing] = useState<string | null>(null);
 
   if (pitchTypes.isPending) return <Loading label={t('common.loading')} />;
-  if (!pitchTypes.data) return <Notice tone="error" message={t('common.error')} />;
+  if (!pitchTypes.data) return <ErrorState onRetry={() => void pitchTypes.refetch()} />;
   const list = pitchTypes.data;
 
   return (

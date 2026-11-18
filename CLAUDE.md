@@ -30,7 +30,7 @@ The Supabase CLI is v3 (pinned in CI): `gen types` and `test db` target the loca
 ## Working from a phone
 The owner mostly works from a phone, so:
 - **CI is the test runner.** Keep `typecheck → lint → jest → deno test → pgTAP → web export` green, and add tests with every logic change.
-- The web preview (https://se7enbit.github.io/antiskino/) deploys on push to `main`, and native checks use the EAS preview APK. Push notifications don't work in Expo Go.
+- The web preview (https://se7enbit.github.io/antiskino/) deploys on push to `main`, and native checks use the EAS preview APK (GitHub → Actions → "Android preview build" → Run workflow; install from expo.dev → Builds). Push notifications don't work in Expo Go.
 - Keep changes small. End each task with a short "how to check it on the phone" note (which screen, what to tap, what to expect).
 
 ## Rules
@@ -85,5 +85,5 @@ The owner mostly works from a phone, so:
 - **App (public):** `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_KEY` (publishable/anon key), `EXPO_PUBLIC_SITE_URL`
 - **Edge function secrets:** `SUPABASE_URL`, Supabase secret/service-role key (provided to functions), `RESEND_API_KEY`, `EMAIL_FROM`, `SITE_URL`, `EXPO_ACCESS_TOKEN` (optional, push), `NOTIFY_SECRET` (push delivery; same value as the Vault secret `notify_secret`). From M7: `PAYMENT_PROVIDER`, provider API key, webhook secret.
 - **CI web build (public values):** `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_KEY` as Actions variables or secrets (either works), `EXPO_PUBLIC_SITE_URL` (optional variable; defaults to the Pages URL). The web job warns when the Supabase ones are missing.
-- **CI secrets:** `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD`, `SUPABASE_PROJECT_REF` (prod migrations, M8), `EXPO_TOKEN` (EAS, from M6). None are used in M1.
+- **CI secrets:** `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD`, `SUPABASE_PROJECT_REF` (prod migrations, M8), `EXPO_TOKEN` (EAS: the Android preview build workflow, from M6).
 - Keep `.env.example` up to date with every variable (no values).
