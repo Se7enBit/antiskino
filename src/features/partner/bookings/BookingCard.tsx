@@ -1,46 +1,41 @@
-import { useState } from 'react';
+import { router } from 'expo-router';
 import { Linking, StyleSheet, Text, View } from 'react-native';
 
 import type { BookingAction, CampingBooking } from '@/api/partnerBookings';
 import { shortTime } from '@/domain/camping';
 import { localized, useLanguage, useT } from '@/i18n';
-import { formatDateInput } from '@/lib/dates';
+import { formatDateInput, type IsoDate } from '@/lib/dates';
 import { formatDateTime } from '@/lib/format';
 import { formatMoney } from '@/lib/money';
-import { Badge, BodyText, Button, ConfirmButton, Notice, TextField, colors, spacing } from '@/ui';
+import { Badge, BodyText, Button, colors, spacing } from '@/ui';
+
+import { BookingActions } from './BookingActions';
+import { STATUS_TONES } from './statusTones';
 
 type Props = {
   booking: CampingBooking;
+  today: IsoDate;
   onAction: (action: BookingAction, reason?: string) => void;
   busy: boolean;
   failed: boolean;
 };
 
+/** Opens a booking's detail page. */
+export function openBooking(ref: string) {
+  router.push({ pathname: '/partner/bookings/detail', params: { ref } });
+}
+
 /** One booking for the camping's team: guest, stay, contact and what can be done now. */
-export function BookingCard({ booking, onAction, busy, failed }: Props) {
+export function BookingCard({ booking, today, onAction, busy, failed }: Props) {
   const t = useT();
   const { language } = useLanguage();
-  const [cancelling, setCancelling] = useState(false);
-  const [reason, setReason] = useState('');
-  const [reasonMissing, setReasonMissing] = useState(false);
   const eta = shortTime(booking.arrival_eta);
-  // Requests are declined, not cancelled.
-  const cancellable = booking.status === 'confirmed';
 
   return (
     <View style={styles.card} testID={`partner-booking-${booking.ref}`}>
       <View style={styles.top}>
         <Text style={styles.name}>{booking.guest_name}</Text>
-        <Badge
-          label={t(`bookingStatus.${booking.status}`)}
-          tone={
-            booking.status === 'confirmed'
-              ? 'success'
-              : booking.status === 'requested'
-                ? 'warning'
-                : 'neutral'
-          }
-        />
+        <Badge label={t(`bookingStatus.${booking.status}`)} tone={STATUS_TONES[booking.status]} />
       </View>
       <BodyText>
         {formatDateInput(booking.arrival)} → {formatDateInput(booking.departure)} ·{' '}
@@ -52,6 +47,11 @@ export function BookingCard({ booking, onAction, busy, failed }: Props) {
         {t(`equipment.${booking.equipment}`)} · {formatMoney(booking.total_cents, language)} ·{' '}
         {booking.ref}
       </BodyText>
+      {booking.assigned_pitch ? (
+        <Text style={styles.pitch}>
+          {t('partner.booking.pitch', { pitch: booking.assigned_pitch })}
+        </Text>
+      ) : null}
       {booking.status === 'requested' && booking.request_expires_at ? (
         <Text style={styles.deadline}>
           {t('partner.bookings.answerBy', {
@@ -71,6 +71,12 @@ export function BookingCard({ booking, onAction, busy, failed }: Props) {
       ) : null}
       <View style={styles.actions}>
         <Button
+          label={t('partner.booking.open')}
+          icon="file-document-outline"
+          onPress={() => openBooking(booking.ref)}
+          testID={`open-${booking.ref}`}
+        />
+        <Button
           label={`${t('partner.bookings.call')} ${booking.guest_phone}`}
           icon="phone"
           onPress={() => void Linking.openURL(`tel:${booking.guest_phone.replace(/\s/g, '')}`)}
@@ -81,60 +87,13 @@ export function BookingCard({ booking, onAction, busy, failed }: Props) {
           onPress={() => void Linking.openURL(`mailto:${booking.guest_email}`)}
         />
       </View>
-
-      {failed ? <Notice tone="error" message={t('common.error')} /> : null}
-      {booking.status === 'requested' ? (
-        <View style={styles.actions}>
-          <Button
-            label={t('partner.bookings.accept')}
-            variant="primary"
-            onPress={() => onAction('accept')}
-            loading={busy}
-            testID={`accept-${booking.ref}`}
-          />
-          <ConfirmButton
-            label={t('partner.bookings.decline')}
-            question={t('partner.bookings.declineQuestion')}
-            yes={t('partner.bookings.declineYes')}
-            no={t('manage.cancelNo')}
-            onConfirm={() => onAction('decline')}
-            loading={busy}
-            testID={`decline-${booking.ref}`}
-          />
-        </View>
-      ) : null}
-      {cancellable && !cancelling ? (
-        <Button
-          label={t('partner.bookings.cancel')}
-          onPress={() => setCancelling(true)}
-          testID={`cancel-${booking.ref}`}
-        />
-      ) : null}
-      {cancellable && cancelling ? (
-        <View style={styles.cancel}>
-          <TextField
-            label={t('partner.bookings.cancelReason')}
-            value={reason}
-            onChangeText={setReason}
-            error={reasonMissing ? t('partner.bookings.reasonRequired') : null}
-            multiline
-            testID={`cancel-reason-${booking.ref}`}
-          />
-          <View style={styles.actions}>
-            <Button
-              label={t('partner.bookings.cancelConfirm')}
-              variant="primary"
-              loading={busy}
-              onPress={() => {
-                if (reason.trim().length < 3) return setReasonMissing(true);
-                onAction('cancel', reason.trim());
-              }}
-              testID={`cancel-confirm-${booking.ref}`}
-            />
-            <Button label={t('partner.bookings.keep')} onPress={() => setCancelling(false)} />
-          </View>
-        </View>
-      ) : null}
+      <BookingActions
+        booking={booking}
+        today={today}
+        onAction={onAction}
+        busy={busy}
+        failed={failed}
+      />
     </View>
   );
 }
@@ -156,6 +115,7 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   name: { flex: 1, fontSize: 17, fontWeight: '700', color: colors.text },
+  pitch: { fontSize: 15, fontWeight: '700', color: colors.primary },
   deadline: { fontSize: 15, fontWeight: '700', color: colors.danger },
   actions: {
     flexDirection: 'row',
@@ -164,5 +124,4 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
     marginTop: spacing.xs,
   },
-  cancel: { gap: spacing.sm, marginTop: spacing.xs },
 });

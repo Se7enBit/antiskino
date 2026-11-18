@@ -515,7 +515,67 @@
       "keep": "Keep it",
       "reasonRequired": "Write a short reason for the guest.",
       "call": "Call",
-      "emailGuest": "Email"
+      "emailGuest": "Email",
+      "checkIn": "Check in",
+      "noShow": "No-show",
+      "noShowQuestion": "Mark as no-show? The nights stay booked.",
+      "noShowYes": "Yes, no-show",
+      "filter": {
+        "search": "Search by name or reference",
+        "show": "Filters",
+        "hide": "Hide filters",
+        "clear": "Clear filters",
+        "from": "Stays from",
+        "to": "Stays until",
+        "dateError": "Enter a date like 01/07/2027.",
+        "rangeHint": "Stays that overlap these dates. Leave empty for the last 60 days and everything ahead.",
+        "count": "Bookings found: {{count}}",
+        "none": "No bookings match.",
+        "status": {
+          "all": "All",
+          "requested": "Requests",
+          "confirmed": "Confirmed",
+          "checked_in": "Checked in",
+          "completed": "Completed",
+          "no_show": "No-show",
+          "cancelled": "Cancelled or declined"
+        }
+      }
+    },
+    "booking": {
+      "title": "Booking",
+      "open": "Details",
+      "notFound": "We couldn't find this booking.",
+      "pitch": "Pitch {{pitch}}",
+      "unassigned": "No pitch assigned",
+      "checkInFrom": "Check-in and no-show are possible from the arrival day.",
+      "desk": "Reception",
+      "pitchLabel": "Pitch number",
+      "internalNote": "Internal note (only your team sees it)",
+      "saved": "Saved.",
+      "guest": "Guest",
+      "country": "Country: {{country}}",
+      "language": "Language: {{language}}",
+      "locale": {
+        "el": "Greek",
+        "en": "English"
+      },
+      "stay": "Stay and price",
+      "guests": "Guests",
+      "payment": {
+        "on_site": "Pays at the camping: {{price}}",
+        "deposit": "Deposit online, the rest at the camping: {{price}} in total",
+        "full": "Paid online: {{price}}"
+      },
+      "commission": "Antiskino commission: {{amount}}",
+      "history": "History",
+      "created": "Booked on {{time}}",
+      "actor": {
+        "guest": "by the guest",
+        "partner": "by the camping",
+        "admin": "by Antiskino",
+        "system": "automatically"
+      }
     }
   },
   "admin": {

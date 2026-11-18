@@ -1,4 +1,5 @@
 import { fireEvent, screen } from '@testing-library/react-native';
+import { router } from 'expo-router';
 import type { ReactNode } from 'react';
 import { Linking } from 'react-native';
 
@@ -16,6 +17,7 @@ jest.mock('@/api/partnerBookings', () => ({
   useCampingBookings: jest.fn(),
   usePartnerBookingAction: jest.fn(),
 }));
+jest.mock('expo-router', () => ({ router: { push: jest.fn() } }));
 jest.mock('@/lib/dates', () => ({
   ...jest.requireActual<object>('@/lib/dates'),
   todayInAthens: () => '2027-07-05',
@@ -47,6 +49,7 @@ const booking = (ref: string, patch: Partial<CampingBooking> = {}): CampingBooki
   vehicle_plate: null,
   request_expires_at: null,
   cancel_reason: null,
+  assigned_pitch: null,
   created_at: '2027-06-01T10:00:00Z',
   pitch_type: { name: { en: 'Caravan pitch' } },
   ...patch,
@@ -85,7 +88,8 @@ describe('Partner bookings', () => {
 
   it('shows requests first, then upcoming stays; past ones on demand', async () => {
     await setup(LIST);
-    expect(useCampingBookings).toHaveBeenCalledWith('c1');
+    // 60 days back from today, no end.
+    expect(useCampingBookings).toHaveBeenCalledWith('c1', { from: '2027-05-06', to: null });
     expect(screen.getByText('Requests to answer')).toBeTruthy();
     expect(screen.getByText('Answer by 6 Jul 2027, 12:00')).toBeTruthy();
     expect(screen.getByText('Upcoming stays')).toBeTruthy();
@@ -143,6 +147,68 @@ describe('Partner bookings', () => {
     await setup([booking('ANT-STAY01')]);
     await fireEvent.press(screen.getByText('Call +30 690 123 4567'));
     expect(Linking.openURL).toHaveBeenCalledWith('tel:+306901234567');
+  });
+
+  it('checks in and marks no-shows from the arrival day', async () => {
+    const { action } = await setup([
+      booking('ANT-TODAY1', { arrival: '2027-07-05', departure: '2027-07-07' }),
+      booking('ANT-LATER1'),
+    ]);
+    expect(screen.queryByTestId('check-in-ANT-LATER1')).toBeNull();
+    expect(screen.queryByTestId('no-show-ANT-LATER1')).toBeNull();
+    await fireEvent.press(screen.getByTestId('check-in-ANT-TODAY1'));
+    expect(action.mutate).toHaveBeenLastCalledWith({
+      bookingId: 'ANT-TODAY1',
+      action: 'check_in',
+      reason: undefined,
+    });
+    await fireEvent.press(screen.getByTestId('no-show-ANT-TODAY1'));
+    await fireEvent.press(screen.getByTestId('no-show-ANT-TODAY1-yes'));
+    expect(action.mutate).toHaveBeenLastCalledWith({
+      bookingId: 'ANT-TODAY1',
+      action: 'no_show',
+      reason: undefined,
+    });
+  });
+
+  it('shows the assigned pitch and opens the details', async () => {
+    await setup([booking('ANT-STAY01', { assigned_pitch: 'B12' })]);
+    expect(screen.getByText('Pitch B12')).toBeTruthy();
+    await fireEvent.press(screen.getByTestId('open-ANT-STAY01'));
+    expect(router.push).toHaveBeenCalledWith({
+      pathname: '/partner/bookings/detail',
+      params: { ref: 'ANT-STAY01' },
+    });
+  });
+
+  it('searches by name or reference and filters by status', async () => {
+    await setup(LIST);
+    await fireEvent.changeText(screen.getByTestId('booking-search'), 'nobody');
+    expect(screen.getByText('No bookings match.')).toBeTruthy();
+    await fireEvent.changeText(screen.getByTestId('booking-search'), 'canc01');
+    expect(screen.getByText('Bookings found: 1')).toBeTruthy();
+    expect(screen.getByTestId('partner-booking-ANT-CANC01')).toBeTruthy();
+    await fireEvent.changeText(screen.getByTestId('booking-search'), '');
+    await fireEvent.press(screen.getByTestId('toggle-filters'));
+    await fireEvent.press(screen.getByText('Requests'));
+    expect(screen.getByText('Bookings found: 1')).toBeTruthy();
+    expect(screen.getByTestId('partner-booking-ANT-REQ001')).toBeTruthy();
+    await fireEvent.press(screen.getByText('Clear filters'));
+    expect(screen.getByText('Requests to answer')).toBeTruthy();
+  });
+
+  it('loads the stays of a date range', async () => {
+    await setup(LIST);
+    await fireEvent.press(screen.getByTestId('toggle-filters'));
+    await fireEvent.changeText(screen.getByTestId('range-from'), '1/8/2027');
+    expect(useCampingBookings).toHaveBeenLastCalledWith('c1', { from: '2027-08-01', to: null });
+    await fireEvent.changeText(screen.getByTestId('range-to'), '31/07/2027');
+    expect(screen.getByText('Enter a date like 01/07/2027.')).toBeTruthy();
+    await fireEvent.changeText(screen.getByTestId('range-to'), '31/08/2027');
+    expect(useCampingBookings).toHaveBeenLastCalledWith('c1', {
+      from: '2027-08-01',
+      to: '2027-08-31',
+    });
   });
 
   it('says when there are no bookings', async () => {
