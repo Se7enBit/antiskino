@@ -13,6 +13,7 @@ import { todayInAthens } from '@/lib/dates';
 import { useHydrated } from '@/lib/useHydrated';
 import { BodyText, Button, Card, Icon, Loading, Notice, colors, spacing } from '@/ui';
 
+import { FavoriteButton } from '../favorites/FavoriteButton';
 import { RatingSummary } from '../reviews/RatingSummary';
 import { SearchForm } from '../search/SearchForm';
 import { useSearchStore } from '../search/searchStore';
@@ -109,9 +110,14 @@ export function CampingPage({ slug, request, onSearch, onNotFound }: Props) {
       {camping.status !== 'live' ? <Notice message={t('camping.draft')} /> : null}
       <Gallery photos={camping.photos} />
       <View style={styles.intro}>
-        <Text style={styles.name} accessibilityRole="header">
-          {camping.name}
-        </Text>
+        <View style={styles.title}>
+          <Text style={styles.name} accessibilityRole="header">
+            {camping.name}
+          </Text>
+          {camping.status === 'live' ? (
+            <FavoriteButton campingId={camping.id} name={camping.name} />
+          ) : null}
+        </View>
         {camping.region ? (
           <View style={styles.place}>
             <Icon name="map-marker" size={18} color={colors.muted} />
@@ -174,7 +180,8 @@ export function CampingPage({ slug, request, onSearch, onNotFound }: Props) {
 const styles = StyleSheet.create({
   page: { gap: spacing.md },
   intro: { gap: spacing.xs },
-  name: { fontSize: 28, fontWeight: '800', color: colors.text },
+  title: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
+  name: { flex: 1, fontSize: 28, fontWeight: '800', color: colors.text },
   place: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
   heading: { fontSize: 20, fontWeight: '700', color: colors.text },
 });

@@ -13,6 +13,15 @@ import { CampingPage } from '../CampingPage';
 
 jest.mock('expo-router', () => ({ Stack: { Screen: () => null }, router: { push: jest.fn() } }));
 jest.mock('@/api/camping', () => ({ useCampingPage: jest.fn() }));
+jest.mock('@/features/favorites/useFavorites', () => ({
+  useFavorites: () => ({
+    ids: [],
+    ready: true,
+    signedIn: false,
+    isFavorite: () => false,
+    toggle: jest.fn(),
+  }),
+}));
 jest.mock('@/api/search', () => ({ useSearch: jest.fn() }));
 jest.mock('@/api/reviews', () => ({
   useCampingReviews: () => ({ isError: false, data: { reviews: [], rating: null } }),

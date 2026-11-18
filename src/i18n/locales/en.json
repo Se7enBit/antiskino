@@ -202,7 +202,10 @@
   },
   "favorites": {
     "title": "Favorites",
-    "body": "Campings you save with the heart will appear here."
+    "body": "Campings you save with the heart will appear here.",
+    "add": "Save {{name}} to favorites",
+    "remove": "Remove {{name}} from favorites",
+    "signInHint": "Sign in to keep your favorites on all your devices."
   },
   "bookings": {
     "title": "My bookings",

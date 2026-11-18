@@ -352,6 +352,33 @@ export type Database = {
           },
         ];
       };
+      favorites: {
+        Row: {
+          camping_id: string;
+          created_at: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          camping_id: string;
+          created_at?: string;
+          user_id: string;
+        };
+        Update: {
+          camping_id?: string;
+          created_at?: string;
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'favorites_camping_id_fkey';
+            columns: ['camping_id'];
+            isOneToOne: false;
+            referencedRelation: 'campings';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       fees: {
         Row: {
           amount_cents: number;
@@ -977,6 +1004,7 @@ export type Database = {
       is_localized_text: { Args: { p_required?: boolean; p_value: Json }; Returns: boolean };
       is_partner_member: { Args: { p_partner_id: string }; Returns: boolean };
       is_partner_owner: { Args: { p_partner_id: string }; Returns: boolean };
+      merge_favorites: { Args: { p_camping_ids: string[] }; Returns: number };
       my_booking: { Args: { p_ref: string }; Returns: Json };
       new_booking_ref: { Args: Record<PropertyKey, never>; Returns: string };
       partner_booking_action: {
