@@ -895,10 +895,11 @@ export type Database = {
     Views: {
       camping_ratings: {
         Row: {
-          camping_id: string | null;
+          camping_id: string;
           rating_avg: number | null;
           review_count: number | null;
         };
+        ComputedFields: never;
         Relationships: [
           {
             foreignKeyName: 'reviews_camping_id_fkey';
