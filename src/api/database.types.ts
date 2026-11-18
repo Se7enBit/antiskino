@@ -841,6 +841,17 @@ export type Database = {
         Returns: undefined;
       };
       claim_bookings: { Args: Record<PropertyKey, never>; Returns: number };
+      claim_push_notifications: {
+        Args: { p_limit?: number };
+        Returns: {
+          attempts: number;
+          audience: string;
+          booking: Json;
+          id: number;
+          kind: string;
+          recipients: Json;
+        }[];
+      };
       complete_past_stays: { Args: Record<PropertyKey, never>; Returns: number };
       create_partner_invite: {
         Args: {
@@ -851,6 +862,11 @@ export type Database = {
         Returns: string;
       };
       expire_overdue_bookings: { Args: Record<PropertyKey, never>; Returns: number };
+      finish_push_notification: {
+        Args: { p_error?: string; p_id: number; p_outcome: string };
+        Returns: undefined;
+      };
+      forget_push_tokens: { Args: { p_tokens: string[] }; Returns: number };
       guest_booking: { Args: { p_ref: string; p_token: string }; Returns: Json };
       guest_can_cancel: {
         Args: { p_arrival: string; p_status: Database['public']['Enums']['booking_status'] };
@@ -861,6 +877,7 @@ export type Database = {
         Returns: Database['public']['Enums']['booking_status'];
       };
       invite_token_hash: { Args: { p_token: string }; Returns: string };
+      invoke_notify: { Args: Record<PropertyKey, never>; Returns: number };
       is_admin: { Args: Record<PropertyKey, never>; Returns: boolean };
       is_localized_text: { Args: { p_required?: boolean; p_value: Json }; Returns: boolean };
       is_partner_member: { Args: { p_partner_id: string }; Returns: boolean };
@@ -875,6 +892,7 @@ export type Database = {
         Args: { p_booking_id: string; p_status: Database['public']['Enums']['booking_status'] };
         Returns: undefined;
       };
+      queue_expiring_requests: { Args: Record<PropertyKey, never>; Returns: number };
       record_booking_event: {
         Args: {
           p_actor: Database['public']['Enums']['booking_actor'];

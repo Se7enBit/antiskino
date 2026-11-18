@@ -83,7 +83,7 @@ The owner mostly works from a phone, so:
 
 ## Environment variables
 - **App (public):** `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_KEY` (publishable/anon key), `EXPO_PUBLIC_SITE_URL`
-- **Edge function secrets:** `SUPABASE_URL`, Supabase secret/service-role key (provided to functions), `RESEND_API_KEY`, `EMAIL_FROM`, `SITE_URL`, `EXPO_ACCESS_TOKEN` (optional, push). From M7: `PAYMENT_PROVIDER`, provider API key, webhook secret.
+- **Edge function secrets:** `SUPABASE_URL`, Supabase secret/service-role key (provided to functions), `RESEND_API_KEY`, `EMAIL_FROM`, `SITE_URL`, `EXPO_ACCESS_TOKEN` (optional, push), `NOTIFY_SECRET` (push delivery; same value as the Vault secret `notify_secret`). From M7: `PAYMENT_PROVIDER`, provider API key, webhook secret.
 - **CI web build (public values):** `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_KEY` as Actions variables or secrets (either works), `EXPO_PUBLIC_SITE_URL` (optional variable; defaults to the Pages URL). The web job warns when the Supabase ones are missing.
 - **CI secrets:** `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD`, `SUPABASE_PROJECT_REF` (prod migrations, M8), `EXPO_TOKEN` (EAS, from M6). None are used in M1.
 - Keep `.env.example` up to date with every variable (no values).
