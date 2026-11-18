@@ -60,7 +60,7 @@ export async function deliverPushes({
 
   const planned: { push: ClaimedPush; messages: ExpoMessage[] }[] = [];
   for (const push of claimed) {
-    if (!stillRelevant(push.kind, push.booking.status)) {
+    if (!stillRelevant(push.kind, push.booking)) {
       await finish(push.id, 'skipped', 'no longer relevant');
       continue;
     }

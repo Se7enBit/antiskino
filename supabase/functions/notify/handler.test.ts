@@ -12,6 +12,7 @@ const booking = {
   guestName: 'Maria P.',
   campingName: 'Camping Thalassa',
   requestExpiresAt: null,
+  reviewRating: null,
 };
 
 const push = (id: number, patch: Partial<ClaimedPush> = {}): ClaimedPush => ({

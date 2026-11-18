@@ -2,7 +2,7 @@
 
 > Book a camping pitch in Greece in under a minute. (*αντίσκηνο* = tent)
 
-Last updated: 2026-11-18 · Status: M1–M4 done (M4's emails carried over), M5 in progress (reception)
+Last updated: 2026-11-18 · Status: M1–M5 done (M4's emails carried over), M6 in progress (reviews, favorites, polish)
 
 ## 0. Decisions log
 
@@ -78,6 +78,8 @@ Last updated: 2026-11-18 · Status: M1–M4 done (M4's emails carried over), M5 
 | Today and realtime (M5) | `/partner` opens Today: counts of arrivals, departures and stays checked in tonight; requests by deadline with a minute-by-minute countdown; arrivals (late guests still to check in first, then by ETA) with a red "No pitch assigned" until reception sets one; departures (checked in, leaving today). The partner layout subscribes to `postgres_changes` on the selected camping's bookings and refetches the partner queries on any change; a 5-minute refetch is the fallback. On phones the Pitch types tab is hidden (six tabs don't fit at 360 px) and Profile links to it | Realtime payloads are not read, so they never need their own access rules. Hiding the tab button (not `href: null`) keeps the route reachable |
 | Push delivery (M5) | pg_cron `deliver-push` runs `invoke_notify()` every minute: when pushes are due it calls the `notify` edge function through pg_net, using the Vault secrets `project_url` and `notify_secret` (nothing is called until both exist). `notify` checks `x-notify-secret` against `NOTIFY_SECRET`, claims up to 50 due pushes (`claim_push_notifications`: guest devices in the booking's language, team devices in each member's profile language), sends them with the Expo Push API and records each outcome (`finish_push_notification`). Claiming leases a push for 5, 10, 15… minutes; the fifth failed attempt is final; pushes queued over 2 hours ago and request pushes for answered requests are skipped; devices Expo reports as unregistered are deleted. `queue-expiring-requests` (every 5 minutes) queues one "request expiring" push for the team 2 hours before the deadline, unless the request arrived less than 3 hours before it. Emails stay pending until Resend | Postgres can only reach the function through pg_net; a shared secret avoids storing the service-role key in Vault. Pushes carry the booking's screen (`/bookings/detail?ref=` or `/partner/bookings/detail?ref=`) and no contact details |
 | Push registration (M5) | `expo-notifications` (SPEC §5). While signed in, the iOS/Android app asks for notification permission once and registers its Expo push token (`register_push_token`); sign-out removes it first (`unregister_push_token`). Tapping a push opens `data.url`, only if it is a guest or partner booking page. Tokens need the EAS project id (`extra.eas.projectId`, set by `eas init`, M6); without it, and in Expo Go or on the web, the app simply registers nothing. Android delivery also needs FCM credentials in EAS | The token is tied to the user, so a shared reception phone gets the pushes of whoever is signed in |
+| Reviews (M6) | `reviews` keeps what it shows (first name, country, month of stay, copied from the booking when written), so the public reads reviews without touching bookings. Anon reads the display columns of visible reviews of live campings; authenticated users also get `booking_id`, `hidden` and `hidden_reason` (RLS shows them only to the camping's team and admins); `user_id` is never exposed. Writes only through `submit_my_review()` (signed in), `guest_submit_review()` (manage link), `reply_to_review()` (team, one editable reply; empty removes it) and `set_review_hidden()` (admin, reason required). A completed booking without a review can be reviewed (`can_review()`, error ANT03 otherwise); `booking_view()` now returns `can_review` and the review. `camping_ratings` (security-invoker view) averages visible reviews; the app shows it from 3 reviews. A new review queues a `review_received` push for the team | No time limit on reviewing in v1 |
+| Daily guest messages (M6) | `queue_daily_guest_messages()` runs hourly (`5 * * * *`) and does nothing before 10:00 Athens time, so it follows summer time: an `arrival_reminder` for confirmed stays arriving in 2 days and a `review_invite` for unreviewed stays that ended 1–3 days ago (catching up if the job was down), each once per booking (email always, push with an account). Push claims carry the review rating; reminders for cancelled stays and invites for reviewed stays are skipped | §4.5 asks for 10:00; pg_cron runs in UTC, so a fixed hour would drift by one in winter |
 
 ## 1. Core problem
 
@@ -406,7 +408,9 @@ payments(id, booking_id, provider, provider_ref, kind 'authorization'|'capture'|
 
 -- engagement & ops
 reviews(id, booking_id unique, camping_id, user_id null, rating 1..5, body, locale,
+        author_name, author_country, stay_month,           -- copied from the booking when written
         partner_reply, partner_replied_at, hidden bool, hidden_reason, created_at)
+camping_ratings (view: camping_id, review_count, rating_avg over visible reviews)
 favorites(user_id, camping_id, pk(user_id, camping_id))
 push_tokens(user_id, token unique, platform, updated_at)
 notification_queue(id, kind, booking_id, audience 'guest'|'partner', channel 'email'|'push',
@@ -468,7 +472,7 @@ Hosted checkout (redirect to `checkoutUrl`) keeps card data out of the app on al
 2. **Partner setup:** schema (partners → campings → pitch types → seasons/prices → inventory), RLS + pgTAP, seed demo partner/camping, email-code sign-in with partner/admin gates, admin create/invite (copy link), partner Profile / Pitch types / Rates / Availability screens with photos.
 3. **Search & quote:** `search` and `quote` functions + pricing tests, Home (with single-camping mode), results list/map, camping page.
 4. **Booking (on-site payment):** `create-booking`, instant and request flows, `transition_booking`, jobs, emails, manage link, cancellations, claiming bookings on sign-in, My bookings. *Emails are carried over until a Resend sending domain is verified: notifications are queued meanwhile, and the guest keeps the manage link shown after booking.*
-5. **Reception:** Today, booking detail actions, assign pitch, check-in/no-show, realtime, push notifications.
+5. **Reception:** Today, booking detail actions, assign pitch, check-in/no-show, realtime, push notifications. *Push delivery is live on the server; phones receive pushes once the EAS preview APK exists (M6).*
 6. **Reviews, favorites, polish:** review invites, replies, moderation; favorites; empty/error states; Android preview APK. **Field test with the first camping** using its real pitch types, seasons and prices.
 7. **Online payments:** pick the provider, implement `PaymentProvider`, deposit/full modes, request-mode authorize/capture, refunds, platform fee, partner payout onboarding.
 8. **Launch:** commission statements, terms/privacy, custom domain, Supabase production plan, store listings (Android first, then iOS).

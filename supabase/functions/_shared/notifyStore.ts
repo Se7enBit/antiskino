@@ -36,6 +36,7 @@ const claimedRow = z.object({
     guest_name: z.string(),
     camping_name: z.string(),
     request_expires_at: z.string().nullable(),
+    review_rating: z.number().nullable().optional(),
   }),
   recipients: z.array(z.object({ token: z.string(), locale: z.enum(['el', 'en']).catch('el') })),
 });
@@ -70,6 +71,7 @@ export function supabaseNotifyStore(admin: SupabaseClient): NotifyStore {
             guestName: row.booking.guest_name,
             campingName: row.booking.camping_name,
             requestExpiresAt: row.booking.request_expires_at,
+            reviewRating: row.booking.review_rating ?? null,
           },
           recipients: row.recipients,
         }));

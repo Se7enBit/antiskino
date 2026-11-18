@@ -14,6 +14,8 @@ export type PushBooking = {
   guestName: string;
   campingName: string;
   requestExpiresAt: string | null;
+  /** The stay's review, once written. */
+  reviewRating: number | null;
 };
 
 export type PushText = { title: string; body: string };
@@ -39,6 +41,8 @@ export function athensDeadline(timestamp: string): string {
 }
 
 type Template = (b: PushBooking, stay: string, deadline: string) => PushText;
+
+const stars = (rating: number | null) => (rating ? '★'.repeat(rating) : '');
 
 const TEMPLATES: Record<Locale, Record<string, Template>> = {
   en: {
@@ -74,6 +78,18 @@ const TEMPLATES: Record<Locale, Record<string, Template>> = {
       title: 'Booking cancelled',
       body: `${b.guestName}, ${stay} · ${b.ref}`,
     }),
+    'arrival_reminder:guest': (b, stay) => ({
+      title: 'See you in 2 days',
+      body: `${b.campingName}, ${stay} · ${b.ref}. Open for directions and check-in times.`,
+    }),
+    'review_invite:guest': (b) => ({
+      title: 'How was your stay?',
+      body: `Rate ${b.campingName}. It takes a minute.`,
+    }),
+    'review_received:partner': (b, stay) => ({
+      title: 'New review',
+      body: `${b.guestName}: ${stars(b.reviewRating)} · ${stay}`,
+    }),
   },
   el: {
     'booking_confirmed:guest': (b, stay) => ({
@@ -108,6 +124,18 @@ const TEMPLATES: Record<Locale, Record<string, Template>> = {
       title: 'Ακύρωση κράτησης',
       body: `${b.guestName}, ${stay} · ${b.ref}`,
     }),
+    'arrival_reminder:guest': (b, stay) => ({
+      title: 'Τα λέμε σε 2 μέρες',
+      body: `${b.campingName}, ${stay} · ${b.ref}. Άνοιξε για οδηγίες και ώρες check-in.`,
+    }),
+    'review_invite:guest': (b) => ({
+      title: 'Πώς ήταν η διαμονή σου;',
+      body: `Αξιολόγησε τη διαμονή σου στο ${b.campingName}. Παίρνει ένα λεπτό.`,
+    }),
+    'review_received:partner': (b, stay) => ({
+      title: 'Νέα αξιολόγηση',
+      body: `${b.guestName}: ${stars(b.reviewRating)} · ${stay}`,
+    }),
   },
 };
 
@@ -125,9 +153,15 @@ export function pushText(
   return template(booking, stay, deadline);
 }
 
-/** Request pushes are pointless once the request has been answered or has expired. */
-export function stillRelevant(kind: string, status: string): boolean {
-  if (kind === 'request_received' || kind === 'request_expiring') return status === 'requested';
+/**
+ * Whether a queued push still makes sense: requests not yet answered, stays
+ * not cancelled before the reminder, stays not reviewed before the invite.
+ */
+export function stillRelevant(kind: string, booking: PushBooking): boolean {
+  if (kind === 'request_received' || kind === 'request_expiring')
+    return booking.status === 'requested';
+  if (kind === 'arrival_reminder') return booking.status === 'confirmed';
+  if (kind === 'review_invite') return booking.status === 'completed' && !booking.reviewRating;
   return true;
 }
 
