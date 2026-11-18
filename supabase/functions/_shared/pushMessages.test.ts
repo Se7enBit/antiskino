@@ -16,6 +16,7 @@ const BOOKING: PushBooking = {
   guestName: 'Maria P.',
   campingName: 'Camping Thalassa',
   requestExpiresAt: '2027-07-01T12:20:00Z',
+  reviewRating: null,
 };
 
 Deno.test('formats deadlines in Athens time (summer and winter)', () => {
@@ -56,6 +57,9 @@ Deno.test('has a text for every queued kind in both languages', () => {
     ['request_expired', 'guest'],
     ['booking_cancelled', 'guest'],
     ['booking_cancelled', 'partner'],
+    ['arrival_reminder', 'guest'],
+    ['review_invite', 'guest'],
+    ['review_received', 'partner'],
   ] as const;
   for (const locale of ['el', 'en'] as const) {
     for (const [kind, audience] of pairs) {
@@ -69,11 +73,31 @@ Deno.test('has a text for every queued kind in both languages', () => {
   assertEquals(pushText('request_received', 'guest', 'en', BOOKING), null);
 });
 
-Deno.test('drops request pushes once the request is answered', () => {
-  assertEquals(stillRelevant('request_received', 'requested'), true);
-  assertEquals(stillRelevant('request_expiring', 'confirmed'), false);
-  assertEquals(stillRelevant('request_received', 'declined'), false);
-  assertEquals(stillRelevant('booking_cancelled', 'cancelled'), true);
+Deno.test('drops pushes that no longer make sense', () => {
+  const at = (status: string, reviewRating: number | null = null) => ({
+    ...BOOKING,
+    status,
+    reviewRating,
+  });
+  assertEquals(stillRelevant('request_received', at('requested')), true);
+  assertEquals(stillRelevant('request_expiring', at('confirmed')), false);
+  assertEquals(stillRelevant('request_received', at('declined')), false);
+  assertEquals(stillRelevant('arrival_reminder', at('confirmed')), true);
+  assertEquals(stillRelevant('arrival_reminder', at('cancelled')), false);
+  assertEquals(stillRelevant('review_invite', at('completed')), true);
+  assertEquals(stillRelevant('review_invite', at('completed', 4)), false);
+  assertEquals(stillRelevant('booking_cancelled', at('cancelled')), true);
+});
+
+Deno.test('invites reviews and tells the camping about them', () => {
+  assertEquals(pushText('review_invite', 'guest', 'el', BOOKING), {
+    title: 'Πώς ήταν η διαμονή σου;',
+    body: 'Αξιολόγησε τη διαμονή σου στο Camping Thalassa. Παίρνει ένα λεπτό.',
+  });
+  assertEquals(pushText('review_received', 'partner', 'en', { ...BOOKING, reviewRating: 4 }), {
+    title: 'New review',
+    body: 'Maria P.: ★★★★ · 10/07–12/07',
+  });
 });
 
 Deno.test('opens the booking in the right part of the app', () => {

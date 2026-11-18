@@ -788,6 +788,76 @@ export type Database = {
         };
         Relationships: [];
       };
+      reviews: {
+        Row: {
+          author_country: string;
+          author_name: string;
+          body: string | null;
+          booking_id: string;
+          camping_id: string;
+          created_at: string;
+          hidden: boolean;
+          hidden_reason: string | null;
+          id: string;
+          locale: string;
+          partner_replied_at: string | null;
+          partner_reply: string | null;
+          rating: number;
+          stay_month: string;
+          user_id: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          author_country: string;
+          author_name: string;
+          body?: string | null;
+          booking_id: string;
+          camping_id: string;
+          created_at?: string;
+          hidden?: boolean;
+          hidden_reason?: string | null;
+          id?: string;
+          locale: string;
+          partner_replied_at?: string | null;
+          partner_reply?: string | null;
+          rating: number;
+          stay_month: string;
+          user_id?: string | null;
+        };
+        Update: {
+          author_country?: string;
+          author_name?: string;
+          body?: string | null;
+          booking_id?: string;
+          camping_id?: string;
+          created_at?: string;
+          hidden?: boolean;
+          hidden_reason?: string | null;
+          id?: string;
+          locale?: string;
+          partner_replied_at?: string | null;
+          partner_reply?: string | null;
+          rating?: number;
+          stay_month?: string;
+          user_id?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'reviews_booking_id_fkey';
+            columns: ['booking_id'];
+            isOneToOne: true;
+            referencedRelation: 'bookings';
+            referencedColumns: ['id'];
+          },
+          {
+            foreignKeyName: 'reviews_camping_id_fkey';
+            columns: ['camping_id'];
+            isOneToOne: false;
+            referencedRelation: 'campings';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       seasons: {
         Row: {
           camping_id: string;
@@ -823,7 +893,23 @@ export type Database = {
       };
     };
     Views: {
-      [_ in never]: never;
+      camping_ratings: {
+        Row: {
+          camping_id: string;
+          rating_avg: number | null;
+          review_count: number | null;
+        };
+        ComputedFields: never;
+        Relationships: [
+          {
+            foreignKeyName: 'reviews_camping_id_fkey';
+            columns: ['camping_id'];
+            isOneToOne: false;
+            referencedRelation: 'campings';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
     };
     Functions: {
       accept_partner_invite: { Args: { p_token: string }; Returns: Json };
@@ -832,6 +918,7 @@ export type Database = {
       camping_is_live: { Args: { p_camping_id: string }; Returns: boolean };
       camping_partner: { Args: { p_camping_id: string }; Returns: string };
       can_manage_camping_files: { Args: { p_object_name: string }; Returns: boolean };
+      can_review: { Args: { p_booking_id: string }; Returns: boolean };
       cancel_my_booking: {
         Args: { p_booking_id: string };
         Returns: Database['public']['Enums']['booking_status'];
@@ -861,6 +948,10 @@ export type Database = {
         };
         Returns: string;
       };
+      create_review: {
+        Args: { p_body: string; p_booking_id: string; p_rating: number };
+        Returns: string;
+      };
       expire_overdue_bookings: { Args: Record<PropertyKey, never>; Returns: number };
       finish_push_notification: {
         Args: { p_error?: string; p_id: number; p_outcome: string };
@@ -875,6 +966,10 @@ export type Database = {
       guest_cancel_booking: {
         Args: { p_ref: string; p_token: string };
         Returns: Database['public']['Enums']['booking_status'];
+      };
+      guest_submit_review: {
+        Args: { p_body: string; p_rating: number; p_ref: string; p_token: string };
+        Returns: string;
       };
       invite_token_hash: { Args: { p_token: string }; Returns: string };
       invoke_notify: { Args: Record<PropertyKey, never>; Returns: number };
@@ -892,6 +987,7 @@ export type Database = {
         Args: { p_booking_id: string; p_status: Database['public']['Enums']['booking_status'] };
         Returns: undefined;
       };
+      queue_daily_guest_messages: { Args: { p_now?: string }; Returns: number };
       queue_expiring_requests: { Args: Record<PropertyKey, never>; Returns: number };
       record_booking_event: {
         Args: {
@@ -905,6 +1001,7 @@ export type Database = {
         Returns: undefined;
       };
       register_push_token: { Args: { p_platform: string; p_token: string }; Returns: undefined };
+      reply_to_review: { Args: { p_reply: string; p_review_id: string }; Returns: undefined };
       reserve_and_create_booking: {
         Args: {
           p_arrival: string;
@@ -975,8 +1072,16 @@ export type Database = {
         };
         Returns: number;
       };
+      set_review_hidden: {
+        Args: { p_hidden: boolean; p_reason: string; p_review_id: string };
+        Returns: undefined;
+      };
       set_season_prices: { Args: { p_prices: Json; p_season_id: string }; Returns: number };
       sha256_hex: { Args: { p_text: string }; Returns: string };
+      submit_my_review: {
+        Args: { p_body: string; p_booking_id: string; p_rating: number };
+        Returns: string;
+      };
       transition_booking: {
         Args: {
           p_actor: Database['public']['Enums']['booking_actor'];
