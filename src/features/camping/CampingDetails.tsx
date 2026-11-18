@@ -4,7 +4,7 @@ import type { CampingPage } from '@/api/camping';
 import { isAmenity } from '@/domain/amenities';
 import { directionsUrl, shortTime } from '@/domain/camping';
 import { localized, useLanguage, useT } from '@/i18n';
-import { BodyText, Button, Card, Icon, PinsMap, colors, spacing } from '@/ui';
+import { BodyText, Button, Card, Icon, PinsMap, colors, mapsAvailable, spacing } from '@/ui';
 
 import { AMENITY_ICONS } from './icons';
 
@@ -62,7 +62,7 @@ export function CampingDetails({ camping }: { camping: CampingPage }) {
       {camping.address || (lat !== null && lng !== null) ? (
         <Card title={t('camping.location')}>
           {camping.address ? <BodyText>{camping.address}</BodyText> : null}
-          {lat !== null && lng !== null ? (
+          {mapsAvailable && lat !== null && lng !== null ? (
             <PinsMap
               height={220}
               pins={[{ id: camping.id, lat, lng, title: camping.name, label: camping.name }]}
