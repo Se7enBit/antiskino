@@ -35,8 +35,8 @@ export function useCampingBookings(campingId: string | undefined, range: Booking
       : skipToken,
     // Keep the list on screen while another range loads.
     placeholderData: keepPreviousData,
-    // Requests can arrive any time; refresh the list now and then (realtime comes in M5).
-    refetchInterval: 60_000,
+    // Realtime (useCampingBookingsLive) refreshes on changes; this catches anything it missed.
+    refetchInterval: 5 * 60_000,
   });
 }
 
