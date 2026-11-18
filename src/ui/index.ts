@@ -9,7 +9,6 @@ export { EditableList } from './EditableList';
 export { Icon, type IconName } from './Icon';
 export { Loading } from './Loading';
 export { Notice } from './Notice';
-export { mapsAvailable } from './map/mapsAvailable';
 export { PinsMap } from './map/PinsMap';
 export { Placeholder } from './Placeholder';
 export { Screen } from './Screen';

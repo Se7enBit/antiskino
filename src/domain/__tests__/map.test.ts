@@ -1,4 +1,4 @@
-import { GREECE, boundsFor, pinsOf, regionFor, type Pin } from '../map';
+import { GREECE, boundsFor, lngLatBoundsFor, pinsOf, regionFor, type Pin } from '../map';
 
 const pin = (id: string, lat: number, lng: number): Pin => ({ id, lat, lng, title: id, label: id });
 
@@ -49,5 +49,21 @@ describe('boundsFor', () => {
     expect(west).toBeCloseTo(21.8);
     expect(north).toBeCloseTo(40.2);
     expect(east).toBeCloseTo(23.2);
+  });
+});
+
+describe('lngLatBoundsFor', () => {
+  it('gives west, south, east, north around the pins', () => {
+    const [west, south, east, north] = lngLatBoundsFor([pin('a', 40, 23), pin('b', 39, 22)]);
+    expect(west).toBeCloseTo(21.8);
+    expect(south).toBeCloseTo(38.8);
+    expect(east).toBeCloseTo(23.2);
+    expect(north).toBeCloseTo(40.2);
+  });
+
+  it('shows Greece without pins', () => {
+    const [west, south, east, north] = lngLatBoundsFor([]);
+    expect((west + east) / 2).toBeCloseTo(GREECE.lng);
+    expect((south + north) / 2).toBeCloseTo(GREECE.lat);
   });
 });

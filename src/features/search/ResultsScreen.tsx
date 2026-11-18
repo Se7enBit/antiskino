@@ -12,7 +12,7 @@ import {
 } from '@/domain/search';
 import { useT } from '@/i18n';
 import { useHydrated } from '@/lib/useHydrated';
-import { Button, Card, Loading, Notice, Screen, colors, mapsAvailable, spacing } from '@/ui';
+import { Button, Card, Loading, Notice, Screen, colors, spacing } from '@/ui';
 
 import { ResultCard } from './ResultCard';
 import { ResultsMap } from './ResultsMap';
@@ -82,24 +82,22 @@ function Results({ request }: { request: SearchRequest }) {
         <Text style={styles.heading} accessibilityRole="header">
           {t('search.results')}
         </Text>
-        {mapsAvailable ? (
-          <View style={styles.toggle}>
-            <Button
-              label={t('search.list')}
-              icon="format-list-bulleted"
-              selected={view === 'list'}
-              onPress={() => setView('list')}
-              testID="results-list"
-            />
-            <Button
-              label={t('search.map')}
-              icon="map"
-              selected={view === 'map'}
-              onPress={() => setView('map')}
-              testID="results-map"
-            />
-          </View>
-        ) : null}
+        <View style={styles.toggle}>
+          <Button
+            label={t('search.list')}
+            icon="format-list-bulleted"
+            selected={view === 'list'}
+            onPress={() => setView('list')}
+            testID="results-list"
+          />
+          <Button
+            label={t('search.map')}
+            icon="map"
+            selected={view === 'map'}
+            onPress={() => setView('map')}
+            testID="results-map"
+          />
+        </View>
       </View>
       {view === 'map' ? (
         <ResultsMap results={results} onOpen={open} />
