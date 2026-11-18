@@ -14,6 +14,9 @@ import { CampingPage } from '../CampingPage';
 jest.mock('expo-router', () => ({ Stack: { Screen: () => null }, router: { push: jest.fn() } }));
 jest.mock('@/api/camping', () => ({ useCampingPage: jest.fn() }));
 jest.mock('@/api/search', () => ({ useSearch: jest.fn() }));
+jest.mock('@/api/reviews', () => ({
+  useCampingReviews: () => ({ isError: false, data: { reviews: [], rating: null } }),
+}));
 jest.mock('@/api/photos', () => ({ photoUrl: (path: string) => `https://cdn.test/${path}` }));
 jest.mock('@/lib/dates', () => ({
   ...jest.requireActual<object>('@/lib/dates'),

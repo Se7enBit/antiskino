@@ -1,6 +1,7 @@
 import { useLocalSearchParams } from 'expo-router';
 
 import { useCancelMyBooking, useMyBooking } from '@/api/myBookings';
+import { useSubmitMyReview } from '@/api/reviews';
 import { useT } from '@/i18n';
 import { useHydrated } from '@/lib/useHydrated';
 import { Button, Loading, Notice, Screen } from '@/ui';
@@ -16,6 +17,7 @@ export function MyBookingScreen() {
   const ref = hydrated && typeof params.ref === 'string' ? params.ref : undefined;
   const booking = useMyBooking(ref);
   const cancel = useCancelMyBooking();
+  const review = useSubmitMyReview();
 
   let body;
   if (!hydrated || (ref && booking.isPending)) body = <Loading label={t('common.loading')} />;
@@ -35,6 +37,11 @@ export function MyBookingScreen() {
         onCancel={() => cancel.mutate(id)}
         cancelling={cancel.isPending}
         cancelFailed={cancel.isError}
+        review={{
+          onSubmit: (input) => review.mutate({ bookingId: id, ...input }),
+          submitting: review.isPending,
+          error: review.error,
+        }}
       />
     );
   }

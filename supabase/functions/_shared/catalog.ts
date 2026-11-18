@@ -60,6 +60,11 @@ const campingRow = z.object({
   short_descr: z.unknown(),
   camping_photos: z.array(z.object({ storage_path: z.string(), sort: z.number() })),
 });
+const ratingRow = z.object({
+  camping_id: z.string(),
+  review_count: z.number(),
+  rating_avg: z.coerce.number(),
+});
 const seasonRow = z.object({ id: z.string(), camping_id: z.string(), dates: z.string() });
 const categoryRow = z.object({
   id: z.string(),
@@ -114,10 +119,24 @@ export function supabaseCatalog(client: SupabaseClient): Catalog {
 
     async campings(ids) {
       if (ids.length === 0) return [];
-      const result = await client
-        .from('campings')
-        .select('id, slug, name, region, lat, lng, short_descr, camping_photos(storage_path, sort)')
-        .in('id', ids);
+      const [result, ratings] = await Promise.all([
+        client
+          .from('campings')
+          .select(
+            'id, slug, name, region, lat, lng, short_descr, camping_photos(storage_path, sort)',
+          )
+          .in('id', ids),
+        client
+          .from('camping_ratings')
+          .select('camping_id, review_count, rating_avg')
+          .in('camping_id', ids),
+      ]);
+      const ratingOf = new Map(
+        rows(ratingRow, ratings).map((r) => [
+          r.camping_id,
+          { average: r.rating_avg, count: r.review_count },
+        ]),
+      );
       return rows(campingRow, result).map((c) => ({
         id: c.id,
         slug: c.slug,
@@ -127,6 +146,7 @@ export function supabaseCatalog(client: SupabaseClient): Catalog {
         lng: c.lng,
         shortDescr: c.short_descr,
         coverPhoto: [...c.camping_photos].sort((a, b) => a.sort - b.sort)[0]?.storage_path ?? null,
+        rating: ratingOf.get(c.id) ?? null,
       }));
     },
 

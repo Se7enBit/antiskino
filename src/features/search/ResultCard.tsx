@@ -6,6 +6,8 @@ import { localized, useLanguage, useT } from '@/i18n';
 import { formatMoney } from '@/lib/money';
 import { Icon, colors, spacing } from '@/ui';
 
+import { RatingSummary } from '../reviews/RatingSummary';
+
 /** A camping in the results: photo, name, place, short text and "from €X total". */
 export function ResultCard({ result, onOpen }: { result: SearchResult; onOpen: () => void }) {
   const t = useT();
@@ -40,6 +42,7 @@ export function ResultCard({ result, onOpen }: { result: SearchResult; onOpen: (
             <Text style={styles.muted}>{camping.region}</Text>
           </View>
         ) : null}
+        <RatingSummary rating={camping.rating} size={15} />
         {shortDescr ? (
           <Text style={styles.muted} numberOfLines={2}>
             {shortDescr}

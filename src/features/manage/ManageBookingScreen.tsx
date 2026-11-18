@@ -2,6 +2,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { StyleSheet, Text } from 'react-native';
 
 import { useGuestBooking, useGuestCancelBooking } from '@/api/guestBooking';
+import { useGuestSubmitReview } from '@/api/reviews';
 import { useT } from '@/i18n';
 import { useHydrated } from '@/lib/useHydrated';
 import { Button, Loading, Notice, Screen, colors } from '@/ui';
@@ -45,6 +46,7 @@ function ManageBooking({ bookingRef, token }: { bookingRef: string; token: strin
   const t = useT();
   const booking = useGuestBooking(bookingRef, token);
   const cancel = useGuestCancelBooking(bookingRef, token);
+  const review = useGuestSubmitReview(bookingRef, token);
   if (booking.isPending) return <Loading label={t('common.loading')} />;
   if (booking.isError)
     return (
@@ -60,6 +62,11 @@ function ManageBooking({ bookingRef, token }: { bookingRef: string; token: strin
       onCancel={() => cancel.mutate()}
       cancelling={cancel.isPending}
       cancelFailed={cancel.isError}
+      review={{
+        onSubmit: (input) => review.mutate(input),
+        submitting: review.isPending,
+        error: review.error,
+      }}
     />
   );
 }

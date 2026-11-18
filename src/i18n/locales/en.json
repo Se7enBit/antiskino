@@ -215,6 +215,28 @@
     "findCamping": "Find a camping",
     "detail": "Booking"
   },
+  "reviews": {
+    "title": "Reviews",
+    "summary": "{{average}} · reviews: {{count}}",
+    "none": "No reviews yet.",
+    "stars": "{{rating}} of 5 stars",
+    "meta": "{{name}} · {{country}} · {{month}}",
+    "reply": "Reply from the camping",
+    "replyText": "Reply from the camping: {{reply}}",
+    "verified": "Only guests who booked and stayed through Antiskino can review.",
+    "mine": "Your review",
+    "hiddenNote": "Antiskino has hidden this review.",
+    "form": {
+      "title": "How was your stay?",
+      "rating": "Your rating",
+      "star": "Stars: {{count}}",
+      "ratingRequired": "Tap a star to rate your stay.",
+      "body": "What was it like? (optional)",
+      "hint": "Your first name, country and month of stay are shown with your review.",
+      "submit": "Post review",
+      "notAllowed": "This stay can't be reviewed. It may already have a review."
+    }
+  },
   "account": {
     "title": "Account",
     "language": "Language",

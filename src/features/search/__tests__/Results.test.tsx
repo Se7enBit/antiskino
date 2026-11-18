@@ -38,6 +38,7 @@ const result = (
     lng: null,
     shortDescr: { en: 'By the sea' },
     coverPhoto: `${slug}/cover.jpg`,
+    rating: null,
     ...patch,
   },
   fromTotalCents,
@@ -88,6 +89,21 @@ describe('Results', () => {
     expect(screen.getAllByText('By the sea')).toHaveLength(2);
     expect(screen.getByText(/from €70\.00 total|from 70,00 € total/)).toBeTruthy();
     expect(screen.getByText(/from €90\.50 total|from 90,50 € total/)).toBeTruthy();
+  });
+
+  it('shows a camping rating from 3 reviews', async () => {
+    await setup(PARAMS, {
+      isPending: false,
+      isError: false,
+      data: {
+        results: [
+          result('thalassa', 7000, { rating: { average: 4.6, count: 12 } }),
+          result('pefka', 9050, { rating: { average: 5, count: 2 } }),
+        ],
+      },
+    });
+    expect(screen.getByText('4.6 · reviews: 12')).toBeTruthy();
+    expect(screen.queryByText(/reviews: 2/)).toBeNull();
   });
 
   it('fills in the search form from the link', async () => {

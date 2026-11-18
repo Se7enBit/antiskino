@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { useCampingPage } from '@/api/camping';
+import { useCampingReviews } from '@/api/reviews';
 import { useSearch } from '@/api/search';
 import { bookingParams } from '@/domain/booking';
 import { pitchFromCents } from '@/domain/camping';
@@ -12,12 +13,14 @@ import { todayInAthens } from '@/lib/dates';
 import { useHydrated } from '@/lib/useHydrated';
 import { BodyText, Button, Card, Icon, Loading, Notice, colors, spacing } from '@/ui';
 
+import { RatingSummary } from '../reviews/RatingSummary';
 import { SearchForm } from '../search/SearchForm';
 import { useSearchStore } from '../search/searchStore';
 import { StaySummary } from '../search/StaySummary';
 
 import { CampingDetails } from './CampingDetails';
 import { CampingHead } from './CampingHead';
+import { CampingReviews } from './CampingReviews';
 import { Gallery } from './Gallery';
 import { PitchTypeCard, type PitchPrice } from './PitchTypeCard';
 
@@ -37,6 +40,7 @@ export function CampingPage({ slug, request, onSearch, onNotFound }: Props) {
   const page = useCampingPage(slug);
   const camping = page.data;
   const availability = useSearch(camping && request ? { ...request, campingId: camping.id } : null);
+  const reviews = useCampingReviews(camping?.id);
   const [changing, setChanging] = useState(false);
   const update = useSearchStore((s) => s.update);
   const key = JSON.stringify(request);
@@ -114,6 +118,7 @@ export function CampingPage({ slug, request, onSearch, onNotFound }: Props) {
             <BodyText>{camping.region}</BodyText>
           </View>
         ) : null}
+        <RatingSummary rating={reviews.data?.rating} />
         {shortDescr ? <BodyText>{shortDescr}</BodyText> : null}
       </View>
 
@@ -161,6 +166,7 @@ export function CampingPage({ slug, request, onSearch, onNotFound }: Props) {
         );
       })}
       <CampingDetails camping={camping} />
+      <CampingReviews campingId={camping.id} />
     </View>
   );
 }
