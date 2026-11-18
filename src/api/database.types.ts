@@ -766,6 +766,28 @@ export type Database = {
         };
         Relationships: [];
       };
+      push_tokens: {
+        Row: {
+          platform: string;
+          token: string;
+          updated_at: string;
+          user_id: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          platform: string;
+          token: string;
+          updated_at?: string;
+          user_id: string;
+        };
+        Update: {
+          platform?: string;
+          token?: string;
+          updated_at?: string;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
       seasons: {
         Row: {
           camping_id: string;
@@ -864,6 +886,10 @@ export type Database = {
         };
         Returns: undefined;
       };
+      register_push_token: {
+        Args: { p_platform: string; p_token: string };
+        Returns: undefined;
+      };
       reserve_and_create_booking: {
         Args: {
           p_arrival: string;
@@ -945,6 +971,11 @@ export type Database = {
           p_to: Database['public']['Enums']['booking_status'];
         };
         Returns: Database['public']['Enums']['booking_status'];
+      };
+      unregister_push_token: { Args: { p_token: string }; Returns: undefined };
+      update_booking_desk: {
+        Args: { p_assigned_pitch: string; p_booking_id: string; p_internal_note: string };
+        Returns: undefined;
       };
     };
     Enums: {
