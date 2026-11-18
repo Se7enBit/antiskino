@@ -886,10 +886,7 @@ export type Database = {
         };
         Returns: undefined;
       };
-      register_push_token: {
-        Args: { p_platform: string; p_token: string };
-        Returns: undefined;
-      };
+      register_push_token: { Args: { p_platform: string; p_token: string }; Returns: undefined };
       reserve_and_create_booking: {
         Args: {
           p_arrival: string;
