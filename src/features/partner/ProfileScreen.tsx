@@ -27,14 +27,20 @@ function ProfileBody({ id, canEdit }: { id: string; canEdit: boolean }) {
   // key: switching campings starts a fresh form
   return (
     <>
-      {/* Phones have no tab for pitch types (six tabs don't fit at 360 px). */}
+      {/* Phones have no tabs for pitch types and rates (they don't fit at 360 px). */}
       {wide ? null : (
-        <View style={{ flexDirection: 'row' }}>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
           <Button
             label={t('partner.profile.pitchTypesLink')}
             icon="tent"
             onPress={() => router.navigate('/partner/pitch-types')}
             testID="pitch-types-link"
+          />
+          <Button
+            label={t('partner.profile.ratesLink')}
+            icon="currency-eur"
+            onPress={() => router.navigate('/partner/rates')}
+            testID="rates-link"
           />
         </View>
       )}

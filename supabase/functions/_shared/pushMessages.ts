@@ -165,8 +165,9 @@ export function stillRelevant(kind: string, booking: PushBooking): boolean {
   return true;
 }
 
-/** The app screen a tap opens: the guest's booking, or the booking in the partner area. */
-export function pushUrl(audience: Audience, ref: string): string {
+/** The app screen a tap opens: the guest's booking, the booking in the partner area, or its reviews. */
+export function pushUrl(kind: string, audience: Audience, ref: string): string {
+  if (kind === 'review_received') return '/partner/reviews';
   const query = `?ref=${encodeURIComponent(ref)}`;
   return audience === 'guest' ? `/bookings/detail${query}` : `/partner/bookings/detail${query}`;
 }

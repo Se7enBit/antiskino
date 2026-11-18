@@ -101,6 +101,13 @@ Deno.test('invites reviews and tells the camping about them', () => {
 });
 
 Deno.test('opens the booking in the right part of the app', () => {
-  assertEquals(pushUrl('guest', 'ANT-7KQ2XM'), '/bookings/detail?ref=ANT-7KQ2XM');
-  assertEquals(pushUrl('partner', 'ANT-7KQ2XM'), '/partner/bookings/detail?ref=ANT-7KQ2XM');
+  assertEquals(
+    pushUrl('booking_confirmed', 'guest', 'ANT-7KQ2XM'),
+    '/bookings/detail?ref=ANT-7KQ2XM',
+  );
+  assertEquals(
+    pushUrl('request_received', 'partner', 'ANT-7KQ2XM'),
+    '/partner/bookings/detail?ref=ANT-7KQ2XM',
+  );
+  assertEquals(pushUrl('review_received', 'partner', 'ANT-7KQ2XM'), '/partner/reviews');
 });

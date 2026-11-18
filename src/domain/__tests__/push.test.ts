@@ -8,6 +8,7 @@ describe('pushTarget', () => {
     expect(pushTarget({ url: '/partner/bookings/detail?ref=ANT-7KQ2XM' })).toBe(
       '/partner/bookings/detail?ref=ANT-7KQ2XM',
     );
+    expect(pushTarget({ url: '/partner/reviews' })).toBe('/partner/reviews');
   });
 
   it('ignores anything else', () => {

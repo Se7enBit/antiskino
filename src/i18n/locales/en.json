@@ -292,7 +292,9 @@
       "availability": "Availability",
       "availabilityShort": "Calendar",
       "bookings": "Bookings",
-      "today": "Today"
+      "today": "Today",
+      "reviews": "Reviews",
+      "reviewsShort": "Reviews"
     },
     "exit": "Exit",
     "noCampings": "Your team has no campings yet. The Antiskino team adds them.",
@@ -361,7 +363,8 @@
         "requestExpiryHours": "Enter a number from 2 to 48.",
         "text": "Too long."
       },
-      "pitchTypesLink": "Pitch types"
+      "pitchTypesLink": "Pitch types",
+      "ratesLink": "Rates"
     },
     "pitchTypes": {
       "add": "Add pitch type",
@@ -609,6 +612,17 @@
       "inHouse": "In house tonight",
       "noArrivals": "No arrivals today.",
       "noDepartures": "No departures today."
+    },
+    "reviews": {
+      "empty": "No reviews yet. Guests can review after their stay.",
+      "ratingLater": "The rating is shown from {{min}} visible reviews (now: {{count}}).",
+      "booking": "Booking {{ref}} · {{name}}",
+      "hidden": "Hidden by Antiskino: {{reason}}",
+      "reply": "Reply",
+      "editReply": "Edit reply",
+      "replyLabel": "Public reply (everyone sees it)",
+      "publish": "Publish reply",
+      "replyHint": "To remove the reply, empty it and publish."
     }
   },
   "admin": {
@@ -691,6 +705,19 @@
     "roles": {
       "owner": "Owner",
       "staff": "Staff"
+    },
+    "reviews": {
+      "title": "Reviews",
+      "all": "All",
+      "hiddenOnly": "Hidden",
+      "empty": "No reviews.",
+      "hiddenBadge": "Hidden",
+      "reason": "Reason: {{reason}}",
+      "show": "Show again",
+      "hide": "Hide",
+      "reasonLabel": "Why hide it? The camping's team sees this.",
+      "reasonRequired": "Write a short reason.",
+      "hideConfirm": "Hide review"
     }
   },
   "notFound": {
