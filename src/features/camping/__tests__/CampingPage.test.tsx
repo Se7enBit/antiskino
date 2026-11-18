@@ -121,7 +121,7 @@ beforeEach(async () => {
 describe('CampingPage', () => {
   it('shows from-prices and the search form without dates', async () => {
     await setup();
-    expect(screen.getByText('Camping Thalassa')).toBeTruthy();
+    expect(screen.getByRole('header', { name: 'Camping Thalassa' })).toBeTruthy();
     expect(screen.getByText('Check availability')).toBeTruthy();
     expect(screen.getByTestId('search-submit')).toBeTruthy();
     expect(screen.getByTestId('pitch-tent-price').props.children).toMatch(

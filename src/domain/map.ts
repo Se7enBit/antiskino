@@ -17,8 +17,8 @@ export function pinsOf<T>(
 }
 
 /**
- * The region that shows every pin with some margin (react-native-maps). One
- * pin gets a close-up; no pins show Greece.
+ * The region that shows every pin with some margin. One pin gets a close-up;
+ * no pins show Greece.
  */
 export function regionFor(pins: Pin[]): {
   latitude: number;
@@ -52,5 +52,16 @@ export function boundsFor(pins: Pin[]): [[number, number], [number, number]] | n
   return [
     [latitude - latitudeDelta / 2, longitude - longitudeDelta / 2],
     [latitude + latitudeDelta / 2, longitude + longitudeDelta / 2],
+  ];
+}
+
+/** The same area as [west, south, east, north] (MapLibre on iOS and Android). */
+export function lngLatBoundsFor(pins: Pin[]): [number, number, number, number] {
+  const { latitude, longitude, latitudeDelta, longitudeDelta } = regionFor(pins);
+  return [
+    longitude - longitudeDelta / 2,
+    latitude - latitudeDelta / 2,
+    longitude + longitudeDelta / 2,
+    latitude + latitudeDelta / 2,
   ];
 }
