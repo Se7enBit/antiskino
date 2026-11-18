@@ -9,6 +9,15 @@ import { renderWithLanguage } from '@/test/utils';
 import { ResultsScreen } from '../ResultsScreen';
 import { useSearchStore } from '../searchStore';
 
+jest.mock('@/features/favorites/useFavorites', () => ({
+  useFavorites: () => ({
+    ids: [],
+    ready: true,
+    signedIn: false,
+    isFavorite: () => false,
+    toggle: jest.fn(),
+  }),
+}));
 jest.mock('expo-router', () => ({
   router: { navigate: jest.fn(), push: jest.fn() },
   useLocalSearchParams: jest.fn(),

@@ -6,6 +6,7 @@ import { localized, useLanguage, useT } from '@/i18n';
 import { formatMoney } from '@/lib/money';
 import { Icon, colors, spacing } from '@/ui';
 
+import { FavoriteButton } from '../favorites/FavoriteButton';
 import { RatingSummary } from '../reviews/RatingSummary';
 
 /** A camping in the results: photo, name, place, short text and "from €X total". */
@@ -15,50 +16,56 @@ export function ResultCard({ result, onOpen }: { result: SearchResult; onOpen: (
   const { camping } = result;
   const shortDescr = localized(camping.shortDescr, language);
   return (
-    <Pressable
-      accessibilityRole="link"
-      onPress={onOpen}
-      style={({ pressed }) => [styles.card, pressed && styles.pressed]}
-      testID={`result-${camping.slug}`}
-    >
-      {camping.coverPhoto ? (
-        <Image
-          source={{ uri: photoUrl(camping.coverPhoto) }}
-          style={styles.photo}
-          accessibilityIgnoresInvertColors
-        />
-      ) : (
-        <View style={[styles.photo, styles.noPhoto]}>
-          <Icon name="tent" size={40} color={colors.muted} />
-        </View>
-      )}
-      <View style={styles.body}>
-        <Text style={styles.name} accessibilityRole="header">
-          {camping.name}
-        </Text>
-        {camping.region ? (
-          <View style={styles.place}>
-            <Icon name="map-marker" size={16} color={colors.muted} />
-            <Text style={styles.muted}>{camping.region}</Text>
+    <View style={styles.card}>
+      <Pressable
+        accessibilityRole="link"
+        onPress={onOpen}
+        style={({ pressed }) => pressed && styles.pressed}
+        testID={`result-${camping.slug}`}
+      >
+        {camping.coverPhoto ? (
+          <Image
+            source={{ uri: photoUrl(camping.coverPhoto) }}
+            style={styles.photo}
+            accessibilityIgnoresInvertColors
+          />
+        ) : (
+          <View style={[styles.photo, styles.noPhoto]}>
+            <Icon name="tent" size={40} color={colors.muted} />
           </View>
-        ) : null}
-        <RatingSummary rating={camping.rating} size={15} />
-        {shortDescr ? (
-          <Text style={styles.muted} numberOfLines={2}>
-            {shortDescr}
+        )}
+        <View style={styles.body}>
+          <Text style={styles.name} accessibilityRole="header">
+            {camping.name}
           </Text>
-        ) : null}
-        <Text style={styles.price}>
-          {t('search.from', { price: formatMoney(result.fromTotalCents, language) })}
-        </Text>
+          {camping.region ? (
+            <View style={styles.place}>
+              <Icon name="map-marker" size={16} color={colors.muted} />
+              <Text style={styles.muted}>{camping.region}</Text>
+            </View>
+          ) : null}
+          <RatingSummary rating={camping.rating} size={15} />
+          {shortDescr ? (
+            <Text style={styles.muted} numberOfLines={2}>
+              {shortDescr}
+            </Text>
+          ) : null}
+          <Text style={styles.price}>
+            {t('search.from', { price: formatMoney(result.fromTotalCents, language) })}
+          </Text>
+        </View>
+      </Pressable>
+      <View style={styles.heart}>
+        <FavoriteButton campingId={camping.id} name={camping.name} />
       </View>
-    </Pressable>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   card: { borderRadius: 12, backgroundColor: colors.surface, overflow: 'hidden' },
   pressed: { opacity: 0.8 },
+  heart: { position: 'absolute', top: spacing.sm, right: spacing.sm },
   photo: { width: '100%', aspectRatio: 16 / 9, backgroundColor: colors.border },
   noPhoto: { alignItems: 'center', justifyContent: 'center' },
   body: { gap: spacing.xs, padding: spacing.md },
