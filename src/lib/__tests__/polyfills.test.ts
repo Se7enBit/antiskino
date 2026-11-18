@@ -29,9 +29,9 @@ afterEach(() => {
 
 const create = () =>
   jest.isolateModules(() => {
+    type Supabase = typeof import('@supabase/supabase-js');
     // eslint-disable-next-line @typescript-eslint/no-require-imports -- loaded after URL is swapped
-    const { createClient } =
-      require('@supabase/supabase-js') as typeof import('@supabase/supabase-js');
+    const { createClient } = require('@supabase/supabase-js') as Supabase;
     createClient('https://example.supabase.co', 'publishable-key', {
       auth: { persistSession: false, autoRefreshToken: false },
     });
