@@ -6,6 +6,8 @@ import { AppState, Platform } from 'react-native';
 import type { Language } from '@/i18n/languages';
 import { getSupabase, hasSupabaseEnv } from '@/lib/supabase';
 
+import { unregisterPush } from './push';
+
 export type AuthStatus = 'loading' | 'unconfigured' | 'signedOut' | 'signedIn';
 
 export type AuthState = { status: AuthStatus; session: Session | null };
@@ -79,6 +81,8 @@ export function useSignOut() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async () => {
+      // This device stops getting the user's pushes; sign-out goes ahead regardless.
+      await unregisterPush().catch(() => undefined);
       const { error } = await getSupabase().auth.signOut();
       if (error) throw error;
     },

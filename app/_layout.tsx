@@ -3,6 +3,7 @@ import { StatusBar } from 'expo-status-bar';
 
 import { AuthProvider } from '@/api/auth';
 import { QueryProvider } from '@/api/QueryProvider';
+import { PushSetup } from '@/features/push/PushSetup';
 import { LanguageProvider } from '@/i18n';
 
 export default function RootLayout() {
@@ -11,6 +12,7 @@ export default function RootLayout() {
       <QueryProvider>
         <AuthProvider>
           <StatusBar style="dark" />
+          <PushSetup />
           <Stack screenOptions={{ headerShown: false }}>
             <Stack.Screen name="(customer)" />
             <Stack.Screen name="partner" />
