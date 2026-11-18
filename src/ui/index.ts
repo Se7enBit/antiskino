@@ -12,6 +12,7 @@ export { Notice } from './Notice';
 export { PinsMap } from './map/PinsMap';
 export { Placeholder } from './Placeholder';
 export { Screen } from './Screen';
+export { StarPicker, Stars } from './Stars';
 export { Stepper } from './Stepper';
 export { TextField } from './TextField';
 export { colors, spacing } from './theme';

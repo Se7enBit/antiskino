@@ -44,6 +44,8 @@ const searchResponseSchema = z.object({
         lng: z.number().nullable(),
         shortDescr: z.unknown(),
         coverPhoto: z.string().nullable(),
+        // Older deployments of the search function don't send it.
+        rating: z.object({ average: z.number(), count: z.int() }).nullable().catch(null),
       }),
       fromTotalCents: z.int().nonnegative(),
       pitchTypes: z.array(z.object({ id: z.string(), totalCents: z.int().nonnegative() })),

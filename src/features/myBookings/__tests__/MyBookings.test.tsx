@@ -20,6 +20,10 @@ jest.mock('expo-router', () => ({
   useLocalSearchParams: jest.fn(),
 }));
 jest.mock('@/api/auth', () => ({ useAuth: jest.fn() }));
+const mockSubmitReview = jest.fn();
+jest.mock('@/api/reviews', () => ({
+  useSubmitMyReview: () => ({ mutate: mockSubmitReview, isPending: false, error: null }),
+}));
 jest.mock('@/api/myBookings', () => ({
   useMyBookings: jest.fn(),
   useMyBooking: jest.fn(),
@@ -116,6 +120,8 @@ describe('My booking', () => {
     ref: 'ANT-NEXT01',
     status: 'confirmed',
     can_cancel: true,
+    can_review: false,
+    review: null,
     arrival: '2027-07-10',
     departure: '2027-07-12',
     nights: 2,
@@ -171,6 +177,22 @@ describe('My booking', () => {
     await fireEvent.press(screen.getByTestId('booking-cancel'));
     await fireEvent.press(screen.getByTestId('booking-cancel-yes'));
     expect(cancel.mutate).toHaveBeenCalledWith('b1');
+  });
+
+  it('reviews a completed stay by booking id', async () => {
+    jest.mocked(useLocalSearchParams).mockReturnValue({ ref: 'ANT-NEXT01' });
+    jest.mocked(useMyBooking).mockReturnValue({
+      isPending: false,
+      isError: false,
+      data: { ...booking, status: 'completed', can_cancel: false, can_review: true },
+    } as unknown as ReturnType<typeof useMyBooking>);
+    jest
+      .mocked(useCancelMyBooking)
+      .mockReturnValue(fakeMutation() as unknown as ReturnType<typeof useCancelMyBooking>);
+    await renderWithLanguage(<MyBookingScreen />);
+    await fireEvent.press(screen.getByTestId('review-stars-5'));
+    await fireEvent.press(screen.getByTestId('review-submit'));
+    expect(mockSubmitReview).toHaveBeenCalledWith({ bookingId: 'b1', rating: 5, body: '' });
   });
 
   it("says when the booking isn't the user's", async () => {

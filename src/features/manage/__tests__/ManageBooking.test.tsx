@@ -11,6 +11,9 @@ jest.mock('expo-router', () => ({
   router: { push: jest.fn(), navigate: jest.fn() },
   useLocalSearchParams: jest.fn(),
 }));
+jest.mock('@/api/reviews', () => ({
+  useGuestSubmitReview: () => ({ mutate: jest.fn(), isPending: false, error: null }),
+}));
 jest.mock('@/api/guestBooking', () => ({
   useGuestBooking: jest.fn(),
   useGuestCancelBooking: jest.fn(),
@@ -20,6 +23,8 @@ const BOOKING: GuestBooking = {
   ref: 'ANT-7K3P9Q',
   status: 'confirmed',
   can_cancel: true,
+  can_review: false,
+  review: null,
   arrival: '2027-07-10',
   departure: '2027-07-12',
   nights: 2,

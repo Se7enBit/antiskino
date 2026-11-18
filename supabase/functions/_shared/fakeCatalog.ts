@@ -41,6 +41,7 @@ export const camping = (id: string, patch: Partial<SearchCamping> = {}): SearchC
   lng: null,
   shortDescr: {},
   coverPhoto: null,
+  rating: null,
   ...patch,
 });
 

@@ -2,6 +2,7 @@ import { router } from 'expo-router';
 import { Linking, Platform, StyleSheet, Text, View } from 'react-native';
 
 import type { BookingStatus, GuestBooking } from '@/api/guestBooking';
+import type { ReviewInput } from '@/domain/reviews';
 import { directionsUrl, shortTime } from '@/domain/camping';
 import { localized, useLanguage, useT } from '@/i18n';
 import { formatDateInput } from '@/lib/dates';
@@ -10,6 +11,7 @@ import { formatMoney } from '@/lib/money';
 import { Badge, BodyText, Button, Card, ConfirmButton, Notice, colors, spacing } from '@/ui';
 
 import { PriceBreakdown } from '../booking/PriceBreakdown';
+import { StayReview } from '../reviews/StayReview';
 
 const TONES: Record<BookingStatus, 'success' | 'warning' | 'neutral'> = {
   held: 'warning',
@@ -29,10 +31,12 @@ type Props = {
   onCancel?: () => void;
   cancelling?: boolean;
   cancelFailed?: boolean;
+  /** Reviewing the completed stay (SPEC F9). */
+  review?: { onSubmit: (input: ReviewInput) => void; submitting: boolean; error: unknown };
 };
 
 /** A booking as its guest sees it (manage link and My bookings). */
-export function BookingDetails({ booking, onCancel, cancelling, cancelFailed }: Props) {
+export function BookingDetails({ booking, onCancel, cancelling, cancelFailed, review }: Props) {
   const t = useT();
   const { language } = useLanguage();
   const { camping, price_breakdown: breakdown } = booking;
@@ -77,6 +81,15 @@ export function BookingDetails({ booking, onCancel, cancelling, cancelFailed }: 
           </BodyText>
         ) : null}
       </Card>
+
+      {review ? (
+        <StayReview
+          booking={booking}
+          onSubmit={review.onSubmit}
+          submitting={review.submitting}
+          submitError={review.error}
+        />
+      ) : null}
 
       <Card title={t('manage.stay')}>
         <BodyText>

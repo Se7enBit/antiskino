@@ -29,6 +29,17 @@ export const guestBookingObject = z.object({
   ref: z.string(),
   status: z.enum(STATUSES),
   can_cancel: z.boolean(),
+  // Since M6; .catch keeps older function versions working.
+  can_review: z.boolean().catch(false),
+  review: z
+    .object({
+      rating: z.int(),
+      body: z.string().nullable(),
+      partner_reply: z.string().nullable(),
+      hidden: z.boolean(),
+    })
+    .nullable()
+    .catch(null),
   arrival: z.string(),
   departure: z.string(),
   nights: z.int(),

@@ -34,6 +34,8 @@ export type SearchCamping = {
   shortDescr: unknown;
   /** Storage path of the first gallery photo. */
   coverPhoto: string | null;
+  /** Visible reviews: their average (one decimal) and count; null without reviews. */
+  rating: { average: number; count: number } | null;
 };
 
 export type SearchResult = {
