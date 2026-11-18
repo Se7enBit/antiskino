@@ -2,7 +2,7 @@
 
 > Book a camping pitch in Greece in under a minute. (*αντίσκηνο* = tent)
 
-Last updated: 2026-11-17 · Status: M1–M3 done, M4 in progress (booking)
+Last updated: 2026-11-18 · Status: M1–M4 done (M4's emails carried over), M5 in progress (reception)
 
 ## 0. Decisions log
 
@@ -73,6 +73,7 @@ Last updated: 2026-11-17 · Status: M1–M3 done, M4 in progress (booking)
 | My bookings (M4) | The Bookings tab calls `claim_bookings()` each time it loads the list, then lists the user's bookings (upcoming first); details at `/bookings/detail?ref=` | Claiming on load covers sign-ins on any device and sessions restored from storage. `my_booking()` returns the same JSON as the manage link (both use `booking_view()`), plus the id for `cancel_my_booking()` |
 | Partner Bookings (M4) | A Bookings tab (first in the partner area): requests to answer with their deadline (Accept; Decline after a second tap), upcoming stays (Cancel with a reason for the guest), past and cancelled on demand; guest phone and email as call / email buttons | The M4 slice of F11 Bookings, so the request flow works end to end. The list refreshes every minute until realtime (M5). Search, filters, detail, check-in and no-show come with M5. Phone tab labels are 10 px so five tabs fit at 360 px |
 | Booking jobs (M4) | pg_cron, enabled by a migration: `expire-overdue-bookings` every 5 minutes, `complete-past-stays` daily at 01:00 UTC (03:00 or 04:00 in Athens, after the Athens date has changed) | Job names make `cron.schedule()` update rather than duplicate. "Request expiring in 2 h" pushes, arrival reminders and review invites come with emails and push (`notify`, pg_net) |
+| Reception actions (M5) | `partner_booking_action()` also takes `check_in` and `no_show` (confirmed bookings, from the arrival day in Athens); `update_booking_desk()` sets `assigned_pitch` and `internal_note` (members and admins; empty text clears). Bookings are in the `supabase_realtime` publication. `push_tokens` is written only through `register_push_token()` / `unregister_push_token()`; a device registered by another user moves to them | One entry point for the camping's booking actions. A no-show keeps its nights: only cancel / decline / expire release them (§4.1). The app uses realtime events only as a signal to refetch, so RLS on select is the only gate on them |
 
 ## 1. Core problem
 
@@ -462,7 +463,7 @@ Hosted checkout (redirect to `checkoutUrl`) keeps card data out of the app on al
 1. **Skeleton:** Expo + Router + TS strict, i18n EL/EN, CI, web preview deploy, Supabase dev project with migrations applied by the GitHub integration, first migration (profiles, platform_settings, `is_admin()`), seed demo users.
 2. **Partner setup:** schema (partners → campings → pitch types → seasons/prices → inventory), RLS + pgTAP, seed demo partner/camping, email-code sign-in with partner/admin gates, admin create/invite (copy link), partner Profile / Pitch types / Rates / Availability screens with photos.
 3. **Search & quote:** `search` and `quote` functions + pricing tests, Home (with single-camping mode), results list/map, camping page.
-4. **Booking (on-site payment):** `create-booking`, instant and request flows, `transition_booking`, jobs, emails, manage link, cancellations, claiming bookings on sign-in, My bookings.
+4. **Booking (on-site payment):** `create-booking`, instant and request flows, `transition_booking`, jobs, emails, manage link, cancellations, claiming bookings on sign-in, My bookings. *Emails are carried over until a Resend sending domain is verified: notifications are queued meanwhile, and the guest keeps the manage link shown after booking.*
 5. **Reception:** Today, booking detail actions, assign pitch, check-in/no-show, realtime, push notifications.
 6. **Reviews, favorites, polish:** review invites, replies, moderation; favorites; empty/error states; Android preview APK. **Field test with the first camping** using its real pitch types, seasons and prices.
 7. **Online payments:** pick the provider, implement `PaymentProvider`, deposit/full modes, request-mode authorize/capture, refunds, platform fee, partner payout onboarding.
