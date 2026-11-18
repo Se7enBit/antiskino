@@ -5,11 +5,11 @@ import type { BookingAction, CampingBooking } from '@/api/partnerBookings';
 import { shortTime } from '@/domain/camping';
 import { localized, useLanguage, useT } from '@/i18n';
 import { formatDateInput, type IsoDate } from '@/lib/dates';
-import { formatDateTime } from '@/lib/format';
 import { formatMoney } from '@/lib/money';
 import { Badge, BodyText, Button, colors, spacing } from '@/ui';
 
 import { BookingActions } from './BookingActions';
+import { RequestDeadline } from './RequestDeadline';
 import { STATUS_TONES } from './statusTones';
 
 type Props = {
@@ -18,6 +18,8 @@ type Props = {
   onAction: (action: BookingAction, reason?: string) => void;
   busy: boolean;
   failed: boolean;
+  /** Warn when no pitch is assigned yet (Today's arrivals). */
+  pitchWarning?: boolean;
 };
 
 /** Opens a booking's detail page. */
@@ -26,7 +28,7 @@ export function openBooking(ref: string) {
 }
 
 /** One booking for the camping's team: guest, stay, contact and what can be done now. */
-export function BookingCard({ booking, today, onAction, busy, failed }: Props) {
+export function BookingCard({ booking, today, onAction, busy, failed, pitchWarning }: Props) {
   const t = useT();
   const { language } = useLanguage();
   const eta = shortTime(booking.arrival_eta);
@@ -51,13 +53,11 @@ export function BookingCard({ booking, today, onAction, busy, failed }: Props) {
         <Text style={styles.pitch}>
           {t('partner.booking.pitch', { pitch: booking.assigned_pitch })}
         </Text>
+      ) : pitchWarning ? (
+        <Text style={styles.unassigned}>{t('partner.booking.unassigned')}</Text>
       ) : null}
       {booking.status === 'requested' && booking.request_expires_at ? (
-        <Text style={styles.deadline}>
-          {t('partner.bookings.answerBy', {
-            deadline: formatDateTime(booking.request_expires_at, language),
-          })}
-        </Text>
+        <RequestDeadline deadline={booking.request_expires_at} />
       ) : null}
       {eta ? <BodyText>{t('partner.bookings.eta', { time: eta })}</BodyText> : null}
       {booking.vehicle_plate ? (
@@ -116,7 +116,7 @@ const styles = StyleSheet.create({
   },
   name: { flex: 1, fontSize: 17, fontWeight: '700', color: colors.text },
   pitch: { fontSize: 15, fontWeight: '700', color: colors.primary },
-  deadline: { fontSize: 15, fontWeight: '700', color: colors.danger },
+  unassigned: { fontSize: 15, fontWeight: '700', color: colors.danger },
   actions: {
     flexDirection: 'row',
     flexWrap: 'wrap',

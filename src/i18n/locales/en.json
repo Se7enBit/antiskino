@@ -269,7 +269,8 @@
       "rates": "Rates",
       "availability": "Availability",
       "availabilityShort": "Calendar",
-      "bookings": "Bookings"
+      "bookings": "Bookings",
+      "today": "Today"
     },
     "exit": "Exit",
     "noCampings": "Your team has no campings yet. The Antiskino team adds them.",
@@ -337,7 +338,8 @@
         "time": "Write a time like 14:00.",
         "requestExpiryHours": "Enter a number from 2 to 48.",
         "text": "Too long."
-      }
+      },
+      "pitchTypesLink": "Pitch types"
     },
     "pitchTypes": {
       "add": "Add pitch type",
@@ -540,7 +542,9 @@
           "no_show": "No-show",
           "cancelled": "Cancelled or declined"
         }
-      }
+      },
+      "timeLeft": "{{hours}} h {{minutes}} min left",
+      "timeUp": "time is up"
     },
     "booking": {
       "title": "Booking",
@@ -576,6 +580,13 @@
         "admin": "by Antiskino",
         "system": "automatically"
       }
+    },
+    "today": {
+      "arrivals": "Arrivals",
+      "departures": "Departures",
+      "inHouse": "In house tonight",
+      "noArrivals": "No arrivals today.",
+      "noDepartures": "No departures today."
     }
   },
   "admin": {

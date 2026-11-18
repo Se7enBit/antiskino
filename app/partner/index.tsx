@@ -1,6 +1,3 @@
-import { Redirect } from 'expo-router';
+import { TodayScreen } from '@/features/partner/TodayScreen';
 
-// Today (M5) will live here; until then /partner opens the bookings.
-export default function PartnerHome() {
-  return <Redirect href="/partner/bookings" />;
-}
+export default TodayScreen;

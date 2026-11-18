@@ -9,7 +9,6 @@ import {
 import { shortTime } from '@/domain/camping';
 import { localized, useLanguage, useT } from '@/i18n';
 import { formatDateInput, todayInAthens } from '@/lib/dates';
-import { formatDateTime } from '@/lib/format';
 import { formatMoney } from '@/lib/money';
 import { useHydrated } from '@/lib/useHydrated';
 import { Badge, BodyText, Button, Card, Loading, Notice, Screen, colors, spacing } from '@/ui';
@@ -19,6 +18,7 @@ import { PriceBreakdown } from '../booking/PriceBreakdown';
 import { BookingActions } from './bookings/BookingActions';
 import { BookingTimeline } from './bookings/BookingTimeline';
 import { DeskForm } from './bookings/DeskForm';
+import { RequestDeadline } from './bookings/RequestDeadline';
 import { STATUS_TONES } from './bookings/statusTones';
 
 /** /partner/bookings/detail?ref=ANT-…: one booking with everything reception needs (SPEC F11). */
@@ -80,11 +80,7 @@ function BookingDetail({ booking }: { booking: PartnerBooking }) {
             : t('partner.booking.unassigned')}
         </Text>
         {booking.status === 'requested' && booking.request_expires_at ? (
-          <Text style={styles.deadline}>
-            {t('partner.bookings.answerBy', {
-              deadline: formatDateTime(booking.request_expires_at, language),
-            })}
-          </Text>
+          <RequestDeadline deadline={booking.request_expires_at} />
         ) : null}
         {booking.cancel_reason ? (
           <BodyText>{t('manage.cancelReason', { reason: booking.cancel_reason })}</BodyText>
@@ -184,6 +180,5 @@ const styles = StyleSheet.create({
   ref: { fontSize: 15, fontWeight: '700', color: colors.primary, letterSpacing: 0.5 },
   pitch: { fontSize: 16, fontWeight: '700', color: colors.primary },
   unassigned: { fontSize: 16, fontWeight: '700', color: colors.danger },
-  deadline: { fontSize: 15, fontWeight: '700', color: colors.danger },
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
 });

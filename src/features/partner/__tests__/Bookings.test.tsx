@@ -91,7 +91,7 @@ describe('Partner bookings', () => {
     // 60 days back from today, no end.
     expect(useCampingBookings).toHaveBeenCalledWith('c1', { from: '2027-05-06', to: null });
     expect(screen.getByText('Requests to answer')).toBeTruthy();
-    expect(screen.getByText('Answer by 6 Jul 2027, 12:00')).toBeTruthy();
+    expect(screen.getByText(/^Answer by 6 Jul 2027, 12:00 · /)).toBeTruthy();
     expect(screen.getByText('Upcoming stays')).toBeTruthy();
     expect(screen.getByText('Arrives around 16:30')).toBeTruthy();
     expect(screen.getByText('Plate: IKA 1234')).toBeTruthy();
