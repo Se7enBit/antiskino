@@ -15,12 +15,20 @@ export function PartnersList() {
 
   return (
     <Screen>
-      <Button
-        label={t('admin.partners.new')}
-        variant="primary"
-        onPress={() => router.push('/admin/new-partner')}
-        testID="new-partner"
-      />
+      <View style={styles.actions}>
+        <Button
+          label={t('admin.partners.new')}
+          variant="primary"
+          onPress={() => router.push('/admin/new-partner')}
+          testID="new-partner"
+        />
+        <Button
+          label={t('admin.reviews.title')}
+          icon="star-outline"
+          onPress={() => router.push('/admin/reviews')}
+          testID="admin-reviews"
+        />
+      </View>
       {partners.isPending ? <Loading label={t('common.loading')} /> : null}
       {partners.isError ? <Notice tone="error" message={t('common.error')} /> : null}
       {partners.data?.length === 0 ? <Notice message={t('admin.partners.empty')} /> : null}
@@ -57,6 +65,7 @@ export function PartnersList() {
 }
 
 const styles = StyleSheet.create({
+  actions: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   pressed: { opacity: 0.7 },
   camping: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, flexWrap: 'wrap' },
   campingName: { fontSize: 16, color: colors.text },

@@ -13,6 +13,7 @@ export default function AdminLayout() {
         <Stack.Screen name="index" options={{ title: t('admin.title') }} />
         <Stack.Screen name="new-partner" options={{ title: t('admin.partnerForm.title') }} />
         <Stack.Screen name="partner" options={{ title: t('admin.partner.title') }} />
+        <Stack.Screen name="reviews" options={{ title: t('admin.reviews.title') }} />
       </Stack>
     </RequireAccess>
   );

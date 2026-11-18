@@ -34,7 +34,7 @@ function PartnerTabs() {
         tabBarIcon: () => null,
         tabBarIconStyle: { display: 'none' },
         // Five tabs share 360 px on phones (62 px of label each): "Ημερολόγιο" fits at 10 px.
-        // Pitch types has no phone tab; Profile links to it.
+        // Pitch types and Rates have no phone tab; Profile links to them.
         tabBarLabelStyle: { fontSize: wide ? 15 : 10, fontWeight: '600' },
         tabBarStyle: wide ? { width: 220, minWidth: 220 } : undefined,
         headerTintColor: colors.primary,
@@ -56,12 +56,22 @@ function PartnerTabs() {
           tabBarButton: wide ? undefined : () => null,
         }}
       />
-      <Tabs.Screen name="rates" options={{ title: t('partner.nav.rates') }} />
+      <Tabs.Screen
+        name="rates"
+        options={{ title: t('partner.nav.rates'), tabBarButton: wide ? undefined : () => null }}
+      />
       <Tabs.Screen
         name="availability"
         options={{
           title: t('partner.nav.availability'),
           tabBarLabel: t('partner.nav.availabilityShort'),
+        }}
+      />
+      <Tabs.Screen
+        name="reviews"
+        options={{
+          title: t('partner.nav.reviews'),
+          tabBarLabel: wide ? t('partner.nav.reviews') : t('partner.nav.reviewsShort'),
         }}
       />
     </Tabs>

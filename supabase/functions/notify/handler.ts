@@ -23,7 +23,7 @@ export async function authorized(
 }
 
 function messagesFor(push: ClaimedPush): ExpoMessage[] {
-  const url = pushUrl(push.audience, push.booking.ref);
+  const url = pushUrl(push.kind, push.audience, push.booking.ref);
   return push.recipients.flatMap((r) => {
     const text = pushText(push.kind, push.audience, r.locale, push.booking);
     return text
