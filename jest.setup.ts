@@ -20,3 +20,16 @@ jest.mock('react-native-maps', () => {
     });
   return { __esModule: true, default: MapView, Marker };
 });
+
+// Push notifications: no device in Jest. Tests that need taps or tokens mock '@/lib/push'.
+jest.mock('expo-notifications', () => ({
+  AndroidImportance: { HIGH: 4 },
+  setNotificationHandler: jest.fn(),
+  setNotificationChannelAsync: jest.fn(() => Promise.resolve(null)),
+  getPermissionsAsync: jest.fn(() => Promise.resolve({ status: 'denied' })),
+  requestPermissionsAsync: jest.fn(() => Promise.resolve({ status: 'denied' })),
+  getExpoPushTokenAsync: jest.fn(() => Promise.reject(new Error('no push in Jest'))),
+  getLastNotificationResponse: jest.fn(() => null),
+  clearLastNotificationResponse: jest.fn(),
+  addNotificationResponseReceivedListener: jest.fn(() => ({ remove: jest.fn() })),
+}));
