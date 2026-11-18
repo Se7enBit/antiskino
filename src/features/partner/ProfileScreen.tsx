@@ -3,7 +3,9 @@ import { View } from 'react-native';
 
 import { useCamping } from '@/api/partner';
 import { useT } from '@/i18n';
-import { Button, Loading, Notice } from '@/ui';
+import { Button, Loading } from '@/ui';
+
+import { ErrorState } from '../common/ErrorState';
 
 import { CampingPhotos } from './CampingPhotos';
 import { CampingProfileForm } from './CampingProfileForm';
@@ -23,7 +25,7 @@ function ProfileBody({ id, canEdit }: { id: string; canEdit: boolean }) {
   const wide = usePartnerWide();
   const camping = useCamping(id);
   if (camping.isPending) return <Loading label={t('common.loading')} />;
-  if (!camping.data) return <Notice tone="error" message={t('common.error')} />;
+  if (!camping.data) return <ErrorState onRetry={() => void camping.refetch()} />;
   // key: switching campings starts a fresh form
   return (
     <>

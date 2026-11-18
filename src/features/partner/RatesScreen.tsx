@@ -4,6 +4,8 @@ import { useRates } from '@/api/rates';
 import { useT } from '@/i18n';
 import { Loading, Notice, spacing } from '@/ui';
 
+import { ErrorState } from '../common/ErrorState';
+
 import { PartnerScreen } from './PartnerScreen';
 import { ExtrasSection } from './rates/ExtrasSection';
 import { FeesSection } from './rates/FeesSection';
@@ -24,7 +26,7 @@ function RatesBody({ campingId, canEdit }: { campingId: string; canEdit: boolean
   const rates = useRates(campingId);
 
   if (rates.isPending) return <Loading label={t('common.loading')} />;
-  if (!rates.data) return <Notice tone="error" message={t('common.error')} />;
+  if (!rates.data) return <ErrorState onRetry={() => void rates.refetch()} />;
   const { seasons, guestCategories, extras, fees } = rates.data;
   const props = { campingId, canEdit };
 

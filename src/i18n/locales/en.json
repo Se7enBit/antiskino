@@ -11,7 +11,12 @@
     "error": "Something went wrong. Check your connection and try again.",
     "save": "Save",
     "cancel": "Cancel",
-    "checkFields": "Some fields need fixing. Check the messages above."
+    "checkFields": "Some fields need fixing. Check the messages above.",
+    "crash": {
+      "title": "Something went wrong",
+      "body": "The app hit an unexpected problem. Try again; if it keeps happening, close and reopen the app.",
+      "home": "Go to the start"
+    }
   },
   "tabs": {
     "explore": "Explore",
