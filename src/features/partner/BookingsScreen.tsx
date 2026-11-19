@@ -6,16 +6,11 @@ import {
   usePartnerBookingAction,
   type CampingBooking,
 } from '@/api/partnerBookings';
-import {
-  STATUS_FILTERS,
-  defaultRange,
-  filterBookings,
-  parseRange,
-  type StatusFilter,
-} from '@/domain/partnerBookings';
 import { useT } from '@/i18n';
 import { todayInAthens } from '@/lib/dates';
-import { BodyText, Button, Card, ChoiceGroup, Loading, Notice, TextField, spacing } from '@/ui';
+import { BodyText, Button, Card, Loading, Notice, spacing } from '@/ui';
+
+import { BookingFilters, useBookingFilters } from '../bookings/BookingFilters';
 
 import { BookingCard } from './bookings/BookingCard';
 import { PartnerScreen } from './PartnerScreen';
@@ -31,26 +26,10 @@ export function BookingsScreen() {
 function BookingsBody({ campingId }: { campingId: string }) {
   const t = useT();
   const today = todayInAthens();
-  const [text, setText] = useState('');
-  const [status, setStatus] = useState<StatusFilter>('all');
-  const [fromText, setFromText] = useState('');
-  const [toText, setToText] = useState('');
-  const [showFilters, setShowFilters] = useState(false);
+  const filters = useBookingFilters(today);
   const [showPast, setShowPast] = useState(false);
-
-  const parsed = parseRange(fromText, toText, today);
-  const range = 'range' in parsed ? parsed.range : defaultRange(today);
-  const bookings = useCampingBookings(campingId, range);
+  const bookings = useCampingBookings(campingId, filters.range);
   const action = usePartnerBookingAction();
-  const filtering =
-    text.trim() !== '' || status !== 'all' || fromText.trim() !== '' || toText.trim() !== '';
-
-  const clearFilters = () => {
-    setText('');
-    setStatus('all');
-    setFromText('');
-    setToText('');
-  };
 
   const card = (booking: CampingBooking) => (
     <BookingCard
@@ -63,75 +42,6 @@ function BookingsBody({ campingId }: { campingId: string }) {
     />
   );
 
-  const filters = (
-    <View style={styles.filters}>
-      <TextField
-        label={t('partner.bookings.filter.search')}
-        value={text}
-        onChangeText={setText}
-        autoCapitalize="none"
-        testID="booking-search"
-      />
-      <View style={styles.row}>
-        <Button
-          label={
-            showFilters ? t('partner.bookings.filter.hide') : t('partner.bookings.filter.show')
-          }
-          icon="filter-variant"
-          onPress={() => setShowFilters((shown) => !shown)}
-          testID="toggle-filters"
-        />
-        {filtering ? (
-          <Button label={t('partner.bookings.filter.clear')} onPress={clearFilters} />
-        ) : null}
-      </View>
-      {showFilters ? (
-        <>
-          <ChoiceGroup
-            options={STATUS_FILTERS.map((value) => ({
-              value,
-              label: t(`partner.bookings.filter.status.${value}`),
-            }))}
-            selected={status}
-            onChange={setStatus}
-            testID="status-filter"
-          />
-          <View style={styles.row}>
-            <View style={styles.date}>
-              <TextField
-                label={t('partner.bookings.filter.from')}
-                value={fromText}
-                onChangeText={setFromText}
-                inputMode="numeric"
-                error={
-                  'error' in parsed && parsed.error === 'from'
-                    ? t('partner.bookings.filter.dateError')
-                    : null
-                }
-                testID="range-from"
-              />
-            </View>
-            <View style={styles.date}>
-              <TextField
-                label={t('partner.bookings.filter.to')}
-                value={toText}
-                onChangeText={setToText}
-                inputMode="numeric"
-                error={
-                  'error' in parsed && parsed.error === 'to'
-                    ? t('partner.bookings.filter.dateError')
-                    : null
-                }
-                testID="range-to"
-              />
-            </View>
-          </View>
-          <BodyText>{t('partner.bookings.filter.rangeHint')}</BodyText>
-        </>
-      ) : null}
-    </View>
-  );
-
   let body;
   if (bookings.isPending) body = <Loading label={t('common.loading')} />;
   else if (bookings.isError)
@@ -141,8 +51,8 @@ function BookingsBody({ campingId }: { campingId: string }) {
         <Button label={t('common.retry')} onPress={() => void bookings.refetch()} />
       </>
     );
-  else if (filtering) {
-    const matches = filterBookings(bookings.data, { status, text });
+  else if (filters.active) {
+    const matches = filters.apply(bookings.data);
     body = (
       <Card title={t('partner.bookings.filter.count', { count: matches.length })}>
         {matches.length ? (
@@ -195,7 +105,7 @@ function BookingsBody({ campingId }: { campingId: string }) {
 
   return (
     <View style={styles.page}>
-      {filters}
+      <BookingFilters filters={filters} />
       {body}
     </View>
   );
@@ -203,8 +113,5 @@ function BookingsBody({ campingId }: { campingId: string }) {
 
 const styles = StyleSheet.create({
   page: { gap: spacing.lg },
-  filters: { gap: spacing.sm },
-  row: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'flex-start', gap: spacing.sm },
-  date: { flexGrow: 1, flexBasis: 140 },
   list: { gap: spacing.sm },
 });

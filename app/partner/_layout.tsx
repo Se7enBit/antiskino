@@ -34,7 +34,7 @@ function PartnerTabs() {
         tabBarIcon: () => null,
         tabBarIconStyle: { display: 'none' },
         // Five tabs share 360 px on phones (62 px of label each): "Ημερολόγιο" fits at 10 px.
-        // Pitch types and Rates have no phone tab; Profile links to them.
+        // Pitch types, Rates and Team have no phone tab; Profile links to them.
         tabBarLabelStyle: { fontSize: wide ? 15 : 10, fontWeight: '600' },
         tabBarStyle: wide ? { width: 220, minWidth: 220 } : undefined,
         headerTintColor: colors.primary,
@@ -73,6 +73,10 @@ function PartnerTabs() {
           title: t('partner.nav.reviews'),
           tabBarLabel: wide ? t('partner.nav.reviews') : t('partner.nav.reviewsShort'),
         }}
+      />
+      <Tabs.Screen
+        name="team"
+        options={{ title: t('partner.nav.team'), tabBarButton: wide ? undefined : () => null }}
       />
     </Tabs>
   );

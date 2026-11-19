@@ -4,6 +4,8 @@ import { acceptInviteResultSchema } from '@/domain/invites';
 import type { PartnerRole } from '@/domain/roles';
 import { getSupabase } from '@/lib/supabase';
 
+import { teamKey } from './team';
+
 /** Creates a 7-day invite and returns its one-time token (never stored by us). */
 export function useCreateInvite(partnerId: string) {
   const queryClient = useQueryClient();
@@ -17,7 +19,7 @@ export function useCreateInvite(partnerId: string) {
       if (error) throw error;
       return data;
     },
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['admin', 'team', partnerId] }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: teamKey(partnerId) }),
   });
 }
 

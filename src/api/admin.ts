@@ -1,5 +1,12 @@
-import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  keepPreviousData,
+  skipToken,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 
+import type { BookingRange } from '@/domain/partnerBookings';
 import type { CampingStatus } from '@/domain/roles';
 import { getSupabase } from '@/lib/supabase';
 
@@ -10,7 +17,6 @@ type PartnerInsert = Database['public']['Tables']['partners']['Insert'];
 const keys = {
   partners: ['admin', 'partners'] as const,
   partner: (id: string) => ['admin', 'partner', id] as const,
-  team: (id: string) => ['admin', 'team', id] as const,
 };
 
 /** Every partner with its campings (admins only; RLS returns nothing to others). */
@@ -42,42 +48,6 @@ export function usePartner(partnerId: string | undefined) {
             .maybeSingle();
           if (error) throw error;
           return data;
-        }
-      : skipToken,
-  });
-}
-
-/** Team members (with their profile names) and invites of a partner. */
-export function usePartnerTeam(partnerId: string | undefined) {
-  return useQuery({
-    queryKey: keys.team(partnerId ?? ''),
-    queryFn: partnerId
-      ? async () => {
-          const supabase = getSupabase();
-          const [members, invites] = await Promise.all([
-            supabase
-              .from('partner_members')
-              .select('user_id, role, created_at')
-              .eq('partner_id', partnerId)
-              .order('created_at'),
-            supabase
-              .from('partner_invites')
-              .select('id, email, role, expires_at, accepted_at, created_at')
-              .eq('partner_id', partnerId)
-              .order('created_at', { ascending: false }),
-          ]);
-          if (members.error) throw members.error;
-          if (invites.error) throw invites.error;
-          const userIds = members.data.map((m) => m.user_id);
-          const profiles = userIds.length
-            ? await supabase.from('profiles').select('id, full_name').in('id', userIds)
-            : { data: [], error: null };
-          if (profiles.error) throw profiles.error;
-          const names = new Map(profiles.data.map((p) => [p.id, p.full_name]));
-          return {
-            members: members.data.map((m) => ({ ...m, full_name: names.get(m.user_id) ?? null })),
-            invites: invites.data,
-          };
         }
       : skipToken,
   });
@@ -151,3 +121,31 @@ export function useSetCampingStatus(partnerId: string) {
       ]),
   });
 }
+
+/** How many bookings the admin list loads at most (newest arrivals first). */
+export const ADMIN_BOOKINGS_LIMIT = 500;
+
+/** Every camping's bookings whose stay overlaps the range, newest arrival first (SPEC F12, read-only). */
+export function useAdminBookings(range: BookingRange) {
+  return useQuery({
+    queryKey: ['admin', 'bookings', range.from, range.to],
+    queryFn: async () => {
+      let query = getSupabase()
+        .from('bookings')
+        .select(
+          'id, ref, status, arrival, departure, nights, party_size, guest_name, total_cents, commission_cents, created_at, camping:campings(name)',
+        )
+        .gte('departure', range.from);
+      if (range.to) query = query.lte('arrival', range.to);
+      const { data, error } = await query
+        .order('arrival', { ascending: false })
+        .order('created_at', { ascending: false })
+        .limit(ADMIN_BOOKINGS_LIMIT);
+      if (error) throw error;
+      return data;
+    },
+    placeholderData: keepPreviousData,
+  });
+}
+
+export type AdminBooking = NonNullable<ReturnType<typeof useAdminBookings>['data']>[number];

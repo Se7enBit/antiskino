@@ -302,7 +302,8 @@
       "bookings": "Bookings",
       "today": "Today",
       "reviews": "Reviews",
-      "reviewsShort": "Reviews"
+      "reviewsShort": "Reviews",
+      "team": "Team"
     },
     "exit": "Exit",
     "noCampings": "Your team has no campings yet. The Antiskino team adds them.",
@@ -372,7 +373,8 @@
         "text": "Too long."
       },
       "pitchTypesLink": "Pitch types",
-      "ratesLink": "Rates"
+      "ratesLink": "Rates",
+      "teamLink": "Team"
     },
     "pitchTypes": {
       "add": "Add pitch type",
@@ -631,6 +633,9 @@
       "replyLabel": "Public reply (everyone sees it)",
       "publish": "Publish reply",
       "replyHint": "To remove the reply, empty it and publish."
+    },
+    "team": {
+      "ownersOnly": "Only owners manage the team."
     }
   },
   "admin": {
@@ -708,7 +713,18 @@
       "noSiteUrl": "The site address isn't configured, so the link can't be built.",
       "errors": {
         "email": "Enter a valid email address."
-      }
+      },
+      "you": "you",
+      "make": {
+        "owner": "Make owner",
+        "staff": "Make staff"
+      },
+      "remove": "Remove",
+      "removeQuestion": "Remove {{name}} from the team?",
+      "removeYes": "Yes, remove",
+      "revoke": "Revoke invite",
+      "invite": "Invite someone",
+      "lastOwner": "The team needs at least one owner. Make someone else owner first."
     },
     "roles": {
       "owner": "Owner",
@@ -726,6 +742,11 @@
       "reasonLabel": "Why hide it? The camping's team sees this.",
       "reasonRequired": "Write a short reason.",
       "hideConfirm": "Hide review"
+    },
+    "bookings": {
+      "title": "Bookings",
+      "commission": "commission {{amount}}",
+      "limit": "Showing the latest {{count}} stays in these dates. Narrow the dates to see others."
     }
   },
   "notFound": {
