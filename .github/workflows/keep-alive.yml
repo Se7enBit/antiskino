@@ -1,0 +1,55 @@
+name: Keep databases awake
+
+# Supabase pauses free-plan projects after about a week without activity. Once a
+# day this reads one row from each project through its public API (a real
+# database query), with the publishable key: the dev project
+# (EXPO_PUBLIC_SUPABASE_URL / _KEY) and, once set, production (PROD_SUPABASE_URL
+# / _KEY). Also runnable by hand: Actions → Keep databases awake → Run workflow.
+# GitHub turns scheduled workflows off after 60 days without commits; it emails
+# the owner first, and Run workflow turns it back on.
+
+on:
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    name: Query each project
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      DEV_URL: ${{ vars.EXPO_PUBLIC_SUPABASE_URL || secrets.EXPO_PUBLIC_SUPABASE_URL }}
+      DEV_KEY: ${{ vars.EXPO_PUBLIC_SUPABASE_KEY || secrets.EXPO_PUBLIC_SUPABASE_KEY }}
+      PROD_URL: ${{ vars.PROD_SUPABASE_URL }}
+      PROD_KEY: ${{ vars.PROD_SUPABASE_KEY || secrets.PROD_SUPABASE_KEY }}
+    steps:
+      - name: Query the projects
+        run: |
+          failed=0
+          pinged=0
+          ping() {
+            local name="$1" url="$2" key="$3"
+            if [ -z "$url" ] || [ -z "$key" ]; then
+              echo "$name: not set up, skipped"
+              return
+            fi
+            pinged=$((pinged + 1))
+            status=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 30 --retry 3 --retry-delay 10 \
+              -H "apikey: $key" "${url%/}/rest/v1/campings?select=id&limit=1") || status=000
+            if [ "$status" = 200 ]; then
+              echo "$name: ok"
+            else
+              echo "::error::$name answered HTTP $status. If the project is paused, restore it in the Supabase dashboard."
+              failed=1
+            fi
+          }
+          ping dev "$DEV_URL" "$DEV_KEY"
+          ping production "$PROD_URL" "$PROD_KEY"
+          if [ "$pinged" = 0 ]; then
+            echo "::warning::No project is set up: add the EXPO_PUBLIC_SUPABASE_URL and EXPO_PUBLIC_SUPABASE_KEY variables."
+          fi
+          exit $failed

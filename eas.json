@@ -14,6 +14,15 @@
         "EXPO_NO_TELEMETRY": "1",
         "EXPO_PUBLIC_SHOW_FATAL_ERRORS": "1"
       }
+    },
+    "production": {
+      "autoIncrement": true,
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "env": {
+        "EXPO_NO_TELEMETRY": "1"
+      }
     }
   }
 }

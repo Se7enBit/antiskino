@@ -1,0 +1,119 @@
+name: Website
+
+# Builds the website and publishes it on GitHub Pages. It runs:
+# - after every push to main (called by CI) and after a Release;
+# - by hand: Actions → Website → Run workflow;
+# - on a "refresh-website" repository_dispatch, which the database sends when a
+#   camping goes live (its page is pre-rendered, so the site needs a rebuild).
+#
+# Until the CUSTOM_DOMAIN variable is set, the site is the preview: main built
+# against the dev project, at https://<owner>.github.io/<repo>/.
+# Once CUSTOM_DOMAIN is set (launch), the domain's root is production: the
+# commit the Release workflow tagged "production", built against the production
+# project (PROD_SUPABASE_URL, PROD_SUPABASE_KEY). The preview moves to
+# https://<domain>/preview/ and search engines are asked to skip it.
+
+on:
+  workflow_call:
+  workflow_dispatch:
+  repository_dispatch:
+    types: [refresh-website]
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: 22
+  EXPO_NO_TELEMETRY: 1
+
+jobs:
+  publish:
+    name: Build and publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    # One publish at a time, in order; a newer waiting run replaces an older one.
+    concurrency:
+      group: website
+      cancel-in-progress: false
+    env:
+      CUSTOM_DOMAIN: ${{ vars.CUSTOM_DOMAIN }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: main
+          # The production tag
+          fetch-depth: 0
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Production (the released commit, at the domain's root)
+        if: env.CUSTOM_DOMAIN != ''
+        env:
+          EXPO_PUBLIC_SUPABASE_URL: ${{ vars.PROD_SUPABASE_URL }}
+          EXPO_PUBLIC_SUPABASE_KEY: ${{ vars.PROD_SUPABASE_KEY || secrets.PROD_SUPABASE_KEY }}
+          EXPO_PUBLIC_SITE_URL: https://${{ vars.CUSTOM_DOMAIN }}
+        run: |
+          if ! git rev-parse -q --verify refs/tags/production >/dev/null; then
+            echo "::error::CUSTOM_DOMAIN is set but nothing is released yet: run Actions → Release first."
+            exit 1
+          fi
+          if [ -z "$EXPO_PUBLIC_SUPABASE_URL" ] || [ -z "$EXPO_PUBLIC_SUPABASE_KEY" ]; then
+            echo "::error::Add the Actions variables PROD_SUPABASE_URL and PROD_SUPABASE_KEY (the production project's URL and publishable key)."
+            exit 1
+          fi
+          git worktree add "$RUNNER_TEMP/production" production
+          cd "$RUNNER_TEMP/production"
+          npm ci
+          # The site lives at the domain's root.
+          node -e "
+            const fs = require('fs');
+            const app = JSON.parse(fs.readFileSync('app.json', 'utf8'));
+            app.expo.experiments = { ...app.expo.experiments, baseUrl: '' };
+            fs.writeFileSync('app.json', JSON.stringify(app, null, 2));
+          "
+          npx expo export -p web --output-dir "$GITHUB_WORKSPACE/site"
+          cp "$GITHUB_WORKSPACE/site/+not-found.html" "$GITHUB_WORKSPACE/site/404.html"
+          printf 'User-agent: *\nDisallow: /preview/\n' > "$GITHUB_WORKSPACE/site/robots.txt"
+
+      - name: Preview (main, against the dev project)
+        env:
+          EXPO_PUBLIC_SUPABASE_URL: ${{ vars.EXPO_PUBLIC_SUPABASE_URL || secrets.EXPO_PUBLIC_SUPABASE_URL }}
+          EXPO_PUBLIC_SUPABASE_KEY: ${{ vars.EXPO_PUBLIC_SUPABASE_KEY || secrets.EXPO_PUBLIC_SUPABASE_KEY }}
+          SITE_URL_VARIABLE: ${{ vars.EXPO_PUBLIC_SITE_URL }}
+        run: |
+          if [ -z "$EXPO_PUBLIC_SUPABASE_URL" ] || [ -z "$EXPO_PUBLIC_SUPABASE_KEY" ]; then
+            echo "::warning::EXPO_PUBLIC_SUPABASE_URL / EXPO_PUBLIC_SUPABASE_KEY are not set (Actions variables or secrets): the preview has no sign-in."
+          fi
+          if [ -n "$CUSTOM_DOMAIN" ]; then
+            BASE_URL=/preview
+            OUT=site/preview
+            export EXPO_PUBLIC_SITE_URL="https://$CUSTOM_DOMAIN/preview"
+          else
+            BASE_URL="/${GITHUB_REPOSITORY#*/}"
+            OUT=site
+            export EXPO_PUBLIC_SITE_URL="${SITE_URL_VARIABLE:-https://${GITHUB_REPOSITORY_OWNER,,}.github.io/${GITHUB_REPOSITORY#*/}}"
+          fi
+          npm ci
+          BASE_URL="$BASE_URL" node -e "
+            const fs = require('fs');
+            const app = JSON.parse(fs.readFileSync('app.json', 'utf8'));
+            app.expo.experiments = { ...app.expo.experiments, baseUrl: process.env.BASE_URL };
+            fs.writeFileSync('app.json', JSON.stringify(app, null, 2));
+          "
+          npx expo export -p web --output-dir "$OUT"
+          if [ -z "$CUSTOM_DOMAIN" ]; then cp "site/+not-found.html" site/404.html; fi
+
+      - uses: actions/upload-pages-artifact@v5
+        with:
+          path: site
+      - id: deployment
+        uses: actions/deploy-pages@v5

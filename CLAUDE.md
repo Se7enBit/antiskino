@@ -30,7 +30,8 @@ The Supabase CLI is v3 (pinned in CI): `gen types` and `test db` target the loca
 ## Working from a phone
 The owner mostly works from a phone, so:
 - **CI is the test runner.** Keep `typecheck → lint → jest → deno test → pgTAP → web export` green, and add tests with every logic change.
-- The web preview (https://se7enbit.github.io/antiskino/) deploys on push to `main`, and native checks use the EAS preview APK (GitHub → Actions → "Android preview build" → Run workflow; install from expo.dev → Builds). Push notifications don't work in Expo Go.
+- The web preview (https://se7enbit.github.io/antiskino/; `https://<domain>/preview/` once `CUSTOM_DOMAIN` is set) deploys on push to `main` (the Website workflow), and native checks use the EAS preview APK (GitHub → Actions → "Android preview build" → Run workflow; install from expo.dev → Builds). Push notifications don't work in Expo Go.
+- Production is updated only by hand: Actions → "Release" (prod migrations, edge functions, then the website from the `production` tag) and "Android release build" (AAB). `docs/launch.md` is the launch checklist.
 - Keep changes small. End each task with a short "how to check it on the phone" note (which screen, what to tap, what to expect).
 
 ## Rules
@@ -85,5 +86,6 @@ The owner mostly works from a phone, so:
 - **App (public):** `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_KEY` (publishable/anon key), `EXPO_PUBLIC_SITE_URL`
 - **Edge function secrets:** `SUPABASE_URL`, Supabase secret/service-role key (provided to functions), `RESEND_API_KEY`, `EMAIL_FROM`, `SITE_URL`, `EXPO_ACCESS_TOKEN` (optional, push), `NOTIFY_SECRET` (push delivery; same value as the Vault secret `notify_secret`). From M8: `PAYMENT_PROVIDER`, provider API key, webhook secret.
 - **CI web build (public values):** `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_KEY` as Actions variables or secrets (either works), `EXPO_PUBLIC_SITE_URL` (optional variable; defaults to the Pages URL). The web job warns when the Supabase ones are missing.
-- **CI secrets:** `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD`, `SUPABASE_PROJECT_REF` (prod migrations, M7), `EXPO_TOKEN` (EAS: the Android preview build workflow, from M6), `GOOGLE_SERVICES_JSON` (content of Firebase's google-services.json, for Android pushes in that workflow).
+- **CI production variables (M7):** `CUSTOM_DOMAIN` (switches the website to production at the domain's root and the preview to `/preview`), `PROD_SUPABASE_URL`, `PROD_SUPABASE_KEY` (publishable key; also accepted as a secret).
+- **CI secrets:** `SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD`, `SUPABASE_PROJECT_REF` (the production project, for the Release workflow), `EXPO_TOKEN` (EAS: the Android build workflows), `GOOGLE_SERVICES_JSON` (content of Firebase's google-services.json, for Android pushes in those builds).
 - Keep `.env.example` up to date with every variable (no values).

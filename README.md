@@ -6,6 +6,7 @@ campings with a customer app and a partner dashboard in one Expo codebase
 
 - **Spec:** [SPEC.md](SPEC.md) (source of truth) · **Working rules:** [CLAUDE.md](CLAUDE.md)
 - **Web preview** (deployed from `main`): https://se7enbit.github.io/antiskino/
+- **Launch:** production releases and the launch checklist are in [docs/launch.md](docs/launch.md).
 
 ## Quick start
 
