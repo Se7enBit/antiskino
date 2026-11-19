@@ -960,6 +960,28 @@ export type Database = {
           },
         ];
       };
+      website_refresh: {
+        Row: {
+          id: number;
+          request_id: number | null;
+          requested_at: string | null;
+          sent_at: string | null;
+        };
+        ComputedFields: never;
+        Insert: {
+          id?: number;
+          request_id?: number | null;
+          requested_at?: string | null;
+          sent_at?: string | null;
+        };
+        Update: {
+          id?: number;
+          request_id?: number | null;
+          requested_at?: string | null;
+          sent_at?: string | null;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       camping_ratings: {
@@ -1152,6 +1174,7 @@ export type Database = {
           pitch_type_id: string;
         }[];
       };
+      send_website_refresh: { Args: Record<PropertyKey, never>; Returns: number };
       set_allotment: {
         Args: {
           p_allotment: number;

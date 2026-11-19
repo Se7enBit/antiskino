@@ -1,0 +1,130 @@
+name: Android build
+
+# The Android build on EAS (Expo's build service), shared by the two workflows
+# you run by hand:
+# - "Android preview build" (android-preview.yml): an APK against the dev
+#   project, to install from expo.dev → Projects → antiskino → Builds;
+# - "Android release build" (android-release.yml): an app bundle (AAB) against
+#   production, to upload to Google Play.
+# EAS takes about 15 minutes after this workflow ends. Needs the EXPO_TOKEN
+# secret (expo.dev → Account settings → Access tokens); GOOGLE_SERVICES_JSON
+# (Firebase) turns on Android pushes. The first run created the EAS project and
+# the Android signing key; later runs reuse them.
+
+on:
+  workflow_call:
+    inputs:
+      profile:
+        description: The eas.json build profile, preview or production
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: 22
+  EXPO_NO_TELEMETRY: 1
+
+jobs:
+  build:
+    name: EAS build (${{ inputs.profile }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    concurrency:
+      group: android-${{ inputs.profile }}
+      cancel-in-progress: false
+    steps:
+      - name: Check the Expo token
+        env:
+          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
+        run: |
+          if [ -z "$EXPO_TOKEN" ]; then
+            echo "::error::Add the EXPO_TOKEN secret: create a token at expo.dev (Account settings → Access tokens), then add it in GitHub → Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+
+      - uses: expo/expo-github-action@v8
+        with:
+          eas-version: latest
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      # Creates the project under the token's account on the first run and links
+      # it afterwards. Its id goes into app.json for this build (push tokens need it).
+      - name: Link the EAS project
+        run: |
+          eas init --non-interactive --force
+          node -e "console.log('EAS project id:', require('./app.json').expo.extra?.eas?.projectId)"
+
+      # Firebase Cloud Messaging config for Android pushes, from the
+      # GOOGLE_SERVICES_JSON secret (the content of google-services.json). Without
+      # it the build still works, with no pushes on Android.
+      - name: Firebase config for pushes
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          if [ -n "$GOOGLE_SERVICES_JSON" ]; then
+            printf '%s' "$GOOGLE_SERVICES_JSON" > google-services.json
+            node -e "JSON.parse(require('fs').readFileSync('google-services.json', 'utf8'))" \
+              || { echo "::error::GOOGLE_SERVICES_JSON is not valid JSON: paste the whole google-services.json file."; exit 1; }
+          else
+            echo "::warning::GOOGLE_SERVICES_JSON is not set: this build has no pushes on Android."
+            node -e "
+              const fs = require('fs');
+              const app = JSON.parse(fs.readFileSync('app.json', 'utf8'));
+              delete app.expo.android.googleServicesFile;
+              fs.writeFileSync('app.json', JSON.stringify(app, null, 2));
+            "
+          fi
+
+      # The public settings for this profile, written into this checkout's
+      # eas.json only; nothing is committed. Preview: the dev project, as for the
+      # web preview. Production: PROD_SUPABASE_URL / _KEY and the custom domain.
+      - name: Public settings for the app
+        env:
+          PROFILE: ${{ inputs.profile }}
+          DEV_URL: ${{ vars.EXPO_PUBLIC_SUPABASE_URL || secrets.EXPO_PUBLIC_SUPABASE_URL }}
+          DEV_KEY: ${{ vars.EXPO_PUBLIC_SUPABASE_KEY || secrets.EXPO_PUBLIC_SUPABASE_KEY }}
+          DEV_SITE: ${{ vars.EXPO_PUBLIC_SITE_URL || format('https://{0}.github.io/{1}', github.repository_owner, github.event.repository.name) }}
+          PROD_URL: ${{ vars.PROD_SUPABASE_URL }}
+          PROD_KEY: ${{ vars.PROD_SUPABASE_KEY || secrets.PROD_SUPABASE_KEY }}
+          CUSTOM_DOMAIN: ${{ vars.CUSTOM_DOMAIN }}
+        run: |
+          if [ "$PROFILE" = production ]; then
+            if [ -z "$PROD_URL" ] || [ -z "$PROD_KEY" ] || [ -z "$CUSTOM_DOMAIN" ]; then
+              echo "::error::A release build needs the Actions variables PROD_SUPABASE_URL, PROD_SUPABASE_KEY and CUSTOM_DOMAIN."
+              exit 1
+            fi
+            export EXPO_PUBLIC_SUPABASE_URL="$PROD_URL" EXPO_PUBLIC_SUPABASE_KEY="$PROD_KEY" EXPO_PUBLIC_SITE_URL="https://$CUSTOM_DOMAIN"
+          else
+            if [ -z "$DEV_URL" ] || [ -z "$DEV_KEY" ]; then
+              echo "::warning::EXPO_PUBLIC_SUPABASE_URL / EXPO_PUBLIC_SUPABASE_KEY are not set (Actions variables or secrets): this build has no sign-in."
+            fi
+            # After launch the preview website lives under the domain's /preview/.
+            if [ -n "$CUSTOM_DOMAIN" ]; then DEV_SITE="https://$CUSTOM_DOMAIN/preview"; fi
+            export EXPO_PUBLIC_SUPABASE_URL="$DEV_URL" EXPO_PUBLIC_SUPABASE_KEY="$DEV_KEY" EXPO_PUBLIC_SITE_URL="$DEV_SITE"
+          fi
+          node -e "
+            const fs = require('fs');
+            const eas = JSON.parse(fs.readFileSync('eas.json', 'utf8'));
+            const profile = eas.build[process.env.PROFILE];
+            profile.env = profile.env || {};
+            for (const name of ['EXPO_PUBLIC_SUPABASE_URL', 'EXPO_PUBLIC_SUPABASE_KEY', 'EXPO_PUBLIC_SITE_URL']) {
+              if (process.env[name]) profile.env[name] = process.env[name];
+            }
+            fs.writeFileSync('eas.json', JSON.stringify(eas, null, 2));
+          "
+
+      # EAS_NO_VCS: upload this checkout as it is now (with the project id and
+      # settings above), leaving out what .gitignore lists.
+      - name: Start the build on EAS
+        env:
+          EAS_NO_VCS: 1
+        run: eas build --platform android --profile "${{ inputs.profile }}" --non-interactive --no-wait

@@ -1,6 +1,6 @@
 name: CI
 
-# Runs on every push. Only main deploys the web preview to GitHub Pages.
+# Runs on every push. On main, it then publishes the website (website.yml).
 #
 # Database migrations are NOT pushed from here: the Supabase GitHub integration
 # ("Deploy to production" on the antiskino-dev project) applies new files in
@@ -108,29 +108,14 @@ jobs:
           EXPO_PUBLIC_SUPABASE_URL: ${{ vars.EXPO_PUBLIC_SUPABASE_URL || secrets.EXPO_PUBLIC_SUPABASE_URL }}
           EXPO_PUBLIC_SUPABASE_KEY: ${{ vars.EXPO_PUBLIC_SUPABASE_KEY || secrets.EXPO_PUBLIC_SUPABASE_KEY }}
           EXPO_PUBLIC_SITE_URL: ${{ vars.EXPO_PUBLIC_SITE_URL || format('https://{0}.github.io/{1}', github.repository_owner, github.event.repository.name) }}
-      - name: Add GitHub Pages 404 page
-        run: cp "dist/+not-found.html" dist/404.html
-      - name: Upload Pages artifact
-        if: github.ref == 'refs/heads/main'
-        uses: actions/upload-pages-artifact@v5
-        with:
-          path: dist
 
-  deploy:
-    name: Deploy web preview
+  website:
+    name: Publish website
     if: github.ref == 'refs/heads/main'
     needs: web
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
     permissions:
+      contents: read
       pages: write
       id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    concurrency:
-      group: pages
-      cancel-in-progress: false
-    steps:
-      - id: deployment
-        uses: actions/deploy-pages@v5
+    uses: ./.github/workflows/website.yml
+    secrets: inherit
