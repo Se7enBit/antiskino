@@ -5,10 +5,8 @@ import { lngLatBoundsFor } from '@/domain/map';
 
 import { colors, spacing } from '../theme';
 
+import { MAP_STYLE } from './style';
 import type { PinsMapProps } from './types';
-
-/** OpenFreeMap's OpenStreetMap style: free, no account and no key. */
-export const MAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
 
 /** Native map (MapLibre with OpenStreetMap data) with a label pin per camping. */
 export function PinsMap({ pins, onPress, height }: PinsMapProps) {

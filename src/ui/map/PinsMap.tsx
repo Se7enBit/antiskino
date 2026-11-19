@@ -7,17 +7,22 @@ import { colors } from '../theme';
 
 import type { PinsMapProps } from './types';
 
-// Leaflet needs a browser (window): load it only after hydration, never in the static export.
-const LeafletMap = lazy(() => import('./LeafletMap'));
+// MapLibre needs a browser (window, WebGL): load it only after hydration, never in the static export.
+const MapLibreWebMap = lazy(() => import('./MapLibreWebMap'));
 
-/** Web map: OpenStreetMap tiles through Leaflet, with a price pill per pin. */
+/** Web map: MapLibre with OpenFreeMap's OpenStreetMap style, with a label per pin. */
 export function PinsMap({ pins, onPress, height }: PinsMapProps) {
   const hydrated = useHydrated();
   return (
     <View style={[styles.frame, { height }]} testID="pins-map">
       {hydrated ? (
         <Suspense fallback={null}>
-          <LeafletMap pins={pins} onPress={onPress} />
+          {/* A new set of pins creates a new map, fitted to them. */}
+          <MapLibreWebMap
+            key={pins.map((p) => `${p.id}@${p.lat},${p.lng}:${p.label}`).join('|')}
+            pins={pins}
+            onPress={onPress}
+          />
         </Suspense>
       ) : null}
     </View>
