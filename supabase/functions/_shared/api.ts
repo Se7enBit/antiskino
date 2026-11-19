@@ -87,6 +87,9 @@ export type QuoteResponse =
   | { available: true; quote: Quote; offeredExtras: string[] }
   | { available: false; reason: UnavailableReason };
 
+/** POST /functions/v1/delete-account (signed in, no body). */
+export type DeleteAccountResponse = { deleted: true } | { deleted: false; reason: 'last_owner' };
+
 export type ErrorResponse = {
   error: 'invalid_input' | 'unauthorized' | 'method_not_allowed' | 'server_error';
   issues?: { path: string; code: string }[];

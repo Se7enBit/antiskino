@@ -2,6 +2,7 @@ import { StyleSheet, View } from 'react-native';
 
 import { AccountSignIn } from '@/features/auth/AccountSignIn';
 import { AreaLinks } from '@/features/auth/AreaLinks';
+import { DeleteAccount } from '@/features/auth/DeleteAccount';
 import { LANGUAGES, useLanguage, useT } from '@/i18n';
 import { Button, Screen, SectionLabel, spacing } from '@/ui';
 
@@ -27,6 +28,7 @@ export default function AccountScreen() {
         </View>
       </View>
       <AreaLinks />
+      <DeleteAccount />
     </Screen>
   );
 }

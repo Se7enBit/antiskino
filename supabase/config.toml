@@ -426,6 +426,10 @@ verify_jwt = false
 [functions.create-booking]
 verify_jwt = false
 
+# Checks the signed-in user itself (as create-booking does).
+[functions.delete-account]
+verify_jwt = false
+
 # Called by pg_cron through pg_net with a shared secret (x-notify-secret), not by the app.
 [functions.notify]
 verify_jwt = false
