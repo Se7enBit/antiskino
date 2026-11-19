@@ -36,6 +36,8 @@ export interface Booker {
   /** The signed-in user behind an Authorization header, or null for guests. */
   userId(authorization: string | null): Promise<string | null>;
   reserve(args: ReserveArgs): Promise<Reserved>;
+  /** Keeps the manage link's token, sealed, so later emails can carry the link. */
+  storeManageToken(bookingId: string, sealed: string): Promise<void>;
 }
 
 const reservedRow = z.object({
@@ -90,6 +92,14 @@ export function supabaseBooker(admin: SupabaseClient): Booker {
         status: row.status,
         requestExpiresAt: row.request_expires_at,
       };
+    },
+
+    async storeManageToken(bookingId, sealed) {
+      const { error } = await admin.rpc('store_manage_token', {
+        p_booking_id: bookingId,
+        p_enc: sealed,
+      });
+      if (error) throw new Error(error.message);
     },
   };
 }

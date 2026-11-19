@@ -154,10 +154,13 @@ export function pushText(
 }
 
 /**
- * Whether a queued push still makes sense: requests not yet answered, stays
+ * Whether a queued push or email still makes sense: requests not yet answered, stays
  * not cancelled before the reminder, stays not reviewed before the invite.
  */
-export function stillRelevant(kind: string, booking: PushBooking): boolean {
+export function stillRelevant(
+  kind: string,
+  booking: Pick<PushBooking, 'status' | 'reviewRating'>,
+): boolean {
   if (kind === 'request_received' || kind === 'request_expiring')
     return booking.status === 'requested';
   if (kind === 'arrival_reminder') return booking.status === 'confirmed';

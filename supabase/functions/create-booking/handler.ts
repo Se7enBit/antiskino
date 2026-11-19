@@ -2,10 +2,17 @@ import type { BookingBreakdown, CreateBookingResponse } from '../_shared/api.ts'
 import { type Booker, Unavailable } from '../_shared/booker.ts';
 import type { Catalog } from '../_shared/catalog.ts';
 import { priceStayRequest } from '../_shared/pricedStay.ts';
+import { sealToken } from '../_shared/linkToken.ts';
 import type { CreateBookingInput } from '../_shared/stayInput.ts';
 import { newManageToken, sha256Hex } from '../_shared/token.ts';
 
-type Deps = { catalog: Catalog; booker: Booker; authorization: string | null };
+type Deps = {
+  catalog: Catalog;
+  booker: Booker;
+  authorization: string | null;
+  /** Seals the manage token for later emails; null leaves emails without the link. */
+  linkSecret: string | null;
+};
 
 /**
  * Books one stay (SPEC F3): prices it on the server, then reserves the nights
@@ -13,7 +20,7 @@ type Deps = { catalog: Catalog; booker: Booker; authorization: string | null };
  */
 export async function createBooking(
   input: CreateBookingInput,
-  { catalog, booker, authorization }: Deps,
+  { catalog, booker, authorization, linkSecret }: Deps,
 ): Promise<CreateBookingResponse> {
   const priced = await priceStayRequest(input, catalog);
   if (!priced.available) return { booked: false, reason: priced.reason };
@@ -47,6 +54,17 @@ export async function createBooking(
       breakdown,
       manageTokenHash: await sha256Hex(manageToken),
     });
+    if (linkSecret) {
+      // The booking stands either way: emails then point to sign-in instead.
+      try {
+        await booker.storeManageToken(reserved.bookingId, await sealToken(manageToken, linkSecret));
+      } catch (e) {
+        console.error(
+          'storing the manage link failed:',
+          e instanceof Error ? e.message : 'unknown',
+        );
+      }
+    }
     return {
       booked: true,
       ref: reserved.ref,

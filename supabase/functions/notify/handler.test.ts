@@ -1,8 +1,15 @@
 import { assertEquals } from 'jsr:@std/assert@1';
 
 import type { ExpoMessage, ExpoTicket, PushSender } from '../_shared/expoPush.ts';
-import type { ClaimedPush, NotifyStore, PushOutcome } from '../_shared/notifyStore.ts';
-import { authorized, deliverPushes } from './handler.ts';
+import { sealToken } from '../_shared/linkToken.ts';
+import type {
+  ClaimedEmail,
+  ClaimedPush,
+  NotifyStore,
+  PushOutcome,
+} from '../_shared/notifyStore.ts';
+import type { Mailer, OutgoingEmail } from '../_shared/resend.ts';
+import { authorized, deliverEmails, deliverPushes } from './handler.ts';
 
 const booking = {
   ref: 'ANT-7KQ2XM',
@@ -33,6 +40,7 @@ function fakeStore(claimed: ClaimedPush[]) {
   const forgotten: string[][] = [];
   const store: NotifyStore = {
     claim: () => Promise.resolve(claimed),
+    claimEmails: () => Promise.resolve([]),
     finish: (id, outcome, error) => {
       finished.push(error === undefined ? { id, outcome } : { id, outcome, error });
       return Promise.resolve();
@@ -139,4 +147,135 @@ Deno.test('accepts only the shared secret', async () => {
   assertEquals(await authorized(null, 's3cret'), false);
   assertEquals(await authorized('s3cret', undefined), false);
   assertEquals(await authorized('', ''), false);
+});
+
+const emailBooking: ClaimedEmail['booking'] = {
+  ref: 'ANT-7KQ2XM',
+  status: 'confirmed',
+  arrival: '2027-07-10',
+  departure: '2027-07-12',
+  nights: 2,
+  partySize: 2,
+  guestName: 'Maria P.',
+  totalCents: 5000,
+  paymentMode: 'on_site',
+  cancellationPolicy: 'flexible',
+  requestExpiresAt: null,
+  cancelReason: null,
+  reviewRating: null,
+  pitchTypeName: { en: 'Tent pitch' },
+  manageTokenEnc: null,
+  camping: {
+    name: 'Camping Thalassa',
+    address: null,
+    phone: null,
+    email: null,
+    lat: null,
+    lng: null,
+    checkInFrom: null,
+    checkOutUntil: null,
+  },
+};
+
+const claimedEmail = (id: number, patch: Partial<ClaimedEmail> = {}): ClaimedEmail => ({
+  id,
+  kind: 'booking_confirmed',
+  audience: 'guest',
+  attempts: 1,
+  booking: emailBooking,
+  recipients: [{ email: 'maria@example.org', locale: 'en' }],
+  ...patch,
+});
+
+function emailStore(claimed: ClaimedEmail[]) {
+  const finished: { id: number; outcome: PushOutcome; error?: string }[] = [];
+  const store: NotifyStore = {
+    claim: () => Promise.resolve([]),
+    claimEmails: () => Promise.resolve(claimed),
+    finish: (id, outcome, error) => {
+      finished.push(error === undefined ? { id, outcome } : { id, outcome, error });
+      return Promise.resolve();
+    },
+    forget: () => Promise.resolve(),
+  };
+  return { store, finished };
+}
+
+function fakeMailer(fails = false) {
+  const sent: OutgoingEmail[] = [];
+  const mailer: Mailer = {
+    send(emails) {
+      sent.push(...emails);
+      return fails ? Promise.reject(new Error('Resend HTTP 429')) : Promise.resolve();
+    },
+  };
+  return { mailer, sent };
+}
+
+Deno.test('emails guests with their manage link and the team with the booking', async () => {
+  const sealed = await sealToken('the-token', 'secret');
+  const { store, finished } = emailStore([
+    claimedEmail(1, { booking: { ...emailBooking, manageTokenEnc: sealed } }),
+    claimedEmail(2, {
+      audience: 'partner',
+      recipients: [
+        { email: 'owner@example.org', locale: 'en' },
+        { email: 'staff@example.org', locale: 'el' },
+      ],
+    }),
+  ]);
+  const { mailer, sent } = fakeMailer();
+  const summary = await deliverEmails({
+    store,
+    mailer,
+    siteUrl: 'https://example.org/antiskino/',
+    linkSecret: 'secret',
+  });
+  assertEquals(summary, { claimed: 2, sent: 2, skipped: 0, retried: 0 });
+  assertEquals(
+    sent.map((e) => [e.to, e.subject]),
+    [
+      ['maria@example.org', 'Booking confirmed: Camping Thalassa (ANT-7KQ2XM)'],
+      ['owner@example.org', 'New booking ANT-7KQ2XM: Maria P., 10/07/2027 → 12/07/2027'],
+      ['staff@example.org', 'Νέα κράτηση ANT-7KQ2XM: Maria P., 10/07/2027 → 12/07/2027'],
+    ],
+  );
+  assertEquals(
+    sent[0]!.text.includes('https://example.org/antiskino/m?ref=ANT-7KQ2XM&t=the-token'),
+    true,
+  );
+  assertEquals(finished, [
+    { id: 1, outcome: 'sent' },
+    { id: 2, outcome: 'sent' },
+  ]);
+});
+
+Deno.test('skips emails that no longer make sense or reach nobody', async () => {
+  const { store, finished } = emailStore([
+    claimedEmail(1, {
+      kind: 'request_received',
+      booking: { ...emailBooking, status: 'confirmed' },
+    }),
+    claimedEmail(2, { audience: 'partner', recipients: [] }),
+  ]);
+  const { mailer, sent } = fakeMailer();
+  await deliverEmails({ store, mailer, siteUrl: 'https://example.org', linkSecret: null });
+  assertEquals(sent, []);
+  assertEquals(finished, [
+    { id: 1, outcome: 'skipped', error: 'no longer relevant' },
+    { id: 2, outcome: 'skipped', error: 'no recipient' },
+  ]);
+});
+
+Deno.test('retries emails when Resend fails', async () => {
+  const { store, finished } = emailStore([claimedEmail(1)]);
+  const { mailer } = fakeMailer(true);
+  const summary = await deliverEmails({
+    store,
+    mailer,
+    siteUrl: 'https://example.org',
+    linkSecret: null,
+  });
+  assertEquals(summary.retried, 1);
+  assertEquals(finished, [{ id: 1, outcome: 'retry', error: 'Resend HTTP 429' }]);
 });

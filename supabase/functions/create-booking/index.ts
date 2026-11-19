@@ -2,6 +2,7 @@
 import { bookerFor } from '../_shared/booker.ts';
 import { catalogFor } from '../_shared/catalog.ts';
 import { serveJson } from '../_shared/http.ts';
+import { linkSecret } from '../_shared/linkToken.ts';
 import { createBookingRequestSchema } from '../_shared/stayInput.ts';
 import { createBooking } from './handler.ts';
 
@@ -11,6 +12,7 @@ Deno.serve(
       catalog: catalogFor(req),
       booker: bookerFor(),
       authorization: req.headers.get('Authorization'),
+      linkSecret: linkSecret(),
     }),
   ),
 );

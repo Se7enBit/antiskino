@@ -70,6 +70,7 @@ export type Database = {
           id: string;
           internal_note: string | null;
           locale: string;
+          manage_token_enc: string | null;
           manage_token_hash: string;
           nights: number | null;
           paid_cents: number;
@@ -112,6 +113,7 @@ export type Database = {
           id?: string;
           internal_note?: string | null;
           locale: string;
+          manage_token_enc?: string | null;
           manage_token_hash: string;
           nights?: never;
           paid_cents?: number;
@@ -153,6 +155,7 @@ export type Database = {
           id?: string;
           internal_note?: string | null;
           locale?: string;
+          manage_token_enc?: string | null;
           manage_token_hash?: string;
           nights?: never;
           paid_cents?: number;
@@ -955,6 +958,17 @@ export type Database = {
         Returns: undefined;
       };
       claim_bookings: { Args: Record<PropertyKey, never>; Returns: number };
+      claim_email_notifications: {
+        Args: { p_limit?: number };
+        Returns: {
+          attempts: number;
+          audience: string;
+          booking: Json;
+          id: number;
+          kind: string;
+          recipients: Json;
+        }[];
+      };
       claim_push_notifications: {
         Args: { p_limit?: number };
         Returns: {
@@ -980,6 +994,10 @@ export type Database = {
         Returns: string;
       };
       expire_overdue_bookings: { Args: Record<PropertyKey, never>; Returns: number };
+      finish_notification: {
+        Args: { p_error?: string; p_id: number; p_outcome: string };
+        Returns: undefined;
+      };
       finish_push_notification: {
         Args: { p_error?: string; p_id: number; p_outcome: string };
         Returns: undefined;
@@ -1130,6 +1148,7 @@ export type Database = {
       };
       set_season_prices: { Args: { p_prices: Json; p_season_id: string }; Returns: number };
       sha256_hex: { Args: { p_text: string }; Returns: string };
+      store_manage_token: { Args: { p_booking_id: string; p_enc: string }; Returns: undefined };
       submit_my_review: {
         Args: { p_body: string; p_booking_id: string; p_rating: number };
         Returns: string;
