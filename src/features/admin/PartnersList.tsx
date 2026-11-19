@@ -29,6 +29,12 @@ export function PartnersList() {
           testID="admin-bookings"
         />
         <Button
+          label={t('admin.commission.title')}
+          icon="cash-multiple"
+          onPress={() => router.push('/admin/commission')}
+          testID="admin-commission"
+        />
+        <Button
           label={t('admin.reviews.title')}
           icon="star-outline"
           onPress={() => router.push('/admin/reviews')}

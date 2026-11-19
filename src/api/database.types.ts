@@ -316,6 +316,42 @@ export type Database = {
           },
         ];
       };
+      commission_statements: {
+        Row: {
+          id: string;
+          month: string;
+          partner_id: string;
+          status: string;
+          total_cents: number;
+          updated_at: string;
+        };
+        ComputedFields: never;
+        Insert: {
+          id?: string;
+          month: string;
+          partner_id: string;
+          status?: string;
+          total_cents: number;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          month?: string;
+          partner_id?: string;
+          status?: string;
+          total_cents?: number;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: 'commission_statements_partner_id_fkey';
+            columns: ['partner_id'];
+            isOneToOne: false;
+            referencedRelation: 'partners';
+            referencedColumns: ['id'];
+          },
+        ];
+      };
       extras: {
         Row: {
           active: boolean;
@@ -1132,6 +1168,10 @@ export type Database = {
           p_last_night: string;
           p_pitch_type_id: string;
         };
+        Returns: number;
+      };
+      set_commission_statement: {
+        Args: { p_month: string; p_partner_id: string; p_status: string };
         Returns: number;
       };
       set_partner_member_role: {

@@ -747,6 +747,34 @@
       "title": "Bookings",
       "commission": "commission {{amount}}",
       "limit": "Showing the latest {{count}} stays in these dates. Narrow the dates to see others."
+    },
+    "commission": {
+      "title": "Commission",
+      "hint": "Commission is due on the stays completed in the month (by departure). Statements are paid by bank transfer.",
+      "none": "No completed stays in this month.",
+      "stays": "Completed stays: {{count}} · value {{value}}",
+      "due": "Commission due: {{amount}}",
+      "changed": "When marked, the total was {{amount}}; mark it again to update it.",
+      "status": {
+        "open": "Open",
+        "sent": "Sent",
+        "paid": "Paid"
+      },
+      "markSent": "Mark sent",
+      "markPaid": "Mark paid",
+      "reopen": "Reopen",
+      "download": "Download CSV",
+      "csv": {
+        "partner": "Partner",
+        "camping": "Camping",
+        "ref": "Reference",
+        "arrival": "Arrival",
+        "departure": "Departure",
+        "nights": "Nights",
+        "stay": "Stay (EUR)",
+        "rate": "Rate",
+        "commission": "Commission (EUR)"
+      }
     }
   },
   "notFound": {
