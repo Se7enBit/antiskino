@@ -23,6 +23,12 @@ export function PartnersList() {
           testID="new-partner"
         />
         <Button
+          label={t('admin.bookings.title')}
+          icon="calendar-check-outline"
+          onPress={() => router.push('/admin/bookings')}
+          testID="admin-bookings"
+        />
+        <Button
           label={t('admin.reviews.title')}
           icon="star-outline"
           onPress={() => router.push('/admin/reviews')}

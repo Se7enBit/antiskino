@@ -742,6 +742,11 @@
       "reasonLabel": "Why hide it? The camping's team sees this.",
       "reasonRequired": "Write a short reason.",
       "hideConfirm": "Hide review"
+    },
+    "bookings": {
+      "title": "Bookings",
+      "commission": "commission {{amount}}",
+      "limit": "Showing the latest {{count}} stays in these dates. Narrow the dates to see others."
     }
   },
   "notFound": {

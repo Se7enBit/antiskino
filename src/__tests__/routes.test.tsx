@@ -25,6 +25,7 @@ describe('routes', () => {
     ['/admin/new-partner', 'Sign in to continue'],
     ['/admin/partner', 'Sign in to continue'],
     ['/admin/reviews', 'Sign in to continue'],
+    ['/admin/bookings', 'Sign in to continue'],
     ['/invite', "Sign-in isn't available in this build yet."],
     ['/m', "We couldn't find this booking. Check that you opened the whole link."],
     ['/book', "This booking link is incomplete. Start from the camping's page."],

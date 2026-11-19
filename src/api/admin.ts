@@ -1,5 +1,12 @@
-import { skipToken, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  keepPreviousData,
+  skipToken,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 
+import type { BookingRange } from '@/domain/partnerBookings';
 import type { CampingStatus } from '@/domain/roles';
 import { getSupabase } from '@/lib/supabase';
 
@@ -114,3 +121,31 @@ export function useSetCampingStatus(partnerId: string) {
       ]),
   });
 }
+
+/** How many bookings the admin list loads at most (newest arrivals first). */
+export const ADMIN_BOOKINGS_LIMIT = 500;
+
+/** Every camping's bookings whose stay overlaps the range, newest arrival first (SPEC F12, read-only). */
+export function useAdminBookings(range: BookingRange) {
+  return useQuery({
+    queryKey: ['admin', 'bookings', range.from, range.to],
+    queryFn: async () => {
+      let query = getSupabase()
+        .from('bookings')
+        .select(
+          'id, ref, status, arrival, departure, nights, party_size, guest_name, total_cents, commission_cents, created_at, camping:campings(name)',
+        )
+        .gte('departure', range.from);
+      if (range.to) query = query.lte('arrival', range.to);
+      const { data, error } = await query
+        .order('arrival', { ascending: false })
+        .order('created_at', { ascending: false })
+        .limit(ADMIN_BOOKINGS_LIMIT);
+      if (error) throw error;
+      return data;
+    },
+    placeholderData: keepPreviousData,
+  });
+}
+
+export type AdminBooking = NonNullable<ReturnType<typeof useAdminBookings>['data']>[number];
