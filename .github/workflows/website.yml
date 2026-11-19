@@ -75,7 +75,7 @@ jobs:
           node -e "
             const fs = require('fs');
             const app = JSON.parse(fs.readFileSync('app.json', 'utf8'));
-            app.expo.experiments = { ...app.expo.experiments, baseUrl: '' };
+            delete (app.expo.experiments || {}).baseUrl;
             fs.writeFileSync('app.json', JSON.stringify(app, null, 2));
           "
           npx expo export -p web --output-dir "$GITHUB_WORKSPACE/site"
