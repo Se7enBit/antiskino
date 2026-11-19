@@ -29,7 +29,7 @@ function ProfileBody({ id, canEdit }: { id: string; canEdit: boolean }) {
   // key: switching campings starts a fresh form
   return (
     <>
-      {/* Phones have no tabs for pitch types and rates (they don't fit at 360 px). */}
+      {/* Phones have no tabs for pitch types, rates and team (they don't fit at 360 px). */}
       {wide ? null : (
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
           <Button
@@ -44,6 +44,14 @@ function ProfileBody({ id, canEdit }: { id: string; canEdit: boolean }) {
             onPress={() => router.navigate('/partner/rates')}
             testID="rates-link"
           />
+          {canEdit ? (
+            <Button
+              label={t('partner.profile.teamLink')}
+              icon="account-group-outline"
+              onPress={() => router.navigate('/partner/team')}
+              testID="team-link"
+            />
+          ) : null}
         </View>
       )}
       <CampingPhotos campingId={camping.data.id} canEdit={canEdit} />

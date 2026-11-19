@@ -1004,12 +1004,23 @@ export type Database = {
       is_localized_text: { Args: { p_required?: boolean; p_value: Json }; Returns: boolean };
       is_partner_member: { Args: { p_partner_id: string }; Returns: boolean };
       is_partner_owner: { Args: { p_partner_id: string }; Returns: boolean };
+      lock_partner_team: { Args: { p_partner_id: string }; Returns: undefined };
       merge_favorites: { Args: { p_camping_ids: string[] }; Returns: number };
       my_booking: { Args: { p_ref: string }; Returns: Json };
       new_booking_ref: { Args: Record<PropertyKey, never>; Returns: string };
       partner_booking_action: {
         Args: { p_action: string; p_booking_id: string; p_note: string };
         Returns: Database['public']['Enums']['booking_status'];
+      };
+      partner_team: {
+        Args: { p_partner_id: string };
+        Returns: {
+          created_at: string;
+          email: string;
+          full_name: string;
+          role: Database['public']['Enums']['partner_role'];
+          user_id: string;
+        }[];
       };
       queue_booking_notifications: {
         Args: { p_booking_id: string; p_status: Database['public']['Enums']['booking_status'] };
@@ -1029,6 +1040,10 @@ export type Database = {
         Returns: undefined;
       };
       register_push_token: { Args: { p_platform: string; p_token: string }; Returns: undefined };
+      remove_partner_member: {
+        Args: { p_partner_id: string; p_user_id: string };
+        Returns: undefined;
+      };
       reply_to_review: { Args: { p_reply: string; p_review_id: string }; Returns: undefined };
       reserve_and_create_booking: {
         Args: {
@@ -1051,6 +1066,7 @@ export type Database = {
           status: Database['public']['Enums']['booking_status'];
         }[];
       };
+      revoke_partner_invite: { Args: { p_invite_id: string }; Returns: undefined };
       sellable_pitch_types: {
         Args: {
           p_arrival: string;
@@ -1099,6 +1115,14 @@ export type Database = {
           p_pitch_type_id: string;
         };
         Returns: number;
+      };
+      set_partner_member_role: {
+        Args: {
+          p_partner_id: string;
+          p_role: Database['public']['Enums']['partner_role'];
+          p_user_id: string;
+        };
+        Returns: undefined;
       };
       set_review_hidden: {
         Args: { p_hidden: boolean; p_reason: string; p_review_id: string };
