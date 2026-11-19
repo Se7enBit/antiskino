@@ -31,6 +31,8 @@ describe('routes', () => {
     ['/m', "We couldn't find this booking. Check that you opened the whole link."],
     ['/book', "This booking link is incomplete. Start from the camping's page."],
     ['/delete-account', 'Delete your Antiskino account'],
+    ['/terms', '1. Who we are'],
+    ['/privacy', '1. Who is responsible'],
   ])('%s renders', async (url, text) => {
     await renderRouter('./app', { initialUrl: url });
     expect(screen).toHavePathname(url);

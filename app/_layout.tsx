@@ -23,6 +23,8 @@ export default function RootLayout() {
             <Stack.Screen name="invite" />
             <Stack.Screen name="m" />
             <Stack.Screen name="delete-account" />
+            <Stack.Screen name="terms" />
+            <Stack.Screen name="privacy" />
           </Stack>
         </AuthProvider>
       </QueryProvider>
