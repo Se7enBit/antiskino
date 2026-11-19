@@ -3,6 +3,7 @@ import { assertEquals, assertMatch } from 'jsr:@std/assert@1';
 import type { ReserveArgs } from '../_shared/booker.ts';
 import { type Booker, Unavailable } from '../_shared/booker.ts';
 import { fakeCatalog, rates } from '../_shared/fakeCatalog.ts';
+import { openToken } from '../_shared/linkToken.ts';
 import { sha256Hex } from '../_shared/token.ts';
 import { createBooking } from './handler.ts';
 
@@ -37,8 +38,12 @@ function catalog(sellable = true) {
   });
 }
 
-function booker(outcome: 'ok' | 'taken' = 'ok') {
-  const calls: { reserve: ReserveArgs[]; userId: (string | null)[] } = { reserve: [], userId: [] };
+function booker(outcome: 'ok' | 'taken' = 'ok', storing: 'ok' | 'fails' = 'ok') {
+  const calls: {
+    reserve: ReserveArgs[];
+    userId: (string | null)[];
+    stored: { bookingId: string; sealed: string }[];
+  } = { reserve: [], userId: [], stored: [] };
   const fake: Booker = {
     userId: (authorization) => {
       calls.userId.push(authorization);
@@ -54,6 +59,10 @@ function booker(outcome: 'ok' | 'taken' = 'ok') {
         requestExpiresAt: null,
       });
     },
+    storeManageToken: (bookingId, sealed) => {
+      calls.stored.push({ bookingId, sealed });
+      return storing === 'ok' ? Promise.resolve() : Promise.reject(new Error('db down'));
+    },
   };
   return { fake, calls };
 }
@@ -64,6 +73,7 @@ Deno.test('prices the stay on the server and reserves it', async () => {
     catalog: catalog(),
     booker: fake,
     authorization: null,
+    linkSecret: null,
   });
   if (!result.booked) throw new Error(result.reason);
   // per night: 1500 + 2 adults × 800 + 1 child × 400 + car 300 = 3800; two nights
@@ -102,6 +112,7 @@ Deno.test('links the booking to a signed-in guest', async () => {
     catalog: catalog(),
     booker: fake,
     authorization: 'Bearer user-jwt',
+    linkSecret: null,
   });
   assertEquals(calls.reserve[0]?.userId, 'user-1');
 });
@@ -110,7 +121,7 @@ Deno.test('leaves out extras with no quantity', async () => {
   const { fake, calls } = booker();
   await createBooking(
     { ...INPUT, extras: { car: 0 } },
-    { catalog: catalog(), booker: fake, authorization: null },
+    { catalog: catalog(), booker: fake, authorization: null, linkSecret: null },
   );
   assertEquals(calls.reserve[0]?.extras, {});
 });
@@ -118,7 +129,12 @@ Deno.test('leaves out extras with no quantity', async () => {
 Deno.test('does not reserve what cannot be priced', async () => {
   const { fake, calls } = booker();
   assertEquals(
-    await createBooking(INPUT, { catalog: catalog(false), booker: fake, authorization: null }),
+    await createBooking(INPUT, {
+      catalog: catalog(false),
+      booker: fake,
+      authorization: null,
+      linkSecret: null,
+    }),
     {
       booked: false,
       reason: 'unavailable',
@@ -130,10 +146,40 @@ Deno.test('does not reserve what cannot be priced', async () => {
 Deno.test('reports a stay taken meanwhile as unavailable', async () => {
   const { fake } = booker('taken');
   assertEquals(
-    await createBooking(INPUT, { catalog: catalog(), booker: fake, authorization: null }),
+    await createBooking(INPUT, {
+      catalog: catalog(),
+      booker: fake,
+      authorization: null,
+      linkSecret: null,
+    }),
     {
       booked: false,
       reason: 'unavailable',
     },
   );
+});
+
+Deno.test('keeps the manage token sealed for later emails', async () => {
+  const { fake, calls } = booker();
+  const result = await createBooking(INPUT, {
+    catalog: catalog(),
+    booker: fake,
+    authorization: null,
+    linkSecret: 'secret-key',
+  });
+  if (!result.booked) throw new Error(result.reason);
+  assertEquals(calls.stored.length, 1);
+  assertEquals(calls.stored[0]!.bookingId, 'b1');
+  assertEquals(await openToken(calls.stored[0]!.sealed, 'secret-key'), result.manageToken);
+});
+
+Deno.test('books even when the token cannot be stored', async () => {
+  const { fake } = booker('ok', 'fails');
+  const result = await createBooking(INPUT, {
+    catalog: catalog(),
+    booker: fake,
+    authorization: null,
+    linkSecret: 'secret-key',
+  });
+  assertEquals(result.booked, true);
 });

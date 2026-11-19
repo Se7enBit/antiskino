@@ -1,6 +1,14 @@
+import { type EmailLinks, emailFor } from '../_shared/emailMessages.ts';
 import type { ExpoMessage, ExpoTicket, PushSender } from '../_shared/expoPush.ts';
-import type { ClaimedPush, NotifyStore, PushOutcome } from '../_shared/notifyStore.ts';
+import { openToken } from '../_shared/linkToken.ts';
+import type {
+  ClaimedEmail,
+  ClaimedPush,
+  NotifyStore,
+  PushOutcome,
+} from '../_shared/notifyStore.ts';
 import { pushText, pushUrl, stillRelevant } from '../_shared/pushMessages.ts';
+import type { Mailer, OutgoingEmail } from '../_shared/resend.ts';
 import { sha256Hex } from '../_shared/token.ts';
 
 export type NotifyDeps = { store: NotifyStore; sender: PushSender; limit?: number };
@@ -91,5 +99,82 @@ export async function deliverPushes({
     await finish(push.id, outcome, error);
   }
   await store.forget(gone);
+  return summary;
+}
+
+export type EmailDeps = {
+  store: NotifyStore;
+  mailer: Mailer;
+  /** The app's address, e.g. https://se7enbit.github.io/antiskino */
+  siteUrl: string;
+  /** Opens the sealed manage tokens; null sends guests to sign in instead. */
+  linkSecret: string | null;
+  limit?: number;
+};
+
+/** The links an email may carry for one booking. */
+export async function emailLinks(
+  email: ClaimedEmail,
+  siteUrl: string,
+  linkSecret: string | null,
+): Promise<EmailLinks> {
+  const site = siteUrl.replace(/\/+$/, '');
+  const ref = encodeURIComponent(email.booking.ref);
+  const token =
+    linkSecret && email.booking.manageTokenEnc
+      ? await openToken(email.booking.manageTokenEnc, linkSecret)
+      : null;
+  return {
+    manage: token ? `${site}/m?ref=${ref}&t=${encodeURIComponent(token)}` : null,
+    signIn: `${site}/bookings/detail?ref=${ref}`,
+    partner: `${site}/partner/bookings/detail?ref=${ref}`,
+    site: `${site}/`,
+  };
+}
+
+/**
+ * One email run: claim the due emails, send them in one go with Resend, record
+ * each outcome. Logs counts only — never addresses, names or texts.
+ */
+export async function deliverEmails({
+  store,
+  mailer,
+  siteUrl,
+  linkSecret,
+  limit = 50,
+}: EmailDeps): Promise<NotifySummary> {
+  const claimed = await store.claimEmails(limit);
+  const summary: NotifySummary = { claimed: claimed.length, sent: 0, skipped: 0, retried: 0 };
+  const finish = async (id: number, outcome: PushOutcome, error?: string) => {
+    await store.finish(id, outcome, error);
+    if (outcome === 'sent') summary.sent++;
+    else if (outcome === 'skipped') summary.skipped++;
+    else summary.retried++;
+  };
+
+  const planned: { email: ClaimedEmail; messages: OutgoingEmail[] }[] = [];
+  for (const email of claimed) {
+    if (!stillRelevant(email.kind, email.booking)) {
+      await finish(email.id, 'skipped', 'no longer relevant');
+      continue;
+    }
+    const links = await emailLinks(email, siteUrl, linkSecret);
+    const messages = email.recipients.flatMap((r) => {
+      const content = emailFor(email.kind, email.audience, r.locale, email.booking, links);
+      return content ? [{ to: r.email, ...content }] : [];
+    });
+    if (messages.length === 0) await finish(email.id, 'skipped', 'no recipient');
+    else planned.push({ email, messages });
+  }
+  if (planned.length === 0) return summary;
+
+  try {
+    await mailer.send(planned.flatMap((p) => p.messages));
+  } catch (e) {
+    const error = e instanceof Error ? e.message : 'send failed';
+    for (const { email } of planned) await finish(email.id, 'retry', error);
+    return summary;
+  }
+  for (const { email } of planned) await finish(email.id, 'sent');
   return summary;
 }

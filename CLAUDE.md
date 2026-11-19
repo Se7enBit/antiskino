@@ -5,7 +5,7 @@ Camping pitch booking platform for Greece: a marketplace of partner campings wit
 **`SPEC.md` is the source of truth** for features, data model, business rules and milestones. Read the relevant section before starting a task. If a request contradicts the spec, stop and ask. When a decision changes, update `SPEC.md` (including §0 Decisions log) in the same change.
 
 ## Current milestone
-**M6 — Reviews, favorites, polish** (see SPEC §9; M1–M5 done; M4's emails are carried over until a Resend sending domain is verified; pushes reach phones once the EAS preview APK exists). Update this line when a milestone is done.
+**M6 — Reviews, favorites, polish** (see SPEC §9; M1–M5 done; emails are sent, and reach guests once a Resend sending domain is verified (M7)). Update this line when a milestone is done.
 
 ## Stack
 Expo (latest SDK) + Expo Router + TypeScript strict · Supabase (Postgres + RLS, Auth email OTP, Storage, Edge Functions in Deno/TS, Realtime, pg_cron + pg_net) · TanStack Query · Zustand · react-hook-form + zod · i18next · Resend · Expo push. Ask before adding any library not listed in SPEC §5.
