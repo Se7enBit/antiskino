@@ -30,6 +30,7 @@ describe('routes', () => {
     ['/invite', "Sign-in isn't available in this build yet."],
     ['/m', "We couldn't find this booking. Check that you opened the whole link."],
     ['/book', "This booking link is incomplete. Start from the camping's page."],
+    ['/delete-account', 'Delete your Antiskino account'],
   ])('%s renders', async (url, text) => {
     await renderRouter('./app', { initialUrl: url });
     expect(screen).toHavePathname(url);

@@ -257,7 +257,18 @@
     "adminArea": "Platform admin",
     "notConfigured": "Sign-in isn't available in this build yet.",
     "signedInAs": "Signed in as {{email}}",
-    "signOut": "Sign out"
+    "signOut": "Sign out",
+    "delete": {
+      "title": "Delete account",
+      "pageTitle": "Delete your Antiskino account",
+      "explain": "Deleting your account removes your sign-in, profile, favorites, devices and reviews. Your past bookings stay with the campings for their records, without your name, email or phone.",
+      "signInFirst": "Sign in with the email of the account you want to delete.",
+      "button": "Delete my account",
+      "question": "Delete your account for good? This can't be undone.",
+      "yes": "Yes, delete it",
+      "lastOwner": "You're the only owner of a camping's team. Make someone else owner (partner area → Team) before deleting your account.",
+      "done": "Your account was deleted."
+    }
   },
   "signIn": {
     "title": "Sign in",

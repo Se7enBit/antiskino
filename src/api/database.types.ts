@@ -1076,6 +1076,7 @@ export type Database = {
           user_id: string;
         }[];
       };
+      prepare_account_deletion: { Args: { p_user_id: string }; Returns: string };
       queue_booking_notifications: {
         Args: { p_booking_id: string; p_status: Database['public']['Enums']['booking_status'] };
         Returns: undefined;
