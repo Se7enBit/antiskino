@@ -201,16 +201,22 @@ function emailStore(claimed: ClaimedEmail[]) {
   return { store, finished };
 }
 
-function fakeMailer(fails = false) {
+/** Refuses everything (fails = true), or batches with a refused address like Resend's test mode. */
+function fakeMailer(fails = false, refused: string[] = []) {
   const sent: OutgoingEmail[] = [];
   const mailer: Mailer = {
     send(emails) {
+      if (fails) return Promise.reject(new Error('Resend HTTP 429'));
+      if (emails.some((e) => refused.includes(e.to)))
+        return Promise.reject(new Error('Resend HTTP 403: only your own address'));
       sent.push(...emails);
-      return fails ? Promise.reject(new Error('Resend HTTP 429')) : Promise.resolve();
+      return Promise.resolve();
     },
   };
   return { mailer, sent };
 }
+
+const noPause = () => Promise.resolve();
 
 Deno.test('emails guests with their manage link and the team with the booking', async () => {
   const sealed = await sealToken('the-token', 'secret');
@@ -230,6 +236,7 @@ Deno.test('emails guests with their manage link and the team with the booking', 
     mailer,
     siteUrl: 'https://example.org/antiskino/',
     linkSecret: 'secret',
+    pause: noPause,
   });
   assertEquals(summary, { claimed: 2, sent: 2, skipped: 0, retried: 0 });
   assertEquals(
@@ -259,7 +266,13 @@ Deno.test('skips emails that no longer make sense or reach nobody', async () => 
     claimedEmail(2, { audience: 'partner', recipients: [] }),
   ]);
   const { mailer, sent } = fakeMailer();
-  await deliverEmails({ store, mailer, siteUrl: 'https://example.org', linkSecret: null });
+  await deliverEmails({
+    store,
+    mailer,
+    siteUrl: 'https://example.org',
+    linkSecret: null,
+    pause: noPause,
+  });
   assertEquals(sent, []);
   assertEquals(finished, [
     { id: 1, outcome: 'skipped', error: 'no longer relevant' },
@@ -275,7 +288,39 @@ Deno.test('retries emails when Resend fails', async () => {
     mailer,
     siteUrl: 'https://example.org',
     linkSecret: null,
+    pause: noPause,
   });
   assertEquals(summary.retried, 1);
   assertEquals(finished, [{ id: 1, outcome: 'retry', error: 'Resend HTTP 429' }]);
+});
+
+Deno.test('sends one by one when Resend refuses the batch for one address', async () => {
+  const { store, finished } = emailStore([
+    claimedEmail(1),
+    claimedEmail(2, {
+      audience: 'partner',
+      recipients: [
+        { email: 'owner@example.org', locale: 'en' },
+        { email: 'refused@example.org', locale: 'en' },
+      ],
+    }),
+    claimedEmail(3, { recipients: [{ email: 'refused@example.org', locale: 'en' }] }),
+  ]);
+  const { mailer, sent } = fakeMailer(false, ['refused@example.org']);
+  await deliverEmails({
+    store,
+    mailer,
+    siteUrl: 'https://example.org',
+    linkSecret: null,
+    pause: noPause,
+  });
+  assertEquals(
+    sent.map((e) => e.to),
+    ['maria@example.org', 'owner@example.org'],
+  );
+  assertEquals(finished, [
+    { id: 1, outcome: 'sent' },
+    { id: 2, outcome: 'sent' },
+    { id: 3, outcome: 'retry', error: 'Resend HTTP 403: only your own address' },
+  ]);
 });

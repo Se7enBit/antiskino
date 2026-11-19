@@ -110,7 +110,12 @@ export type EmailDeps = {
   /** Opens the sealed manage tokens; null sends guests to sign in instead. */
   linkSecret: string | null;
   limit?: number;
+  /** Waits between single sends (Resend allows a few requests a second); tests skip it. */
+  pause?: (ms: number) => Promise<void>;
 };
+
+/** Resend's free plan takes 2 requests a second. */
+const PAUSE_MS = 600;
 
 /** The links an email may carry for one booking. */
 export async function emailLinks(
@@ -142,6 +147,7 @@ export async function deliverEmails({
   siteUrl,
   linkSecret,
   limit = 50,
+  pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
 }: EmailDeps): Promise<NotifySummary> {
   const claimed = await store.claimEmails(limit);
   const summary: NotifySummary = { claimed: claimed.length, sent: 0, skipped: 0, retried: 0 };
@@ -170,11 +176,25 @@ export async function deliverEmails({
 
   try {
     await mailer.send(planned.flatMap((p) => p.messages));
-  } catch (e) {
-    const error = e instanceof Error ? e.message : 'send failed';
-    for (const { email } of planned) await finish(email.id, 'retry', error);
+    for (const { email } of planned) await finish(email.id, 'sent');
     return summary;
+  } catch {
+    // Resend refuses a whole batch for one bad address (or, in test mode, for any
+    // address but the account's own): send one by one so the others still go.
   }
-  for (const { email } of planned) await finish(email.id, 'sent');
+  for (const { email, messages } of planned) {
+    let sent = 0;
+    let error = 'send failed';
+    for (const message of messages) {
+      await pause(PAUSE_MS);
+      try {
+        await mailer.send([message]);
+        sent++;
+      } catch (e) {
+        error = e instanceof Error ? e.message : error;
+      }
+    }
+    await finish(email.id, sent > 0 ? 'sent' : 'retry', sent > 0 ? undefined : error);
+  }
   return summary;
 }
