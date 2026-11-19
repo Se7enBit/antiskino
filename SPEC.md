@@ -13,7 +13,7 @@ Last updated: 2026-11-18 · Status: M1–M5 done (M4's emails carried over), M6 
 | Bookables | **Pitches only** (tent / caravan / camper) | No bungalows or rentals in v1 |
 | Spot assignment | Customer books a **pitch type**; reception assigns the pitch number | `assigned_pitch` free text on the booking |
 | Confirmation | **Per camping**: instant or request-to-book | Requests expire after N hours (default 24) |
-| Payment | **Per camping**: on site / deposit online / full online | Only "on site" until the provider is integrated (M7) |
+| Payment | **Per camping**: on site / deposit online / full online | Only "on site" until the provider is integrated (M8) |
 | Revenue | Commission per booking | Platform default, override per partner |
 | Payment provider | **Decide later** | Behind a `PaymentProvider` interface. Candidates: Stripe Connect, Viva.com |
 | Pricing | Itemized: pitch + per guest (age categories) + extras, by season | Optional fixed fees for local charges |
@@ -29,12 +29,12 @@ Last updated: 2026-11-18 · Status: M1–M5 done (M4's emails carried over), M6 
 | v1 extras | Push notifications, reviews after stay, favorites | No partner reports in v1 |
 | Partner staff | Owner + staff roles | |
 | Name | **Antiskino** | |
-| Migrations deploy | **Supabase GitHub integration** applies `supabase/migrations` to the dev project on push to `main` ("Deploy to production") | CI never runs `db push` for dev; it applies migrations to a local stack and runs pgTAP. Prod: manual `workflow_dispatch` (M8) |
+| Migrations deploy | **Supabase GitHub integration** applies `supabase/migrations` to the dev project on push to `main` ("Deploy to production") | CI never runs `db push` for dev; it applies migrations to a local stack and runs pgTAP. Prod: manual `workflow_dispatch` (M7) |
 | Supabase CLI | v3, pinned in CI | `gen types` and `test db` target the local stack by default. Types: `npm run db:types` (public schema, Prettier-formatted); CI fails when stale |
 | UI language | Held in React state (`LanguageProvider`, `useT()`) | Static web HTML is Greek and switches to the browser language after hydration; changes run in a transition to avoid hydration mismatches |
 | DB grants | Explicit per table/function | Supabase projects differ in default privileges, so migrations revoke from `anon`/`authenticated` and grant only what is needed |
 | Camping status | Only admins change it, via `set_camping_status()` | Owners update profile columns only (not partner, slug or status). New campings start as `draft` |
-| Payment mode in DB | A check constraint keeps `payment_mode = 'on_site'` until M7 | Drop the constraint when online payments ship |
+| Payment mode in DB | A check constraint keeps `payment_mode = 'on_site'` until M8 | Drop the constraint when online payments ship |
 | Camping defaults | `confirmation_mode` instant, `cancellation_policy` flexible, `request_expiry_hours` 24 | Changed per camping in the profile |
 | Catalog integrity | Seasons of a camping and guest-category age ranges cannot overlap; a price must point at an item of the season's camping | Deleting a pitch type, guest category or extra deletes its prices |
 | Sign-in timing | Email-code sign-in and the partner/admin gates move to **M2** | Partners and admins need them to use M2's screens. Claiming guest bookings and My bookings stay in M4 |
@@ -61,7 +61,7 @@ Last updated: 2026-11-18 · Status: M1–M5 done (M4's emails carried over), M6 
 | Static web and the browser | Output that differs between the build and the browser (icon fonts, URL parameters, today's date) renders after hydration (`useHydrated()`) | Avoids React hydration errors on GitHub Pages |
 | Camping page (M3) | `/c/<slug>` carries the stay in its URL like the results (`?arrival=…`); without dates each pitch type shows "Pitch from €X / night", the lowest stored pitch rate of the seasons not yet over (display only; totals always come from `search`) | Book stays disabled until M4. A region filter from the results is dropped on the camping's own page. Single-camping mode: Home shows the page, and its search opens `/c/<slug>?…` |
 | Pre-rendered camping pages | `generateStaticParams` loads the live campings at build time (`src/api/staticCampings.ts`); the page's `<title>`, description and og tags are plain React DOM tags, which React hoists into `<head>` in the static export | `expo-router/head` only applies in the browser in SDK 58, so link previews need the static tags. A camping that goes live after a deploy still opens (GitHub Pages serves 404.html and the app renders it) but has no link preview until the next deploy: re-run CI on `main` (Actions → CI → Run workflow). The automatic rebuild of §5 needs a GitHub token for Supabase and comes later |
-| Maps (M3) | One `PinsMap` component: `react-native-maps` on native, Leaflet + OpenStreetMap tiles on web, loaded only in the browser after hydration (Leaflet needs `window`) | Results: a List / Map toggle with a price pin per camping (tap or Tab + Enter opens it); campings without coordinates are counted under the map. Camping page: a small map in Location. Leaflet's map-level keyboard handler is off: it focused the map on tap, the page scrolled and the tap was lost. OSM's public tiles are fine for previews; pick a tile provider before launch (M8). Native maps moved to MapLibre in M6 (see Maps on phones) |
+| Maps (M3) | One `PinsMap` component: `react-native-maps` on native, Leaflet + OpenStreetMap tiles on web, loaded only in the browser after hydration (Leaflet needs `window`) | Results: a List / Map toggle with a price pin per camping (tap or Tab + Enter opens it); campings without coordinates are counted under the map. Camping page: a small map in Location. Leaflet's map-level keyboard handler is off: it focused the map on tap, the page scrolled and the tap was lost. OSM's public tiles are fine for previews; pick a tile provider before launch (M7). Native maps moved to MapLibre in M6 (see Maps on phones) |
 | Booking writes (M4) | `reserve_and_create_booking()` (secret key only) re-checks the §4.1 rules, locks the nights in order and takes one pitch each, all or nothing; `transition_booking()` is the only status change | Errors: `ANT01` not available / sold out, `ANT02` move not allowed. The reference is made in SQL (`new_booking_ref()`). Commission is snapshotted at creation: `round_half_up(total × bps / 10000)` with the partner's rate or the platform default |
 | Guest and partner actions (M4) | SQL functions instead of the `guest-booking` and `booking-action` edge functions | `guest_booking()` / `guest_cancel_booking()` check the manage token's SHA-256 (anon may call them; 32 random bytes can't be guessed). `cancel_my_booking()` for signed-in guests, `claim_bookings()` on sign-in, `partner_booking_action()` for accept / decline / cancel (members and admins; a reason is required to cancel). Guests can cancel until the end of the arrival day |
 | Notification queue (M4) | Rows say who (`audience`: guest or partner members) and how (email / push); addresses are looked up when sending | No guest data is copied into the queue. Guests without an account get no push rows. Rows wait until the `notify` function and a verified Resend domain exist |
@@ -87,10 +87,11 @@ Last updated: 2026-11-18 · Status: M1–M5 done (M4's emails carried over), M6 
 | Android preview APK (M6) | A manual GitHub workflow ("Android preview build") runs `eas init --non-interactive --force` (creates or links the EAS project under the `EXPO_TOKEN` account and puts its id in app.json for that build), writes the public Supabase settings into the checkout's eas.json, and starts `eas build --profile preview` (internal APK, version code kept by EAS) without waiting; the APK is installed from expo.dev. The first build creates the Android signing key on EAS. Android pushes need Firebase (see Android pushes) | Builds from the phone, with no local tools; nothing generated is committed |
 | Native start-up fixes (M6) | The first Android APK closed on start: supabase-js sets `URL.protocol` when it creates its client, and React Native's `URL` has no setters. The app now starts from `index.ts`, which loads `react-native-url-polyfill` first (native only; the web keeps the browser's URL), then Expo Router. Preview builds (`EXPO_PUBLIC_SHOW_FATAL_ERRORS=1` in eas.json) show any fatal error in an alert before the app closes, so a screenshot from the phone says what broke; the alert text is an untranslated developer diagnostic | Phone-only testing has no logcat. Production builds leave the flag unset |
 | Maps on phones (M6) | MapLibre replaces `react-native-maps`, whose Android version needs a Google Maps key (a Google Cloud account with billing) and also brought WorkManager. The map style is OpenFreeMap's "liberty" (OpenStreetMap data, free, no account or key); attribution stays on. Pins are price (results) or name (camping page) labels; tapping one opens the camping | Free and Google-free. If OpenFreeMap ever fails us, MapLibre takes any other style URL |
-| Android pushes (M6) | Android delivers pushes only through Firebase Cloud Messaging (free; only FCM is used, no other Firebase product or SDK code). The build writes `google-services.json` from the `GOOGLE_SERVICES_JSON` GitHub secret (the file's content; without it the APK builds without Android pushes), and Expo sends with the FCM V1 service account key uploaded on expo.dev (Credentials). iOS pushes need an Apple Developer account (M8) | Keeps the Firebase file out of the repo and out of chat |
+| Android pushes (M6) | Android delivers pushes only through Firebase Cloud Messaging (free; only FCM is used, no other Firebase product or SDK code). The build writes `google-services.json` from the `GOOGLE_SERVICES_JSON` GitHub secret (the file's content; without it the APK builds without Android pushes), and Expo sends with the FCM V1 service account key uploaded on expo.dev (Credentials). iOS pushes need an Apple Developer account (M7) | Keeps the Firebase file out of the repo and out of chat |
 | Android release builds (M6) | SDK 58 shrinks release builds with R8. A local config plugin (`plugins/withAndroidKeepRules.js`) keeps the constructors of Room databases, which R8 removed: WorkManager's database could not be created and the second preview APK closed on start | One rule, added once to `proguard-rules.pro` at prebuild |
 | Partner team (M6) | Owners manage their partner's team on **Team** (sidebar on wide screens; on phones Profile links to it, owners only): members with name, email and role (Make owner / Make staff, Remove after a confirmation), pending invites with Revoke, and invite links to share (staff by default) while emails are off. The admin's partner page uses the same component (owner by default). `partner_team()` returns names and emails to the partner's owners and admins only; `set_partner_member_role()`, `remove_partner_member()` and `revoke_partner_invite()` are for owners and admins, lock the team, and keep at least one owner (error ANT04) | Profiles and auth emails stay private to each user except through these functions |
 | Admin bookings (M6) | `/admin/bookings` (button on the admin home) lists every camping's bookings, newest arrival first, read-only: camping and guest, dates, nights, people, reference, status, total and commission. It shares the partner list's search, status filter and date range (`BookingFilters`, default: stays ending in the last 60 days or later) and loads at most 500 stays, saying so when the list is cut | Admins act on bookings through the Supabase dashboard in v1 (§F12) |
+| Milestone order (M6) | Launch comes before online payments: M7 is the launch with payment at the camping, M8 adds online payments | The whole app works with on-site payment; payments need a business account, an accountant's answer on invoicing and campings that want them, and are easier to choose and test once real campings use the app |
 
 ## 1. Core problem
 
@@ -130,10 +131,10 @@ It is deliberately small: only partner campings (possibly just one at launch), n
 ### F4. Confirmation modes (per camping)
 - **Instant:** the booking is `confirmed` as soon as it is created (and paid, when online payment exists).
 - **Request:** the booking is `requested` and holds inventory. The partner **Accepts** or **Declines** within `request_expiry_hours` (default 24, range 2–48). With no answer it becomes `expired`, inventory is released and the guest is emailed. Guests can withdraw a request for free at any time.
-- With online payment (M7), request mode **authorizes** the card on request and **captures** it on accept. Decline or expiry voids the authorization.
+- With online payment (M8), request mode **authorizes** the card on request and **captures** it on accept. Decline or expiry voids the authorization.
 
 ### F5. Payment modes (per camping)
-- **On site:** nothing is charged online and the guest pays at reception. This is the **only mode enabled until M7**.
+- **On site:** nothing is charged online and the guest pays at reception. This is the **only mode enabled until M8**.
 - **Deposit online:** `deposit_percent` (20–100%) is charged at booking and the balance is paid at reception.
 - **Full online:** the whole amount is charged at booking.
 - All amounts are EUR in integer cents, and prices include VAT. Intended setup: the camping is the seller of the stay and issues the receipt; Antiskino invoices its commission to the partner (to be confirmed, see §10).
@@ -194,7 +195,7 @@ Responsive: sidebar on wide screens, bottom tabs on phones (must work at 360 px 
 | **Availability** | Grid of pitch types × nights showing `booked / allotment`. Set allotment for a date range (never below `booked`). Close/open nights (stop-sell) | allotment: owner · close/open: owner, staff |
 | **Rates** | Seasons (date ranges, min nights), pitch type prices, guest categories (e.g. Adult 12+, Child 4–11, Infant 0–3) with prices, extras (per night / per stay) with prices, fixed fees | owner |
 | **Pitch types** | Name EL/EN, accepted equipment, max people, size m², included items, photos, active, sort order | owner |
-| **Camping profile** | Texts EL/EN, photos, amenities, map pin, check-in/out times, same-day cutoff, house rules, confirmation mode (+ expiry hours), payment mode (+ deposit %; online modes disabled until M7), cancellation preset | owner |
+| **Camping profile** | Texts EL/EN, photos, amenities, map pin, check-in/out times, same-day cutoff, house rules, confirmation mode (+ expiry hours), payment mode (+ deposit %; online modes disabled until M8), cancellation preset | owner |
 | **Team** | Invite by email, role owner/staff, remove | owner |
 | **Reviews** | List, reply | owner, staff |
 
@@ -210,7 +211,7 @@ Responsive: sidebar on wide screens, bottom tabs on phones (must work at 360 px 
 - Choosing a specific pitch and site maps.
 - Several pitches in one booking.
 - Changing dates or guests on a booking (cancel and rebook).
-- Online payments until M7 (the interface exists, not the implementation).
+- Online payments until M8 (the interface exists, not the implementation).
 - Partner reports or analytics beyond the Today screen and the commission statement.
 - Channel manager / PMS / iCal sync with other sites. The allotment model covers coexistence.
 - Self-signup for partners.
@@ -258,7 +259,7 @@ expired        ├──► cancelled (guest / partner / admin)
                └──► no_show (partner, from arrival day)
 ```
 - v1 (on-site payment): instant → `confirmed` directly; request → `requested`.
-- `held` (15-minute hold while paying online) only appears from M7.
+- `held` (15-minute hold while paying online) only appears from M8.
 - `requested` can also become `cancelled` (guest withdraws).
 - Every transition goes through the SQL function `transition_booking(id, to_status, actor, note)`. It validates from → to, adjusts inventory, writes `booking_events` and enqueues notifications in the same transaction.
 - Reference: `ANT-` + 6 characters of Crockford base32 (no ambiguous characters).
@@ -267,7 +268,7 @@ expired        ├──► cancelled (guest / partner / admin)
 - `platform_settings.default_commission_bps` (e.g. 600 = 6%), overridable per partner with `partners.commission_bps`. Snapshotted on the booking at creation.
 - **Earned** when the booking becomes `completed`, or on cancellation for the part the camping keeps (online modes only). No commission on `no_show` in v1 (trust-based; watch for abuse).
 - **On-site mode:** commission accrues, and a monthly statement per partner is paid by bank transfer.
-- **Online modes (M7):** commission is taken automatically as the platform fee on the online charge. That is why the deposit is at least 20%.
+- **Online modes (M8):** commission is taken automatically as the platform fee on the online charge. That is why the deposit is at least 20%.
 
 ### 4.5 Jobs (pg_cron, times in Europe/Athens; pg_cron runs in UTC, so convert)
 - Every 5 min: expire `held` and `requested` bookings past their deadline. Send "request expiring in 2 h" pushes.
@@ -293,7 +294,7 @@ expired        ├──► cancelled (guest / partner / admin)
 | Backend | Supabase: Postgres + RLS, Auth (email OTP), Storage (photos), Edge Functions (Deno/TS), Realtime (partner Today/Bookings), pg_cron + pg_net |
 | Email | Resend, called from edge functions; EL/EN templates |
 | Push | expo-notifications + Expo Push API from edge functions |
-| Payments | `PaymentProvider` interface only, until M7 |
+| Payments | `PaymentProvider` interface only, until M8 |
 | Tests | Jest (jest-expo) + React Native Testing Library; `deno test` for `_shared` logic (pricing, cancellation, refs); pgTAP via `supabase test db` (inventory, transitions, RLS) |
 | Lint/format | ESLint (expo config) + Prettier |
 | CI | GitHub Actions: typecheck → lint → jest → deno test, `supabase start` + pgTAP + generated-types check → web export → deploy preview (from `main`). Migrations reach the dev project through the Supabase GitHub integration on push to `main`, not through CI |
@@ -415,7 +416,7 @@ bookings(id, ref unique, camping_id, pitch_type_id, user_id null,
 booking_events(id, booking_id, at, actor_kind 'guest'|'partner'|'admin'|'system',
                actor_user_id null, from_status, to_status, note)
 payments(id, booking_id, provider, provider_ref, kind 'authorization'|'capture'|'refund',
-         amount_cents, platform_fee_cents, status, raw jsonb, created_at)          -- M7
+         amount_cents, platform_fee_cents, status, raw jsonb, created_at)          -- M8
 
 -- engagement & ops
 reviews(id, booking_id unique, camping_id, user_id null, rating 1..5, body, locale,
@@ -438,7 +439,7 @@ platform_settings(id = 1, default_commission_bps int)
 - Guest personal data is visible only to the booking's partner and the admin. Never log it.
 - The service role key lives only in edge functions.
 
-### 6.3 Payment seam (M7)
+### 6.3 Payment seam (M8)
 ```ts
 interface PaymentProvider {
   createPartnerAccount(p: Partner): Promise<{ accountRef: string; onboardingUrl: string }>;
@@ -485,11 +486,11 @@ Hosted checkout (redirect to `checkoutUrl`) keeps card data out of the app on al
 4. **Booking (on-site payment):** `create-booking`, instant and request flows, `transition_booking`, jobs, emails, manage link, cancellations, claiming bookings on sign-in, My bookings. *Emails are carried over until a Resend sending domain is verified: notifications are queued meanwhile, and the guest keeps the manage link shown after booking.*
 5. **Reception:** Today, booking detail actions, assign pitch, check-in/no-show, realtime, push notifications. *Push delivery is live on the server; phones receive pushes once the EAS preview APK exists (M6).*
 6. **Reviews, favorites, polish:** review invites, replies, moderation; favorites; empty/error states; Android preview APK. **Field test with the first camping** using its real pitch types, seasons and prices.
-7. **Online payments:** pick the provider, implement `PaymentProvider`, deposit/full modes, request-mode authorize/capture, refunds, platform fee, partner payout onboarding.
-8. **Launch:** commission statements, terms/privacy, custom domain, Supabase production plan, store listings (Android first, then iOS).
+7. **Launch (on-site payment):** custom domain (also the Resend sending domain, so guest emails go out), Supabase production project and plan, terms/privacy, commission statements, store listings (Android first, then iOS).
+8. **Online payments:** pick the provider, implement `PaymentProvider`, deposit/full modes, request-mode authorize/capture, refunds, platform fee, partner payout onboarding.
 
 ## 10. Open questions
-- **Payment provider** (Stripe Connect vs Viva.com): decide before M7 on fees, payouts, local card coverage, and who is the merchant of record.
+- **Payment provider** (Stripe Connect vs Viva.com): decide before M8 on fees, payouts, local card coverage, and who is the merchant of record.
 - **Commission rate**, and whether the first camping gets a founding rate.
 - **Invoicing:** the camping issues receipts for stays; Antiskino invoices commission to partners. Confirm with an accountant (myDATA obligations, VAT on commission).
 - **Local fees:** reports indicate campsites are exempt from Greece's Climate Crisis Resilience Fee. Confirm with the first camping; the `fees` table covers any charge that does apply.
