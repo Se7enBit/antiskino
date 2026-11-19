@@ -806,6 +806,7 @@ export type Database = {
           id: string;
           is_platform_admin: boolean;
           locale: string;
+          muted_emails: string[];
           phone: string | null;
           updated_at: string;
         };
@@ -817,6 +818,7 @@ export type Database = {
           id: string;
           is_platform_admin?: boolean;
           locale?: string;
+          muted_emails?: string[];
           phone?: string | null;
           updated_at?: string;
         };
@@ -827,6 +829,7 @@ export type Database = {
           id?: string;
           is_platform_admin?: boolean;
           locale?: string;
+          muted_emails?: string[];
           phone?: string | null;
           updated_at?: string;
         };

@@ -268,6 +268,15 @@
       "yes": "Yes, delete it",
       "lastOwner": "You're the only owner of a camping's team. Make someone else owner (partner area → Team) before deleting your account.",
       "done": "Your account was deleted."
+    },
+    "emails": {
+      "title": "Booking emails",
+      "explain": "Emails you get as a member of a camping's team. Pushes on your phone stay on.",
+      "kinds": {
+        "booking_confirmed": "New bookings",
+        "request_received": "New requests to answer",
+        "booking_cancelled": "Cancellations"
+      }
     }
   },
   "signIn": {
