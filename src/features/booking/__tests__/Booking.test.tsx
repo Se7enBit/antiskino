@@ -20,6 +20,7 @@ import { BookingScreen } from '../BookingScreen';
 jest.mock('expo-router', () => ({
   router: { push: jest.fn(), back: jest.fn(), navigate: jest.fn() },
   useLocalSearchParams: jest.fn(),
+  Link: jest.requireActual<typeof import('react-native')>('react-native').Text,
 }));
 jest.mock('@/api/auth', () => ({ useAuth: jest.fn() }));
 jest.mock('@/api/booking', () => ({

@@ -10,6 +10,7 @@ import {
 import { localized, useLanguage, useT } from '@/i18n';
 import { formatDateInput, nightsBetween } from '@/lib/dates';
 import { formatMoney } from '@/lib/money';
+import { LegalLinks } from '@/features/legal/LegalLinks';
 import { BodyText, Button, Card, Checkbox, Notice, spacing } from '@/ui';
 
 import { PriceBreakdown, type ItemNames } from './PriceBreakdown';
@@ -103,6 +104,7 @@ export function ReviewStep(props: Props) {
         onChange={onAccept}
         testID="booking-terms"
       />
+      <LegalLinks />
       {termsMissing && !accepted ? (
         <Notice tone="error" message={t('booking.review.termsRequired')} />
       ) : null}

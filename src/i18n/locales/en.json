@@ -268,6 +268,15 @@
       "yes": "Yes, delete it",
       "lastOwner": "You're the only owner of a camping's team. Make someone else owner (partner area → Team) before deleting your account.",
       "done": "Your account was deleted."
+    },
+    "emails": {
+      "title": "Booking emails",
+      "explain": "Emails you get as a member of a camping's team. Pushes on your phone stay on.",
+      "kinds": {
+        "booking_confirmed": "New bookings",
+        "request_received": "New requests to answer",
+        "booking_cancelled": "Cancellations"
+      }
     }
   },
   "signIn": {
@@ -858,5 +867,97 @@
     "DK": "Denmark",
     "ES": "Spain",
     "US": "United States"
+  },
+  "legal": {
+    "updated": "Last updated {{date}}",
+    "area": "Legal",
+    "terms": {
+      "title": "Terms of use",
+      "intro": "These terms apply when you use Antiskino (the website and the apps) to find and book camping pitches in Greece. By booking or creating an account, you accept them.",
+      "sections": {
+        "about": {
+          "title": "Who we are",
+          "body": "Antiskino is run by {{name}}, {{address}}, Tax ID {{taxId}}. You can reach us at {{email}}.\n\nAntiskino is a booking platform. The campings listed are independent businesses: each camping provides your stay, and your contract for the stay is with the camping. We pass your booking to the camping and keep you both informed."
+        },
+        "booking": {
+          "title": "Booking",
+          "body": "• You must be at least 18 to book, and the details you give must be correct: the camping relies on them.\n• Campings with instant confirmation confirm your booking straight away. Others get your request and answer within the hours shown; if they don't, the request expires and nothing is booked.\n• Your booking is confirmed only when the confirmation screen or email says so. You get a booking reference and a link to manage it."
+        },
+        "prices": {
+          "title": "Prices and payment",
+          "body": "Prices are in euros and include VAT. The price you see when you book is the price of your booking, even if the camping changes its rates later. You pay the camping at reception; nothing is charged online. Antiskino doesn't charge guests any fee: campings pay us a commission on completed stays."
+        },
+        "cancellations": {
+          "title": "Cancellations and changes",
+          "body": "• You can cancel from My bookings or from the link in your booking email. Each camping's cancellation policy is shown before you book; while you pay at reception, cancelling costs nothing.\n• Bookings can't be changed: to change dates, cancel and book again.\n• A camping may cancel a booking only with a reason, and we let you know right away.\n• If you don't arrive, the camping may handle it according to its own rules."
+        },
+        "stay": {
+          "title": "Your stay",
+          "body": "The camping's own rules and check-in and check-out times apply. Questions about the stay, the pitch or the facilities go to the camping, whose contact details are in your booking."
+        },
+        "reviews": {
+          "title": "Reviews",
+          "body": "After a completed stay you may review the camping once. Reviews must be about your own stay and honest, without offensive language, other people's personal data or advertising. Your first name, country and month of stay are shown with them. The camping can reply publicly, and we may hide reviews that break these rules."
+        },
+        "accounts": {
+          "title": "Accounts",
+          "body": "You don't need an account to book. If you sign in, you do so with a one-time code sent to your email, so keep access to your email safe. You can delete your account at any time from the Account tab."
+        },
+        "liability": {
+          "title": "Liability",
+          "body": "Campings supply their descriptions, photos, prices and availability, and are responsible for them and for the stay itself. We take care to run Antiskino reliably but can't promise it is always available or free of errors. Nothing in these terms limits your rights as a consumer under the law."
+        },
+        "law": {
+          "title": "Complaints and applicable law",
+          "body": "Write to us at {{email}} with any complaint and we'll answer as soon as we can. Greek law applies to these terms, without taking away the protection the law of your country of residence gives you as a consumer. You can also turn to the Greek Consumer Ombudsman or the courts."
+        },
+        "changes": {
+          "title": "Changes",
+          "body": "We may update these terms; the date at the top shows the latest version. Bookings follow the terms in force when they were made."
+        }
+      }
+    },
+    "privacy": {
+      "title": "Privacy policy",
+      "intro": "This policy explains what personal data Antiskino uses, why, and the choices you have.",
+      "sections": {
+        "controller": {
+          "title": "Who is responsible",
+          "body": "{{name}}, {{address}} (Tax ID {{taxId}}) is responsible for your data on Antiskino. Contact: {{email}}.\n\nWhen you book, the camping receives your booking details and is responsible for how it uses them to host you."
+        },
+        "data": {
+          "title": "What we collect",
+          "body": "• Booking details: name, email, phone, country, the people and equipment in your party and, if you give them, vehicle plate, arrival time and a note to the camping.\n• Account: your email, language and the details you save.\n• Favorites, reviews, and your device's token for push notifications.\n• For people working at a camping: their email and role in the team, and what they do in the partner area.\n• Technical data our providers record, such as IP addresses and request logs, to run the service securely."
+        },
+        "purposes": {
+          "title": "Why we use it",
+          "body": "• To make and manage bookings, remind you of them, and send booking emails and pushes (performing the contract you ask for).\n• To show your reviews (your choice to publish).\n• To keep records of bookings for the campings, the commission and the law (legal obligations and our legitimate interest).\n• To keep the service secure and fix problems (legitimate interest).\nWe don't sell your data, show ads or use tracking cookies."
+        },
+        "sharing": {
+          "title": "Who receives it",
+          "body": "• The camping you book, for your stay.\n• Providers that process data for us: Supabase (database, sign-in, server functions), Resend (emails), Expo, Google Firebase and Apple (push notifications), GitHub (website hosting) and OpenFreeMap (maps: your device asks it for the map images).\nSome of them are in the United States; those transfers rely on the EU–U.S. Data Privacy Framework or the EU standard contractual clauses."
+        },
+        "retention": {
+          "title": "How long we keep it",
+          "body": "• Bookings: as long as accounting and tax laws require. If you delete your account, your bookings stay without your name, email or phone.\n• Account, favorites and devices: until you delete your account (devices also when you sign out).\n• Reviews: until you delete your account or we remove them.\n• Provider logs: for short periods set by each provider."
+        },
+        "rights": {
+          "title": "Your rights",
+          "body": "You can ask to access, correct or delete your data, to restrict or object to its use, and to receive it in a portable format: write to {{email}}. You can also delete your account yourself in the app (Account tab) or on the Delete account page of the website. You have the right to complain to the Hellenic Data Protection Authority (www.dpa.gr)."
+        },
+        "device": {
+          "title": "On your device",
+          "body": "The app and the website store your sign-in, language and favorites on your device so that they work. None of it tracks you."
+        },
+        "children": {
+          "title": "Children",
+          "body": "Antiskino is not meant for children under 16, and bookings must be made by adults."
+        },
+        "changes": {
+          "title": "Changes",
+          "body": "We update this page when the way we use data changes; the date at the top shows the latest version."
+        }
+      }
+    }
   }
 }
