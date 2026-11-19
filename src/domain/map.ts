@@ -45,17 +45,7 @@ export function regionFor(pins: Pin[]): {
   };
 }
 
-/** South-west and north-east corners around the pins (Leaflet), or null for none. */
-export function boundsFor(pins: Pin[]): [[number, number], [number, number]] | null {
-  if (pins.length === 0) return null;
-  const { latitude, longitude, latitudeDelta, longitudeDelta } = regionFor(pins);
-  return [
-    [latitude - latitudeDelta / 2, longitude - longitudeDelta / 2],
-    [latitude + latitudeDelta / 2, longitude + longitudeDelta / 2],
-  ];
-}
-
-/** The same area as [west, south, east, north] (MapLibre on iOS and Android). */
+/** The area around the pins (or Greece) as [west, south, east, north], for MapLibre. */
 export function lngLatBoundsFor(pins: Pin[]): [number, number, number, number] {
   const { latitude, longitude, latitudeDelta, longitudeDelta } = regionFor(pins);
   return [
