@@ -83,6 +83,26 @@ After step 4 the domain's root is production and the preview moves to
 From now on: merging to `main` updates the preview; **Release** updates
 production. Run Release only when CI on `main` is green.
 
+## Automatic website refresh (set up now; again for production)
+
+Each live camping's page is built ahead of time, so a camping that goes live
+(or changes its name, description or photos) needs a website rebuild. The
+database asks GitHub for one, at most every 5 minutes, once you give it a token:
+
+1. GitHub → your profile picture → Settings → Developer settings → Personal
+   access tokens → Fine-grained tokens → Generate new token. Name
+   `antiskino website refresh`; expiration: the longest offered (note the date);
+   Repository access: Only select repositories → `antiskino`; Permissions →
+   Repository permissions → **Actions: Read and write**. Copy the token.
+2. Supabase dashboard (dev project now, production after step 2 above) →
+   Integrations → Vault → Add new secret, twice:
+   - name `github_repo`, value `Se7enBit/antiskino`
+   - name `github_token`, value the token
+3. Test: make a camping live (admin → partner → camping). Within about 7
+   minutes Actions shows a **Website** run.
+
+When the token expires, generate a new one and edit `github_token` in Vault.
+
 ## 5. Android on Google Play
 
 1. play.google.com/console: developer account (one-time fee), then Create app

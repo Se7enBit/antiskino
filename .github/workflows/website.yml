@@ -3,8 +3,8 @@ name: Website
 # Builds the website and publishes it on GitHub Pages. It runs:
 # - after every push to main (called by CI) and after a Release;
 # - by hand: Actions → Website → Run workflow;
-# - on a "refresh-website" repository_dispatch, which the database sends when a
-#   camping goes live (its page is pre-rendered, so the site needs a rebuild).
+# - when the database asks (send_website_refresh(), through the GitHub API):
+#   a camping went live or its pre-rendered page changed.
 #
 # Until the CUSTOM_DOMAIN variable is set, the site is the preview: main built
 # against the dev project, at https://<owner>.github.io/<repo>/.
@@ -16,8 +16,6 @@ name: Website
 on:
   workflow_call:
   workflow_dispatch:
-  repository_dispatch:
-    types: [refresh-website]
 
 permissions:
   contents: read
