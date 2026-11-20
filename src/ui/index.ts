@@ -15,4 +15,5 @@ export { Screen } from './Screen';
 export { StarPicker, Stars } from './Stars';
 export { Stepper } from './Stepper';
 export { TextField } from './TextField';
+export { phoneTabBarStyle, tabLabelStyle } from './tabBar';
 export { colors, spacing } from './theme';
