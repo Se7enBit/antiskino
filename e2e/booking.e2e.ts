@@ -1,8 +1,6 @@
 /// <reference types="node" />
 
 import { execFileSync } from 'node:child_process';
-import { readFileSync } from 'node:fs';
-import { join } from 'node:path';
 
 import { expect, test } from '@playwright/test';
 
@@ -29,8 +27,11 @@ const bookedOn = (night: string) =>
     ),
   );
 
-test('the demo camping page is pre-rendered with its title and description', () => {
-  const html = readFileSync(join(__dirname, '..', 'dist', 'c', 'demo-thalassa.html'), 'utf8');
+test('the demo camping page is pre-rendered with its title and description', async ({
+  request,
+}) => {
+  // The HTML as served, before any script runs (what link previews see).
+  const html = await (await request.get('c/demo-thalassa')).text();
   expect(html).toContain('<title>Camping Thalassa (demo) · Antiskino</title>');
   expect(html).toMatch(/<meta property="og:title" content="Camping Thalassa \(demo\)"/);
   expect(html).toMatch(/<meta name="description" content="[^"]+"/);
@@ -58,8 +59,10 @@ test('a guest books without an account, then cancels with the manage link', asyn
   await page.getByTestId('booking-terms').click();
   await page.getByTestId('booking-submit').click();
 
-  const ref = (await page.getByTestId('booking-ref').textContent())?.trim() ?? '';
-  expect(ref).toMatch(/^ANT-[A-Z0-9]{6}$/);
+  // Shown as "Reference: ANT-XXXXXX" in the page's language.
+  const refText = (await page.getByTestId('booking-ref').textContent()) ?? '';
+  const ref = /ANT-[0-9A-Z]{6}/.exec(refText)?.[0] ?? '';
+  expect(ref).toMatch(/^ANT-[0-9A-Z]{6}$/);
   const link = (await page.getByTestId('booking-link').textContent())?.trim() ?? '';
   expect(link).toContain(`/m?ref=${ref}&t=`);
 
