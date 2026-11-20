@@ -87,6 +87,18 @@ export type QuoteResponse =
   | { available: true; quote: Quote; offeredExtras: string[] }
   | { available: false; reason: UnavailableReason };
 
+/** One message as a recipient gets it (admin previews). */
+export type MessagePreview = {
+  kind: string;
+  audience: 'guest' | 'partner';
+  locale: 'el' | 'en';
+  email: { subject: string; text: string; html: string } | null;
+  push: { title: string; body: string } | null;
+};
+
+/** POST /functions/v1/message-previews (platform admins, no body). */
+export type MessagePreviewsResponse = { previews: MessagePreview[] };
+
 /** POST /functions/v1/delete-account (signed in, no body). */
 export type DeleteAccountResponse = { deleted: true } | { deleted: false; reason: 'last_owner' };
 

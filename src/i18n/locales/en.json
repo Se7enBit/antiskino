@@ -796,6 +796,27 @@
         "rate": "Rate",
         "commission": "Commission (EUR)"
       }
+    },
+    "messages": {
+      "title": "Messages",
+      "intro": "Every email and push guests and teams get, filled in with a sample booking. They are the texts the app really sends.",
+      "audience": {
+        "guest": "To guests",
+        "partner": "To camping teams"
+      },
+      "push": "Push notification",
+      "email": "Email",
+      "kinds": {
+        "booking_confirmed": "Booking confirmed",
+        "request_received": "Request received",
+        "request_expiring": "Request about to expire",
+        "request_declined": "Request declined",
+        "request_expired": "Request expired",
+        "booking_cancelled": "Booking cancelled",
+        "arrival_reminder": "Arrival in 2 days",
+        "review_invite": "Review invitation",
+        "review_received": "New review"
+      }
     }
   },
   "notFound": {

@@ -796,6 +796,27 @@
         "rate": "Ποσοστό",
         "commission": "Προμήθεια (EUR)"
       }
+    },
+    "messages": {
+      "title": "Μηνύματα",
+      "intro": "Όλα τα email και οι ειδοποιήσεις που λαμβάνουν οι επισκέπτες και οι ομάδες, με ένα παράδειγμα κράτησης. Είναι τα κείμενα που στέλνει πραγματικά η εφαρμογή.",
+      "audience": {
+        "guest": "Προς επισκέπτες",
+        "partner": "Προς ομάδες κάμπινγκ"
+      },
+      "push": "Ειδοποίηση push",
+      "email": "Email",
+      "kinds": {
+        "booking_confirmed": "Επιβεβαίωση κράτησης",
+        "request_received": "Λήψη αιτήματος",
+        "request_expiring": "Αίτημα που λήγει",
+        "request_declined": "Απόρριψη αιτήματος",
+        "request_expired": "Λήξη αιτήματος",
+        "booking_cancelled": "Ακύρωση κράτησης",
+        "arrival_reminder": "Άφιξη σε 2 ημέρες",
+        "review_invite": "Πρόσκληση για αξιολόγηση",
+        "review_received": "Νέα αξιολόγηση"
+      }
     }
   },
   "notFound": {
