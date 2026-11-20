@@ -50,3 +50,6 @@ yarn-error.*
 
 # Claude Code: CLAUDE.md and .claude/ are committed; only personal local settings are ignored
 .claude/settings.local.json
+
+# Copied from maplibre-gl on npm install (scripts/copy-map-worker.js)
+/public/maplibre-gl-worker.js
