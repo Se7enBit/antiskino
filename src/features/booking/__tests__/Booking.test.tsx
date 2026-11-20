@@ -226,6 +226,18 @@ describe('Booking flow', () => {
     expect(screen.getByText('Step 1 of 3: Stay')).toBeTruthy();
   });
 
+  it('explains when the email already holds too many bookings', async () => {
+    await setup({ result: { booked: false, reason: 'too_many' } });
+    await fireEvent.press(screen.getByTestId('booking-continue'));
+    await fillDetails();
+    await fireEvent.press(screen.getByTestId('booking-continue'));
+    await fireEvent.press(screen.getByTestId('booking-terms'));
+    await fireEvent.press(screen.getByTestId('booking-submit'));
+    expect(screen.getByText(/already has several bookings at this camping/)).toBeTruthy();
+    // Still on the last step, with nothing lost.
+    expect(screen.getByText('Step 3 of 3: Review')).toBeTruthy();
+  });
+
   it('sends a request to request-mode campings', async () => {
     await setup({
       camping: { confirmationMode: 'request', requestExpiryHours: 12 },

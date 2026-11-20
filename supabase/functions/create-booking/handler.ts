@@ -1,5 +1,5 @@
 import type { BookingBreakdown, CreateBookingResponse } from '../_shared/api.ts';
-import { type Booker, Unavailable } from '../_shared/booker.ts';
+import { type Booker, TooMany, Unavailable } from '../_shared/booker.ts';
 import type { Catalog } from '../_shared/catalog.ts';
 import { priceStayRequest } from '../_shared/pricedStay.ts';
 import { sealToken } from '../_shared/linkToken.ts';
@@ -76,6 +76,8 @@ export async function createBooking(
   } catch (e) {
     // Taken by someone else between the price check and the reservation.
     if (e instanceof Unavailable) return { booked: false, reason: 'unavailable' };
+    // Over the per-email limits against fake bookings (SPEC §4.3).
+    if (e instanceof TooMany) return { booked: false, reason: 'too_many' };
     throw e;
   }
 }

@@ -96,7 +96,10 @@ const createBookingResponseSchema: z.ZodType<CreateBookingResponse> = z.union([
     manageToken: z.string(),
     totalCents: z.int().nonnegative(),
   }),
-  z.object({ booked: z.literal(false), reason: unavailableReason }),
+  z.object({
+    booked: z.literal(false),
+    reason: z.union([unavailableReason, z.literal('too_many')]),
+  }),
 ]);
 
 /** Books the stay (the create-booking edge function). */

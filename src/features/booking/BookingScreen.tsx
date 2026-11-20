@@ -86,6 +86,8 @@ function BookingFlow({ target }: { target: BookingTarget }) {
   const [step, setStep] = useState<Step>('stay');
   const [details, setDetails] = useState<GuestDetails | null>(null);
   const [taken, setTaken] = useState(false);
+  // The guest's email already holds too many bookings (limits against fake bookings).
+  const [tooMany, setTooMany] = useState(false);
   const [termsMissing, setTermsMissing] = useState(false);
 
   const { start, setGuest } = draft;
@@ -143,6 +145,8 @@ function BookingFlow({ target }: { target: BookingTarget }) {
           if (result.booked) {
             setBooked(result);
             draft.finish();
+          } else if (result.reason === 'too_many') {
+            setTooMany(true);
           } else {
             // Taken by someone else meanwhile: back to the first step with the news.
             setTaken(true);
@@ -164,6 +168,7 @@ function BookingFlow({ target }: { target: BookingTarget }) {
         </Text>
       </View>
       {taken ? <Notice tone="error" message={t('booking.taken')} /> : null}
+      {tooMany ? <Notice tone="error" message={t('booking.tooMany')} /> : null}
 
       {step === 'stay' ? (
         <StayStep
