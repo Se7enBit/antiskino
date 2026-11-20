@@ -479,16 +479,16 @@ Hosted checkout (redirect to `checkoutUrl`) keeps card data out of the app on al
 ## 8. Acceptance criteria (MVP done when…)
 - [x] 20 concurrent booking attempts for the last available pitch → exactly 1 succeeds and the rest get "no longer available". `booked` never exceeds `allotment` (concurrency script in CI, after pgTAP).
 - [x] Pricing fixtures pass: a stay across a season boundary prices each night by its own season; per-stay extras count once; fees apply by unit (deno test).
-- [ ] Min nights, capacity, equipment and closed nights are enforced; nights without inventory or season are not sellable.
-- [ ] Request mode: an unanswered request expires at its deadline, releases inventory and emails the guest.
-- [ ] A guest books without an account, gets the email in their language, opens the manage link, sees and cancels the booking. Refund amounts follow the preset (0 in on-site mode).
-- [ ] Signing in with an email claims earlier guest bookings with that email.
-- [ ] RLS: a member of partner A can't read any row of partner B; anon can't read bookings (pgTAP).
-- [ ] Partner Today updates within seconds of a new booking (realtime), and the staff phone gets a push.
-- [ ] One live camping → Home opens its page; two or more → search.
-- [ ] Every UI string comes from locale files; a test fails if `el.json` and `en.json` keys differ.
-- [ ] Web `/c/<slug>` is pre-rendered with title, description and og:image.
-- [ ] CI green on `main`; the web preview deploys; the preview APK installs and receives a push.
+- [x] Min nights, capacity, equipment and closed nights are enforced; nights without inventory or season are not sellable (pgTAP 008, 009).
+- [x] Request mode: an unanswered request expires at its deadline, releases inventory and emails the guest (pgTAP 009).
+- [ ] A guest books without an account, gets the email in their language, opens the manage link, sees and cancels the booking. Refund amounts follow the preset (0 in on-site mode). *Parts are tested (pgTAP 009, deno create-booking and email texts); the end-to-end browser test covers the whole flow.*
+- [x] Signing in with an email claims earlier guest bookings with that email (pgTAP 009).
+- [x] RLS: a member of partner A can't read any row of partner B; anon can't read bookings (pgTAP 022 checks every table and view).
+- [ ] Partner Today updates within seconds of a new booking (realtime), and the staff phone gets a push. *The realtime publication and the push queue are tested (pgTAP 012, 013; deno notify); seeing it on a phone is the field test.*
+- [x] One live camping → Home opens its page; two or more → search (Jest Home).
+- [x] Every UI string comes from locale files; a test fails if `el.json` and `en.json` keys differ (Jest locales).
+- [x] Web `/c/<slug>` is pre-rendered with title, description and og:image (Jest CampingHead).
+- [ ] CI green on `main`; the web preview deploys; the preview APK installs and receives a push. *CI and the preview are done; a push received on the APK still needs confirming on the phone.*
 
 ## 9. Milestones
 1. **Skeleton:** Expo + Router + TS strict, i18n EL/EN, CI, web preview deploy, Supabase dev project with migrations applied by the GitHub integration, first migration (profiles, platform_settings, `is_admin()`), seed demo users.
