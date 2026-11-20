@@ -32,6 +32,7 @@ The owner mostly works from a phone, so:
 - **CI is the test runner.** Keep `typecheck → lint → jest → deno test → pgTAP → web export → end-to-end` green, and add tests with every logic change. The end-to-end booking test (`e2e/`, Playwright) needs the local Supabase stack, so it runs in CI only; on failure its report is the run's `e2e-report` artifact.
 - The web preview (https://se7enbit.github.io/antiskino/; `https://<domain>/preview/` once `CUSTOM_DOMAIN` is set) deploys on push to `main` (the Website workflow), and native checks use the EAS preview APK (GitHub → Actions → "Android preview build" → Run workflow; install from expo.dev → Builds). Push notifications don't work in Expo Go.
 - Production is updated only by hand: Actions → "Release" (prod migrations, edge functions, then the website from the `production` tag) and "Android release build" (AAB). `docs/launch.md` is the launch checklist.
+- Demo data for the **dev** project: `supabase/dev-data.sql`, pasted into the Supabase SQL editor (re-runnable; never on production). `supabase/seed.sql` is only for the local stack and CI.
 - Keep changes small. End each task with a short "how to check it on the phone" note (which screen, what to tap, what to expect).
 
 ## Rules
