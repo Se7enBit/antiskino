@@ -101,6 +101,7 @@ Last updated: 2026-11-18 · Status: M1–M5 done (M4's emails carried over), M6 
 | Web map (M7) | `maplibre-gl` replaces Leaflet: the same OpenFreeMap style as the phones, so the public OpenStreetMap tile servers (not meant for production) are no longer used. It loads after hydration in its own chunk (about 1 MB, only when a map shows). Pins are label buttons (Tab + Enter opens them); wheel zoom, arrow-key panning and rotation are off so the page scrolls normally; zoom buttons and compact attribution stay. maplibre-gl 6 (5.x and early 6.x have an XSS advisory) loads its worker as a separate module file that Metro can't bundle: `postinstall` copies it to `public/maplibre-gl-worker.js` (gitignored) and the map sets its URL under the site's base URL | One map style for web and phones, free and without keys |
 | Release pipeline (M7) | One GitHub Pages site. Before launch it is the preview (main against the dev project). With the `CUSTOM_DOMAIN` variable set, the Website workflow builds production at the domain's root, from the commit tagged `production`, against `PROD_SUPABASE_URL` / `PROD_SUPABASE_KEY`, and the preview at `/preview/` (robots.txt asks search engines to skip it). Production changes only through the manual **Release** workflow: `supabase db push --remote` and `functions deploy` to the production project, then the tag, then the website, so the site is never ahead of its database. **Android release build** makes the Play Store app bundle against production (EAS `production` profile); the preview APK keeps the dev project. **Keep databases awake** queries both projects daily so free projects don't pause. Steps: `docs/launch.md` | Free hosting with a preview that survives launch; production releases are deliberate, and the dev project still migrates on every merge |
 | Website refresh (M7) | Live campings' pages are pre-rendered (name, short description, cover photo), so the website is rebuilt when they change: triggers on `campings` (going live or leaving, or slug/name/description of a live one) and `camping_photos` (of a live one) mark `website_refresh`; the pg_cron job `refresh-website` (every 5 minutes) runs `send_website_refresh()`, which, once changes have been quiet for 2 minutes, asks GitHub to run the Website workflow (`workflow_dispatch` on `main`) through pg_net. It needs the Vault secrets `github_repo` and `github_token` (a fine-grained token limited to this repository with Actions read/write, less than the Contents write that `repository_dispatch` needs); without them nothing is sent. Both projects can have it: every rebuild publishes production and the preview | Partners see their camping online within minutes without anyone running a workflow |
+| App icon (M7) | A first logo until a designer makes one: a white tent with crossed poles ("αντίσκηνο"), a sun and a sea wave on the app's green. `scripts/render-icons.js` draws it and renders the app icon, Android adaptive icon layers (background, foreground in the safe zone, monochrome for themed icons), favicon, and the Play Store icon and feature graphics (`assets/store/`, Greek and English); `assets/logo/*.svg` are the editable sources | Replacing Expo's placeholder icon is needed for the store listing; one script keeps every size consistent |
 
 ## 1. Core problem
 
@@ -478,16 +479,16 @@ Hosted checkout (redirect to `checkoutUrl`) keeps card data out of the app on al
 ## 8. Acceptance criteria (MVP done when…)
 - [x] 20 concurrent booking attempts for the last available pitch → exactly 1 succeeds and the rest get "no longer available". `booked` never exceeds `allotment` (concurrency script in CI, after pgTAP).
 - [x] Pricing fixtures pass: a stay across a season boundary prices each night by its own season; per-stay extras count once; fees apply by unit (deno test).
-- [ ] Min nights, capacity, equipment and closed nights are enforced; nights without inventory or season are not sellable.
-- [ ] Request mode: an unanswered request expires at its deadline, releases inventory and emails the guest.
-- [ ] A guest books without an account, gets the email in their language, opens the manage link, sees and cancels the booking. Refund amounts follow the preset (0 in on-site mode).
-- [ ] Signing in with an email claims earlier guest bookings with that email.
-- [ ] RLS: a member of partner A can't read any row of partner B; anon can't read bookings (pgTAP).
-- [ ] Partner Today updates within seconds of a new booking (realtime), and the staff phone gets a push.
-- [ ] One live camping → Home opens its page; two or more → search.
-- [ ] Every UI string comes from locale files; a test fails if `el.json` and `en.json` keys differ.
-- [ ] Web `/c/<slug>` is pre-rendered with title, description and og:image.
-- [ ] CI green on `main`; the web preview deploys; the preview APK installs and receives a push.
+- [x] Min nights, capacity, equipment and closed nights are enforced; nights without inventory or season are not sellable (pgTAP 008, 009).
+- [x] Request mode: an unanswered request expires at its deadline, releases inventory and emails the guest (pgTAP 009).
+- [ ] A guest books without an account, gets the email in their language, opens the manage link, sees and cancels the booking. Refund amounts follow the preset (0 in on-site mode). *Parts are tested (pgTAP 009, deno create-booking and email texts); the end-to-end browser test covers the whole flow.*
+- [x] Signing in with an email claims earlier guest bookings with that email (pgTAP 009).
+- [x] RLS: a member of partner A can't read any row of partner B; anon can't read bookings (pgTAP 022 checks every table and view).
+- [ ] Partner Today updates within seconds of a new booking (realtime), and the staff phone gets a push. *The realtime publication and the push queue are tested (pgTAP 012, 013; deno notify); seeing it on a phone is the field test.*
+- [x] One live camping → Home opens its page; two or more → search (Jest Home).
+- [x] Every UI string comes from locale files; a test fails if `el.json` and `en.json` keys differ (Jest locales).
+- [x] Web `/c/<slug>` is pre-rendered with title, description and og:image (Jest CampingHead).
+- [ ] CI green on `main`; the web preview deploys; the preview APK installs and receives a push. *CI and the preview are done; a push received on the APK still needs confirming on the phone.*
 
 ## 9. Milestones
 1. **Skeleton:** Expo + Router + TS strict, i18n EL/EN, CI, web preview deploy, Supabase dev project with migrations applied by the GitHub integration, first migration (profiles, platform_settings, `is_admin()`), seed demo users.

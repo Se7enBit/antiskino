@@ -2,7 +2,7 @@
 begin;
 create extension if not exists pgtap with schema extensions;
 
-select plan(65);
+select plan(67);
 
 -- Start from no partners or campings: seed.sql data would skew the counts.
 -- Everything here is rolled back at the end.
@@ -233,6 +233,11 @@ select throws_ok(
 reset role;
 select is(pg_temp.booked('a1', '2030-07-10', '2030-07-11'), array[0, 0], 'cancelling gives the nights back');
 select results_eq(
+  $$ select payment_mode::text, paid_cents, refunded_cents from public.bookings where id = (select booking_id from t_a) $$,
+  $$ values ('on_site', 0, 0) $$,
+  'paying at reception, nothing was paid online and nothing is refunded'
+);
+select results_eq(
   $$ select from_status::text, to_status::text, actor_kind::text from public.booking_events
      where booking_id = (select booking_id from t_a) order by id $$,
   $$ values (null::text, 'confirmed', 'guest'), ('confirmed', 'cancelled', 'guest') $$,
@@ -374,6 +379,11 @@ select is(
   (select status::text from public.bookings where id = (select booking_id from t_e)), 'expired', '...become expired'
 );
 select is(pg_temp.booked('a2', '2030-07-25', '2030-07-26'), array[0, 0], '...and give their nights back');
+select ok(
+  exists (select 1 from public.notification_queue q where q.booking_id = (select booking_id from t_e)
+          and q.kind = 'request_expired' and q.audience = 'guest' and q.channel = 'email'),
+  '...and email the guest'
+);
 select is(public.complete_past_stays(), 1, 'stays whose departure has passed are completed');
 select is((select status::text from public.bookings where ref = 'ANT-PAST01'), 'completed', '...the past one');
 
