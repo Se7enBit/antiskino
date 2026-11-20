@@ -96,7 +96,10 @@ jobs:
           PROD_URL: ${{ vars.PROD_SUPABASE_URL }}
           PROD_KEY: ${{ vars.PROD_SUPABASE_KEY || secrets.PROD_SUPABASE_KEY }}
           CUSTOM_DOMAIN: ${{ vars.CUSTOM_DOMAIN }}
+          # Error reports (off when the variable is unset), tagged with the profile.
+          EXPO_PUBLIC_SENTRY_DSN: ${{ vars.EXPO_PUBLIC_SENTRY_DSN }}
         run: |
+          export EXPO_PUBLIC_SENTRY_ENVIRONMENT="$PROFILE"
           if [ "$PROFILE" = production ]; then
             if [ -z "$PROD_URL" ] || [ -z "$PROD_KEY" ] || [ -z "$CUSTOM_DOMAIN" ]; then
               echo "::error::A release build needs the Actions variables PROD_SUPABASE_URL, PROD_SUPABASE_KEY and CUSTOM_DOMAIN."
@@ -116,7 +119,7 @@ jobs:
             const eas = JSON.parse(fs.readFileSync('eas.json', 'utf8'));
             const profile = eas.build[process.env.PROFILE];
             profile.env = profile.env || {};
-            for (const name of ['EXPO_PUBLIC_SUPABASE_URL', 'EXPO_PUBLIC_SUPABASE_KEY', 'EXPO_PUBLIC_SITE_URL']) {
+            for (const name of ['EXPO_PUBLIC_SUPABASE_URL', 'EXPO_PUBLIC_SUPABASE_KEY', 'EXPO_PUBLIC_SITE_URL', 'EXPO_PUBLIC_SENTRY_DSN', 'EXPO_PUBLIC_SENTRY_ENVIRONMENT']) {
               if (process.env[name]) profile.env[name] = process.env[name];
             }
             fs.writeFileSync('eas.json', JSON.stringify(eas, null, 2));

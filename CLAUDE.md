@@ -83,7 +83,7 @@ The owner mostly works from a phone, so:
 - Never commit `.env*` files except `.env.example`.
 
 ## Environment variables
-- **App (public):** `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_KEY` (publishable/anon key), `EXPO_PUBLIC_SITE_URL`, `EXPO_PUBLIC_INDEXABLE` (web build: `1` only for production, set by the Website workflow)
+- **App (public):** `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_KEY` (publishable/anon key), `EXPO_PUBLIC_SITE_URL`, `EXPO_PUBLIC_INDEXABLE` (web build: `1` only for production, set by the Website workflow), `EXPO_PUBLIC_SENTRY_DSN` + `EXPO_PUBLIC_SENTRY_ENVIRONMENT` (error reports; off when unset; the DSN is an Actions variable, the workflows set the environment)
 - **Edge function secrets:** `SUPABASE_URL`, Supabase secret/service-role key (provided to functions), `RESEND_API_KEY`, `EMAIL_FROM`, `SITE_URL`, `EXPO_ACCESS_TOKEN` (optional, push), `NOTIFY_SECRET` (push delivery; same value as the Vault secret `notify_secret`). From M8: `PAYMENT_PROVIDER`, provider API key, webhook secret.
 - **CI web build (public values):** `EXPO_PUBLIC_SUPABASE_URL`, `EXPO_PUBLIC_SUPABASE_KEY` as Actions variables or secrets (either works), `EXPO_PUBLIC_SITE_URL` (optional variable; defaults to the Pages URL). The web job warns when the Supabase ones are missing.
 - **CI production variables (M7):** `CUSTOM_DOMAIN` (switches the website to production at the domain's root and the preview to `/preview`), `PROD_SUPABASE_URL`, `PROD_SUPABASE_KEY` (publishable key; also accepted as a secret).
