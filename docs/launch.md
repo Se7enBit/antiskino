@@ -103,6 +103,21 @@ database asks GitHub for one, at most every 5 minutes, once you give it a token:
 
 When the token expires, generate a new one and edit `github_token` in Vault.
 
+## Error reports with Sentry (set up any time)
+
+Until this is set, errors on guests' phones and on the website go unseen.
+
+1. sentry.io → sign up (free Developer plan) → Create project → platform
+   **React Native**, name `antiskino`. Copy the **DSN** it shows (also under
+   Project settings → Client Keys). The DSN is public by design; it isn't a secret.
+2. GitHub variables: `EXPO_PUBLIC_SENTRY_DSN` = the DSN.
+3. The next website publish and the next Android build report errors, tagged
+   `preview` or `production`. Sentry emails you about new problems.
+
+Reports never include names, email addresses, phone numbers or link tokens.
+On the website, Sentry only loads after an error, so visitors download nothing
+extra.
+
 ## 5. Android on Google Play
 
 1. play.google.com/console: developer account (one-time fee), then Create app

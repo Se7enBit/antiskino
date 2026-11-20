@@ -957,7 +957,7 @@
         },
         "sharing": {
           "title": "Who receives it",
-          "body": "• The camping you book, for your stay.\n• Providers that process data for us: Supabase (database, sign-in, server functions), Resend (emails), Expo, Google Firebase and Apple (push notifications), GitHub (website hosting) and OpenFreeMap (maps: your device asks it for the map images).\nSome of them are in the United States; those transfers rely on the EU–U.S. Data Privacy Framework or the EU standard contractual clauses."
+          "body": "• The camping you book, for your stay.\n• Providers that process data for us: Supabase (database, sign-in, server functions), Resend (emails), Expo, Google Firebase and Apple (push notifications), GitHub (website hosting), OpenFreeMap (maps: your device asks it for the map images) and Sentry (error reports, without names, email addresses or links).\nSome of them are in the United States; those transfers rely on the EU–U.S. Data Privacy Framework or the EU standard contractual clauses."
         },
         "retention": {
           "title": "How long we keep it",

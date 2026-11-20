@@ -1,12 +1,18 @@
 import { router } from 'expo-router';
+import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+
+import { reportError } from '@/lib/monitoring';
 
 import { useT } from '@/i18n';
 import { BodyText, Button, Screen, colors, spacing } from '@/ui';
 
-/** Shown instead of a blank page when a screen fails unexpectedly. */
-export function CrashScreen({ onRetry }: { onRetry: () => void }) {
+/** Shown instead of a blank page when a screen fails unexpectedly; reports the error. */
+export function CrashScreen({ error, onRetry }: { error?: unknown; onRetry: () => void }) {
   const t = useT();
+  useEffect(() => {
+    if (error !== undefined) reportError(error);
+  }, [error]);
   return (
     <Screen>
       <Text style={styles.title} accessibilityRole="header">

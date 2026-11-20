@@ -34,10 +34,10 @@ export default function RootLayout() {
 
 // An unexpected error anywhere shows a way back instead of a blank page. It
 // replaces the layout, so it brings its own language provider.
-export function ErrorBoundary({ retry }: ErrorBoundaryProps) {
+export function ErrorBoundary({ error, retry }: ErrorBoundaryProps) {
   return (
     <LanguageProvider>
-      <CrashScreen onRetry={() => void retry()} />
+      <CrashScreen error={error} onRetry={() => void retry()} />
     </LanguageProvider>
   );
 }
