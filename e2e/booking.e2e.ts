@@ -35,6 +35,14 @@ test('the demo camping page is pre-rendered with its title and description', asy
   expect(html).toContain('<title>Camping Thalassa (demo) · Antiskino</title>');
   expect(html).toMatch(/<meta property="og:title" content="Camping Thalassa \(demo\)"/);
   expect(html).toMatch(/<meta name="description" content="[^"]+"/);
+  // schema.org data for search engines (scripts/seo.js), and a preview's noindex tag.
+  const ld = /<script type="application\/ld\+json">(.*?)<\/script>/.exec(html)?.[1] ?? '{}';
+  expect(JSON.parse(ld)).toMatchObject({
+    '@type': 'Campground',
+    name: 'Camping Thalassa (demo)',
+    geo: { '@type': 'GeoCoordinates' },
+  });
+  expect(html).toContain('<meta name="robots" content="noindex, nofollow"/>');
 });
 
 test('a guest books without an account, then cancels with the manage link', async ({ page }) => {

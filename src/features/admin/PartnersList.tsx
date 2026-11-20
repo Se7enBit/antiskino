@@ -40,6 +40,12 @@ export function PartnersList() {
           onPress={() => router.push('/admin/reviews')}
           testID="admin-reviews"
         />
+        <Button
+          label={t('admin.messages.title')}
+          icon="email-outline"
+          onPress={() => router.push('/admin/messages')}
+          testID="admin-messages"
+        />
       </View>
       {partners.isPending ? <Loading label={t('common.loading')} /> : null}
       {partners.isError ? <Notice tone="error" message={t('common.error')} /> : null}

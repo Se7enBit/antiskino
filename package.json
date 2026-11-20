@@ -15,7 +15,7 @@
     "lint": "eslint . --max-warnings=0 && prettier --check .",
     "format": "prettier --write . && eslint . --fix",
     "test": "jest",
-    "export:web": "expo export -p web",
+    "export:web": "expo export -p web && node scripts/seo.js dist",
     "db:types": "supabase gen types typescript --schema public > src/api/database.types.ts && prettier --write src/api/database.types.ts",
     "postinstall": "node scripts/copy-map-worker.js"
   },

@@ -59,6 +59,9 @@ jobs:
           EXPO_PUBLIC_SUPABASE_URL: ${{ vars.PROD_SUPABASE_URL }}
           EXPO_PUBLIC_SUPABASE_KEY: ${{ vars.PROD_SUPABASE_KEY || secrets.PROD_SUPABASE_KEY }}
           EXPO_PUBLIC_SITE_URL: https://${{ vars.CUSTOM_DOMAIN }}
+          # Production is the build search engines may index (no noindex tag;
+          # sitemap.xml and robots.txt).
+          EXPO_PUBLIC_INDEXABLE: '1'
         run: |
           if ! git rev-parse -q --verify refs/tags/production >/dev/null; then
             echo "::error::CUSTOM_DOMAIN is set but nothing is released yet: run Actions → Release first."
@@ -80,7 +83,8 @@ jobs:
           "
           npx expo export -p web --output-dir "$GITHUB_WORKSPACE/site"
           cp "$GITHUB_WORKSPACE/site/+not-found.html" "$GITHUB_WORKSPACE/site/404.html"
-          printf 'User-agent: *\nDisallow: /preview/\n' > "$GITHUB_WORKSPACE/site/robots.txt"
+          # JSON-LD, sitemap.xml and robots.txt (with the script from main).
+          node "$GITHUB_WORKSPACE/scripts/seo.js" "$GITHUB_WORKSPACE/site"
 
       - name: Preview (main, against the dev project)
         env:
@@ -108,6 +112,8 @@ jobs:
             fs.writeFileSync('app.json', JSON.stringify(app, null, 2));
           "
           npx expo export -p web --output-dir "$OUT"
+          # JSON-LD only: previews carry a noindex tag and get no sitemap.
+          node scripts/seo.js "$OUT"
           if [ -z "$CUSTOM_DOMAIN" ]; then cp "site/+not-found.html" site/404.html; fi
 
       - uses: actions/upload-pages-artifact@v5

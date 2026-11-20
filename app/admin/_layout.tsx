@@ -16,6 +16,7 @@ export default function AdminLayout() {
         <Stack.Screen name="bookings" options={{ title: t('admin.bookings.title') }} />
         <Stack.Screen name="commission" options={{ title: t('admin.commission.title') }} />
         <Stack.Screen name="reviews" options={{ title: t('admin.reviews.title') }} />
+        <Stack.Screen name="messages" options={{ title: t('admin.messages.title') }} />
       </Stack>
     </RequireAccess>
   );
