@@ -53,3 +53,7 @@ yarn-error.*
 
 # Copied from maplibre-gl on npm install (scripts/copy-map-worker.js)
 /public/maplibre-gl-worker.js
+
+# Playwright output
+/e2e/report/
+/test-results/

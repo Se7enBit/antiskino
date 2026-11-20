@@ -306,9 +306,9 @@ expired        ├──► cancelled (guest / partner / admin)
 | Email | Resend, called from edge functions; EL/EN templates |
 | Push | expo-notifications + Expo Push API from edge functions |
 | Payments | `PaymentProvider` interface only, until M8 |
-| Tests | Jest (jest-expo) + React Native Testing Library; `deno test` for `_shared` logic (pricing, cancellation, refs); pgTAP via `supabase test db` (inventory, transitions, RLS) |
+| Tests | Jest (jest-expo) + React Native Testing Library; `deno test` for `_shared` logic (pricing, cancellation, refs); pgTAP via `supabase test db` (inventory, transitions, RLS); Playwright (`@playwright/test`, `e2e/`) for the end-to-end booking flow in a browser against the local stack |
 | Lint/format | ESLint (expo config) + Prettier |
-| CI | GitHub Actions: typecheck → lint → jest → deno test, `supabase start` + pgTAP + generated-types check → web export → deploy preview (from `main`). Migrations reach the dev project through the Supabase GitHub integration on push to `main`, not through CI |
+| CI | GitHub Actions: typecheck → lint → jest → deno test, `supabase start` + pgTAP + generated-types check → web export and the end-to-end booking test → deploy preview (from `main`). Migrations reach the dev project through the Supabase GitHub integration on push to `main`, not through CI |
 | Hosting | Web: GitHub Pages for previews, Cloudflare Pages + custom domain for production. Mobile: EAS Build. DB: Supabase dev + prod projects |
 
 **Phone-first workflow** (no laptop needed):
@@ -481,7 +481,7 @@ Hosted checkout (redirect to `checkoutUrl`) keeps card data out of the app on al
 - [x] Pricing fixtures pass: a stay across a season boundary prices each night by its own season; per-stay extras count once; fees apply by unit (deno test).
 - [x] Min nights, capacity, equipment and closed nights are enforced; nights without inventory or season are not sellable (pgTAP 008, 009).
 - [x] Request mode: an unanswered request expires at its deadline, releases inventory and emails the guest (pgTAP 009).
-- [ ] A guest books without an account, gets the email in their language, opens the manage link, sees and cancels the booking. Refund amounts follow the preset (0 in on-site mode). *Parts are tested (pgTAP 009, deno create-booking and email texts); the end-to-end browser test covers the whole flow.*
+- [x] A guest books without an account, gets the email in their language, opens the manage link, sees and cancels the booking. Refund amounts follow the preset (0 in on-site mode) (Playwright `e2e/booking.e2e.ts`; the email texts per language in deno tests).
 - [x] Signing in with an email claims earlier guest bookings with that email (pgTAP 009).
 - [x] RLS: a member of partner A can't read any row of partner B; anon can't read bookings (pgTAP 022 checks every table and view).
 - [ ] Partner Today updates within seconds of a new booking (realtime), and the staff phone gets a push. *The realtime publication and the push queue are tested (pgTAP 012, 013; deno notify); seeing it on a phone is the field test.*
