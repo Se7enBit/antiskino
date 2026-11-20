@@ -112,7 +112,9 @@ When the token expires, generate a new one and edit `github_token` in Vault.
    download the .aab from expo.dev → Projects → antiskino → Builds.
 4. Play Console → Testing → Internal testing → Create release → upload the
    .aab. Test it, then promote it to Production.
-5. Store listing: privacy policy `https://<domain>/privacy`; account deletion
+5. Store listing graphics are in `assets/store/`: the 512 px icon and the
+   1024×500 feature graphic in Greek and English. Take the phone screenshots on
+   the installed app. Store listing: privacy policy `https://<domain>/privacy`; account deletion
    `https://<domain>/delete-account`; Data safety: personal info (name, email,
    phone), app activity (reviews), device IDs (the push token); no location;
    encrypted in transit; users can delete their data.
