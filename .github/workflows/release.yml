@@ -58,12 +58,13 @@ jobs:
           supabase --version
       - name: Link the production project
         run: supabase link --project-ref "$SUPABASE_PROJECT_REF"
-      # --remote: CLI v3 pushes to the local stack without it.
+      # --remote: CLI v3 pushes to the local stack without it. --yes: CLI v3
+      # applies changes to a hosted project only with it (no prompt in CI).
       - name: Apply new migrations
-        run: supabase db push --remote --password "$SUPABASE_DB_PASSWORD"
+        run: supabase db push --remote --password "$SUPABASE_DB_PASSWORD" --yes
       # Bundled by Supabase (no Docker); verify_jwt settings come from config.toml.
       - name: Deploy edge functions
-        run: supabase functions deploy --use-api
+        run: supabase functions deploy --use-api --yes
 
   tag:
     name: Tag the released commit
