@@ -7,9 +7,29 @@ import { authStorage } from './authStorage';
 
 export type AppSupabaseClient = SupabaseClient<Database>;
 
+/** A secret key (new sb_secret_…, or a legacy JWT with the service_role role). */
+export function isSecretKey(key: string): boolean {
+  if (key.startsWith('sb_secret_')) return true;
+  const payload = key.split('.')[1];
+  if (!payload) return false;
+  try {
+    const json: unknown = JSON.parse(atob(payload.replace(/-/g, '+').replace(/_/g, '/')));
+    return (
+      typeof json === 'object' && json !== null && 'role' in json && json.role === 'service_role'
+    );
+  } catch {
+    return false;
+  }
+}
+
 const supabaseEnvSchema = z.object({
   EXPO_PUBLIC_SUPABASE_URL: z.url({ protocol: /^https?$/ }),
-  EXPO_PUBLIC_SUPABASE_KEY: z.string().trim().min(1),
+  // The app ships this key to everyone: only the publishable (anon) key belongs here.
+  EXPO_PUBLIC_SUPABASE_KEY: z
+    .string()
+    .trim()
+    .min(1)
+    .refine((key) => !isSecretKey(key)),
 });
 
 export type SupabaseEnv = { url: string; key: string };

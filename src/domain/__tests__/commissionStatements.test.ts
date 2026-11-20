@@ -68,4 +68,13 @@ describe('commissionCsv', () => {
       '"A; ""B""";Camping Thalassa',
     );
   });
+
+  it('keeps names that look like formulas as plain text', () => {
+    const csv = commissionCsv(
+      [line({ partnerName: '=HYPERLINK("http://x","y")', campingName: '@SUM(A1)' })],
+      HEADERS,
+      'en',
+    );
+    expect(csv).toContain(`"'=HYPERLINK(""http://x"",""y"")";'@SUM(A1);`);
+  });
 });

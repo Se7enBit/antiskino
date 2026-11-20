@@ -86,7 +86,10 @@ function amount(cents: number, language: Language): string {
   return `${sign}${Math.trunc(abs / 100)}${separator}${String(abs % 100).padStart(2, '0')}`;
 }
 
-function csvField(value: string): string {
+function csvField(raw: string): string {
+  // A cell starting like a formula would run in Excel (names come from partners):
+  // a leading apostrophe makes it plain text.
+  const value = /^[=+\-@\t\r]/.test(raw) ? `'${raw}` : raw;
   return /[;"\n\r]/.test(value) ? `"${value.replaceAll('"', '""')}"` : value;
 }
 
