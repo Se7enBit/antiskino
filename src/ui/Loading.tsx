@@ -5,7 +5,7 @@ import { colors, spacing } from './theme';
 export function Loading({ label }: { label: string }) {
   return (
     <View accessibilityLabel={label} style={styles.container}>
-      <ActivityIndicator color={colors.primary} />
+      <ActivityIndicator color={colors.primary} accessibilityLabel={label} />
       <Text style={styles.label}>{label}</Text>
     </View>
   );

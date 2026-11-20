@@ -6,6 +6,8 @@ import { useT } from '@/i18n';
 import { formatDateInput } from '@/lib/dates';
 import { BodyText, Screen, colors, spacing } from '@/ui';
 
+import { PageHead } from '../common/PageHead';
+
 export type LegalSection = { id: string; title: string; body: string };
 
 type Props = {
@@ -22,6 +24,7 @@ export function LegalPage({ title, intro, sections, other }: Props) {
   return (
     <Screen>
       <Stack.Screen options={{ headerShown: true, title }} />
+      <PageHead title={`${title} · Antiskino`} description={intro} />
       <Text style={styles.title} accessibilityRole="header">
         {title}
       </Text>
