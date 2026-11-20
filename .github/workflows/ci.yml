@@ -154,6 +154,7 @@ jobs:
           EXPO_PUBLIC_SITE_URL: http://127.0.0.1:8081/antiskino
         run: |
           npx expo export -p web
+          node scripts/seo.js dist
           cp "dist/+not-found.html" dist/404.html
       - name: Install Chromium for Playwright
         run: npx playwright install --with-deps chromium

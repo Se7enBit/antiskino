@@ -15,6 +15,11 @@ export default function Root({ children }: PropsWithChildren) {
         <meta charSet="utf-8" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+        {/* Only the production build is for search engines (EXPO_PUBLIC_INDEXABLE=1);
+            previews, with test data, ask them to stay away. */}
+        {process.env.EXPO_PUBLIC_INDEXABLE === '1' ? null : (
+          <meta name="robots" content="noindex, nofollow" />
+        )}
         <ScrollViewStyleReset />
         {headNodes}
       </head>
