@@ -1,13 +1,20 @@
 // Web only: imported lazily by PinsMap.tsx after hydration (MapLibre needs a browser).
 import 'maplibre-gl/dist/maplibre-gl.css';
 
-import maplibregl from 'maplibre-gl';
+import Constants from 'expo-constants';
+import { Map as MapLibreMap, Marker, NavigationControl, setWorkerUrl } from 'maplibre-gl';
 import { useEffect, useRef, useState } from 'react';
 
 import { lngLatBoundsFor, type Pin } from '@/domain/map';
 
 import { colors } from '../theme';
 import { MAP_STYLE } from './style';
+
+// MapLibre's worker is a separate file that Metro can't bundle: postinstall
+// copies it to public/ (scripts/copy-map-worker.js), served under the site's base URL.
+setWorkerUrl(
+  `${window.location.origin}${Constants.expoConfig?.experiments?.baseUrl ?? ''}/maplibre-gl-worker.js`,
+);
 
 /** A rounded label button per pin (focusable: Tab to it, Enter opens it). */
 function pinElement(pin: Pin, onPress: () => void): HTMLButtonElement {
@@ -54,7 +61,7 @@ export default function MapLibreWebMap({
 
   useEffect(() => {
     if (!container.current) return;
-    const map = new maplibregl.Map({
+    const map = new MapLibreMap({
       container: container.current,
       style: MAP_STYLE,
       bounds: lngLatBoundsFor(pins),
@@ -68,9 +75,9 @@ export default function MapLibreWebMap({
       attributionControl: { compact: true },
     });
     map.touchZoomRotate.disableRotation();
-    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
+    map.addControl(new NavigationControl({ showCompass: false }), 'top-right');
     for (const pin of pins) {
-      new maplibregl.Marker({
+      new Marker({
         element: pinElement(pin, () => onPressRef.current?.(pin.id)),
         anchor: 'bottom',
       })
