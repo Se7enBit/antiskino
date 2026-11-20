@@ -7,6 +7,7 @@ import { useT } from '@/i18n';
 import { BodyText, Loading, Screen, colors, spacing } from '@/ui';
 
 import { CampingPage } from '../camping/CampingPage';
+import { PageHead } from '../common/PageHead';
 
 import { SearchForm } from './SearchForm';
 
@@ -14,9 +15,12 @@ import { SearchForm } from './SearchForm';
 export function HomeScreen() {
   const t = useT();
   const campings = useLiveCampings();
+  // Not with a single camping: its page brings its own title.
+  const head = <PageHead title={t('meta.home.title')} description={t('meta.home.description')} />;
   if (campings.isLoading)
     return (
       <Screen>
+        {head}
         <Loading label={t('common.loading')} />
       </Screen>
     );
@@ -39,6 +43,7 @@ export function HomeScreen() {
     );
   return (
     <Screen>
+      {head}
       <View style={styles.intro}>
         <Text style={styles.title} accessibilityRole="header">
           {t('search.title')}

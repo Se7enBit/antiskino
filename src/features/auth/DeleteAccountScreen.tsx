@@ -4,6 +4,8 @@ import { useAuth } from '@/api/auth';
 import { useT } from '@/i18n';
 import { BodyText, Screen, colors } from '@/ui';
 
+import { PageHead } from '../common/PageHead';
+
 import { AccountSignIn } from './AccountSignIn';
 import { DeleteAccount } from './DeleteAccount';
 
@@ -13,6 +15,7 @@ export function DeleteAccountScreen() {
   const { status } = useAuth();
   return (
     <Screen>
+      <PageHead title={`${t('account.delete.pageTitle')} · Antiskino`} />
       <Text style={styles.title} accessibilityRole="header">
         {t('account.delete.pageTitle')}
       </Text>
