@@ -172,6 +172,7 @@
       "open": "View booking"
     },
     "taken": "Sorry, this pitch was just taken. Pick another pitch type or other dates.",
+    "tooMany": "This email already has several bookings at this camping for these dates, or many upcoming bookings. To book more pitches, contact the camping.",
     "backToCamping": "Back to the camping",
     "badLink": "This booking link is incomplete. Start from the camping's page."
   },

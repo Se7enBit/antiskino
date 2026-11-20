@@ -132,4 +132,8 @@ export type CreateBookingResponse =
       manageToken: string;
       totalCents: number;
     }
-  | { booked: false; reason: UnavailableReason };
+  | {
+      booked: false;
+      /** too_many: this email already holds too many active bookings (fake-booking limit). */
+      reason: UnavailableReason | 'too_many';
+    };

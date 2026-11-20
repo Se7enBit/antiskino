@@ -46,7 +46,9 @@ insert into public.bookings (id, ref, camping_id, pitch_type_id, user_id, guest_
   payment_mode, cancellation_policy, commission_bps, commission_cents, manage_token_hash, request_expires_at, created_at)
 select ('b0000000-0000-4000-8000-00000000000' || n)::uuid, 'ANT-AAAAA' || n,
   'a0000000-0000-4000-8000-0000000000a1', 'c0000000-0000-4000-8000-0000000000a1',
-  case when n = 1 then 'e5555555-0000-4000-8000-000000000001'::uuid end, 'Maria', 'guest@test.local',
+  case when n = 1 then 'e5555555-0000-4000-8000-000000000001'::uuid end, 'Maria',
+  -- one email per booking: a guest email holds at most 3 overlapping bookings at a camping
+  case when n = 1 then 'guest@test.local' else 'guest' || n || '@test.local' end,
   '+30 690 000 0000', 'GR', 'en', '2030-07-10', '2030-07-12', 'tent', '{}', 2, s::public.booking_status, 5000,
   '{}', 'on_site', 'flexible', 600, 300, public.sha256_hex('token-' || n), e, c
 from (values

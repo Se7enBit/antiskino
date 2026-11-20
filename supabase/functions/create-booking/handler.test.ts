@@ -1,7 +1,7 @@
 import { assertEquals, assertMatch } from 'jsr:@std/assert@1';
 
 import type { ReserveArgs } from '../_shared/booker.ts';
-import { type Booker, Unavailable } from '../_shared/booker.ts';
+import { type Booker, TooMany, Unavailable } from '../_shared/booker.ts';
 import { fakeCatalog, rates } from '../_shared/fakeCatalog.ts';
 import { openToken } from '../_shared/linkToken.ts';
 import { sha256Hex } from '../_shared/token.ts';
@@ -38,7 +38,7 @@ function catalog(sellable = true) {
   });
 }
 
-function booker(outcome: 'ok' | 'taken' = 'ok', storing: 'ok' | 'fails' = 'ok') {
+function booker(outcome: 'ok' | 'taken' | 'too_many' = 'ok', storing: 'ok' | 'fails' = 'ok') {
   const calls: {
     reserve: ReserveArgs[];
     userId: (string | null)[];
@@ -52,6 +52,7 @@ function booker(outcome: 'ok' | 'taken' = 'ok', storing: 'ok' | 'fails' = 'ok') 
     reserve: (args) => {
       calls.reserve.push(args);
       if (outcome === 'taken') return Promise.reject(new Unavailable('sold out'));
+      if (outcome === 'too_many') return Promise.reject(new TooMany('too many'));
       return Promise.resolve({
         bookingId: 'b1',
         ref: 'ANT-7K3P9Q',
@@ -156,6 +157,19 @@ Deno.test('reports a stay taken meanwhile as unavailable', async () => {
       booked: false,
       reason: 'unavailable',
     },
+  );
+});
+
+Deno.test('reports an email over the fake-booking limits as too_many', async () => {
+  const { fake } = booker('too_many');
+  assertEquals(
+    await createBooking(INPUT, {
+      catalog: catalog(),
+      booker: fake,
+      authorization: null,
+      linkSecret: null,
+    }),
+    { booked: false, reason: 'too_many' },
   );
 });
 

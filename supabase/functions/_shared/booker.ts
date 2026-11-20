@@ -32,6 +32,9 @@ export type Reserved = {
 /** The stay can't be booked any more (taken meanwhile, closed…): SQL error ANT01. */
 export class Unavailable extends Error {}
 
+/** The guest's email holds too many active bookings already: SQL error ANT05. */
+export class TooMany extends Error {}
+
 export interface Booker {
   /** The signed-in user behind an Authorization header, or null for guests. */
   userId(authorization: string | null): Promise<string | null>;
@@ -81,6 +84,7 @@ export function supabaseBooker(admin: SupabaseClient): Booker {
         p_manage_token_hash: args.manageTokenHash,
       });
       if (error?.code === 'ANT01') throw new Unavailable(error.message);
+      if (error?.code === 'ANT05') throw new TooMany(error.message);
       // Bad party, extras or guest details that got past validation.
       if (error?.code === '22023' || error?.code === '23514')
         throw new HttpError(400, { error: 'invalid_input' });
