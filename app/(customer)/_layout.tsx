@@ -2,7 +2,7 @@ import { Tabs } from 'expo-router/tabs';
 import type { ColorValue } from 'react-native';
 
 import { useT } from '@/i18n';
-import { Icon, colors, type IconName } from '@/ui';
+import { Icon, colors, phoneTabBarStyle, tabLabelStyle, type IconName } from '@/ui';
 
 function TabIcon({ name, color }: { name: IconName; color: ColorValue }) {
   return <Icon name={name} color={typeof color === 'string' ? color : colors.muted} size={22} />;
@@ -15,7 +15,8 @@ export default function CustomerLayout() {
       screenOptions={{
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.muted,
-        tabBarLabelStyle: { fontSize: 12, fontWeight: '600' },
+        tabBarLabelStyle: tabLabelStyle(12),
+        tabBarStyle: phoneTabBarStyle,
         tabBarLabelPosition: 'below-icon',
       }}
     >

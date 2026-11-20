@@ -10,6 +10,7 @@ export const ICON_GLYPHS = {
   book: 983226,
   'calendar-check-outline': 986180,
   'calendar-range': 984697,
+  'calendar-today': 983286,
   cancel: 984890,
   caravan: 985005,
   'cash-multiple': 983318,
@@ -51,6 +52,7 @@ export const ICON_GLYPHS = {
   stove: 984286,
   tent: 984328,
   upload: 984402,
+  'view-grid-outline': 987609,
   'washing-machine': 984874,
   wifi: 984489,
 } as const;
