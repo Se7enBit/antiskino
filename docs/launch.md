@@ -118,6 +118,16 @@ Reports never include names, email addresses, phone numbers or link tokens.
 On the website, Sentry only loads after an error, so visitors download nothing
 extra.
 
+Readable stack traces (optional): without this, reports show minified code.
+
+1. sentry.io → Settings → Auth Tokens → Create New Token (an organization
+   token: it already names your organization and the EU region). Copy it.
+2. GitHub secret `SENTRY_AUTH_TOKEN` = the token. If the Sentry project isn't
+   called `antiskino`, also add the variable `SENTRY_PROJECT` = its slug.
+3. The next website publish and the next app build upload their source maps.
+   The website never publishes them; the token stays in GitHub and, for app
+   builds, as a secret variable on expo.dev.
+
 ## 5. Android on Google Play
 
 1. play.google.com/console: developer account (one-time fee), then Create app

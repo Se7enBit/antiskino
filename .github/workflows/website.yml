@@ -6,6 +6,10 @@ name: Website
 # - when the database asks (send_website_refresh(), through the GitHub API):
 #   a camping went live or its pre-rendered page changed.
 #
+# With the SENTRY_AUTH_TOKEN secret, each build uploads its source maps to
+# Sentry (scripts/sentry-sourcemaps.js), so error reports show the real code;
+# the maps themselves are never published.
+#
 # Until the CUSTOM_DOMAIN variable is set, the site is the preview: main built
 # against the dev project, at https://<owner>.github.io/<repo>/.
 # Once CUSTOM_DOMAIN is set (launch), the domain's root is production: the
@@ -42,6 +46,10 @@ jobs:
       cancel-in-progress: false
     env:
       CUSTOM_DOMAIN: ${{ vars.CUSTOM_DOMAIN }}
+      # Source maps for Sentry (nothing is uploaded without the token).
+      SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+      SENTRY_ORG: ${{ vars.SENTRY_ORG }}
+      SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT || 'antiskino' }}
     steps:
       - uses: actions/checkout@v6
         with:
@@ -84,10 +92,12 @@ jobs:
             delete (app.expo.experiments || {}).baseUrl;
             fs.writeFileSync('app.json', JSON.stringify(app, null, 2));
           "
-          npx expo export -p web --output-dir "$GITHUB_WORKSPACE/site"
+          npx expo export -p web --source-maps --output-dir "$GITHUB_WORKSPACE/site"
           cp "$GITHUB_WORKSPACE/site/+not-found.html" "$GITHUB_WORKSPACE/site/404.html"
           # JSON-LD, sitemap.xml and robots.txt (with the script from main).
           node "$GITHUB_WORKSPACE/scripts/seo.js" "$GITHUB_WORKSPACE/site"
+          # Source maps to Sentry, then out of the site.
+          node "$GITHUB_WORKSPACE/scripts/sentry-sourcemaps.js" "$GITHUB_WORKSPACE/site"
 
       - name: Preview (main, against the dev project)
         env:
@@ -116,9 +126,10 @@ jobs:
             app.expo.experiments = { ...app.expo.experiments, baseUrl: process.env.BASE_URL };
             fs.writeFileSync('app.json', JSON.stringify(app, null, 2));
           "
-          npx expo export -p web --output-dir "$OUT"
+          npx expo export -p web --source-maps --output-dir "$OUT"
           # JSON-LD only: previews carry a noindex tag and get no sitemap.
           node scripts/seo.js "$OUT"
+          node scripts/sentry-sourcemaps.js "$OUT"
           if [ -z "$CUSTOM_DOMAIN" ]; then cp "site/+not-found.html" site/404.html; fi
 
       - uses: actions/upload-pages-artifact@v5

@@ -125,6 +125,16 @@ jobs:
             fs.writeFileSync('eas.json', JSON.stringify(eas, null, 2));
           "
 
+      # Readable stack traces: with the SENTRY_AUTH_TOKEN secret, the build
+      # uploads its source maps to Sentry (Sentry's Expo plugin in this
+      # checkout's app.json; the token as a secret EAS variable).
+      - name: Source maps for Sentry
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ vars.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT }}
+        run: node scripts/eas-sentry.js "${{ inputs.profile }}"
+
       # EAS_NO_VCS: upload this checkout as it is now (with the project id and
       # settings above), leaving out what .gitignore lists.
       - name: Start the build on EAS
