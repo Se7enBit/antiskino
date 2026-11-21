@@ -992,11 +992,11 @@
         },
         "sharing": {
           "title": "Who receives it",
-          "body": "• The camping you book, for your stay.\n• Providers that process data for us: Supabase (database, sign-in, server functions), Resend (emails), Expo, Google Firebase and Apple (push notifications), GitHub (website hosting), OpenFreeMap (maps: your device asks it for the map images) and Sentry (error reports, without names, email addresses or links).\nSome of them are in the United States; those transfers rely on the EU–U.S. Data Privacy Framework or the EU standard contractual clauses."
+          "body": "• The camping you book, for your stay.\n• Providers that process data for us: Supabase (database, sign-in, server functions), Resend (emails), Expo, Google Firebase and Apple (push notifications), GitHub (website hosting and encrypted backups), OpenFreeMap (maps: your device asks it for the map images) and Sentry (error reports, without names, email addresses or links).\nSome of them are in the United States; those transfers rely on the EU–U.S. Data Privacy Framework or the EU standard contractual clauses."
         },
         "retention": {
           "title": "How long we keep it",
-          "body": "• Bookings: as long as accounting and tax laws require. If you delete your account, your bookings stay without your name, email or phone.\n• Account, favorites and devices: until you delete your account (devices also when you sign out).\n• Reviews: until you delete your account or we remove them.\n• Provider logs: for short periods set by each provider."
+          "body": "• Bookings: as long as accounting and tax laws require. If you delete your account, your bookings stay without your name, email or phone.\n• Account, favorites and devices: until you delete your account (devices also when you sign out).\n• Reviews: until you delete your account or we remove them.\n• Backups: encrypted, kept for 30 days, so deleted data leaves them within 30 days.\n• Provider logs: for short periods set by each provider."
         },
         "rights": {
           "title": "Your rights",

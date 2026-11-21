@@ -13,4 +13,4 @@ export const BUSINESS = {
 } as const;
 
 /** The date the terms and privacy texts last changed. */
-export const LEGAL_UPDATED: IsoDate = '2026-11-20';
+export const LEGAL_UPDATED: IsoDate = '2026-11-21';

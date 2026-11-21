@@ -15,6 +15,7 @@ What the workflows do:
 | Android release build | by hand, after a Release | app bundle (.aab) against production, for Google Play |
 | iOS build | by hand: preview or production | iPhone app, sent to TestFlight (step 7) |
 | Keep databases awake | daily | one small query to each project, so free projects don't pause |
+| Back up production | nightly, or by hand | encrypted copy of the production database, kept 30 days |
 
 Before launch the site is the preview at `https://se7enbit.github.io/antiskino/`.
 After step 4 the domain's root is production and the preview moves to
@@ -33,7 +34,10 @@ After step 4 the domain's root is production and the preview moves to
    (eu-central-1)**. Save the database password.
 2. Secrets: `SUPABASE_PROJECT_REF` (the part before `.supabase.co` in the
    project URL), `SUPABASE_DB_PASSWORD`, `SUPABASE_ACCESS_TOKEN`
-   (supabase.com → Account → Access tokens → Generate).
+   (supabase.com → Account → Access tokens → Generate), and
+   `BACKUP_PASSPHRASE`: a long random password from your password manager,
+   saved there too. Nightly backups are encrypted with it and can't be read
+   without it (see Backups below).
 3. Variables: `PROD_SUPABASE_URL` (`https://<ref>.supabase.co`) and
    `PROD_SUPABASE_KEY` (Project settings → API keys → publishable key).
 4. GitHub → Actions → **Release** → Run workflow (branch `main`). It applies
@@ -150,8 +154,33 @@ Readable stack traces (optional): without this, reports show minified code.
 
 - **Keep databases awake** runs daily. If GitHub emails that it was turned off
   (no commits for 60 days), open it and press Run workflow.
-- The free plan has no daily backups: move production to a paid plan before
-  real traffic.
+- The free plan has no backups of its own; the **Back up production** workflow
+  covers that (below). A paid plan adds Supabase's daily backups and
+  point-in-time restore once there is real traffic.
+
+### Backups
+
+Every night **Back up production** saves the production database in one file
+encrypted with `BACKUP_PASSPHRASE` (users, bookings and everything else in the
+database; not the Vault secrets, not the photo files in Storage). Each run keeps
+its file for 30 days: Actions → Back up production → a run → Artifacts
+(`backup-<date>`). Before production exists, each run just says there is
+nothing to back up.
+
+Check now and then that the latest runs are green. To restore (on a computer,
+with the Supabase CLI and `psql`), into a new or emptied project:
+
+```bash
+unzip backup-<date>.zip
+gpg -d antiskino-<date>.tar.gz.gpg | tar -xz   # asks for BACKUP_PASSPHRASE
+psql --single-transaction --variable ON_ERROR_STOP=1 \
+  --file roles.sql --file schema.sql \
+  --command 'SET session_replication_role = replica' --file data.sql \
+  --dbname "<the project's connection string, Session pooler>"
+```
+
+Then set the edge function secrets and the Vault secrets again (step 2.5–2.6)
+and redeploy the functions with Release.
 
 ## 7. iPhone app on the App Store (after Android)
 

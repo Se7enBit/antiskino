@@ -1,0 +1,108 @@
+name: Back up production
+
+# Supabase's free plan keeps no backups. Every night this saves the production
+# database as one file encrypted with the BACKUP_PASSPHRASE secret, kept as this
+# run's artifact ("backup-<date>") for 30 days. Also runnable by hand: Actions →
+# Back up production → Run workflow.
+#
+# Inside (after decrypting): roles.sql, schema.sql and data.sql from
+# `supabase db dump` (users, bookings, everything in the public schema). Not
+# inside: Vault secrets (never dumped) and the photo files in Storage.
+# Restoring needs a computer: docs/launch.md (Backups).
+#
+# Until production exists (SUPABASE_PROJECT_REF unset) each run just says so and
+# succeeds. Uses the same secrets as Release.
+
+on:
+  schedule:
+    - cron: '41 2 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: backup
+  cancel-in-progress: false
+
+env:
+  SUPABASE_CLI_VERSION: 3.2.0
+
+jobs:
+  backup:
+    name: Dump, encrypt, keep
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+      BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+    steps:
+      - name: Check the setup
+        id: setup
+        run: |
+          if [ -z "$SUPABASE_PROJECT_REF" ]; then
+            echo "Production is not set up yet (no SUPABASE_PROJECT_REF secret): nothing to back up."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          missing=""
+          for name in SUPABASE_ACCESS_TOKEN SUPABASE_DB_PASSWORD BACKUP_PASSPHRASE; do
+            [ -n "${!name}" ] || missing="$missing $name"
+          done
+          if [ -n "$missing" ]; then
+            echo "::error::Add these Actions secrets (GitHub → Settings → Secrets and variables → Actions):$missing. BACKUP_PASSPHRASE: a long random password from a password manager; backups can't be read without it."
+            exit 1
+          fi
+          echo "ready=true" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/checkout@v6
+        if: steps.setup.outputs.ready == 'true'
+
+      - name: Install Supabase CLI
+        if: steps.setup.outputs.ready == 'true'
+        timeout-minutes: 5
+        run: |
+          curl -fsSL --retry 5 --retry-delay 5 --retry-all-errors --max-time 120 \
+            -o "$RUNNER_TEMP/supabase.tar.gz" \
+            "https://github.com/supabase/cli/releases/download/v${SUPABASE_CLI_VERSION}/supabase_linux_amd64.tar.gz"
+          sudo tar -xzf "$RUNNER_TEMP/supabase.tar.gz" -C /usr/local/bin supabase
+          supabase --version
+
+      - name: Link the production project
+        if: steps.setup.outputs.ready == 'true'
+        run: supabase link --project-ref "$SUPABASE_PROJECT_REF"
+
+      # The plain dumps exist only on this runner, only until they are encrypted.
+      - name: Dump and encrypt
+        if: steps.setup.outputs.ready == 'true'
+        id: dump
+        run: |
+          dir="$RUNNER_TEMP/dump"
+          mkdir -p "$dir"
+          supabase db dump --remote --password "$SUPABASE_DB_PASSWORD" --role-only -f "$dir/roles.sql"
+          supabase db dump --remote --password "$SUPABASE_DB_PASSWORD" -f "$dir/schema.sql"
+          supabase db dump --remote --password "$SUPABASE_DB_PASSWORD" --data-only --use-copy -f "$dir/data.sql"
+          for file in roles schema data; do
+            [ -s "$dir/$file.sql" ] || { echo "::error::$file.sql is empty."; exit 1; }
+          done
+          name="antiskino-$(date -u +%Y-%m-%d)"
+          tar -C "$dir" -czf - roles.sql schema.sql data.sql \
+            | gpg --batch --yes --pinentry-mode loopback --passphrase-fd 3 \
+                --symmetric --cipher-algo AES256 -o "$RUNNER_TEMP/$name.tar.gz.gpg" \
+                3<<< "$BACKUP_PASSPHRASE"
+          rm -rf "$dir"
+          ls -l "$RUNNER_TEMP/$name.tar.gz.gpg"
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/upload-artifact@v4
+        if: steps.setup.outputs.ready == 'true'
+        with:
+          name: backup-${{ steps.dump.outputs.name }}
+          path: ${{ runner.temp }}/${{ steps.dump.outputs.name }}.tar.gz.gpg
+          if-no-files-found: error
+          retention-days: 30
+          # Already compressed and encrypted.
+          compression-level: 0
