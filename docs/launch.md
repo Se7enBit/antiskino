@@ -16,6 +16,7 @@ What the workflows do:
 | iOS build | by hand: preview or production | iPhone app, sent to TestFlight (step 7) |
 | Keep databases awake | daily | one small query to each project, so free projects don't pause |
 | Back up production | nightly, or by hand | encrypted copy of the production database, kept 30 days |
+| Dependency check | monthly, or by hand | fails on high or critical vulnerabilities in the packages; lists all findings and newer versions |
 
 Before launch the site is the preview at `https://se7enbit.github.io/antiskino/`.
 After step 4 the domain's root is production and the preview moves to
@@ -152,6 +153,8 @@ Readable stack traces (optional): without this, reports show minified code.
 
 ## 6. Afterwards
 
+- **Dependency check** runs on the 1st of each month. If GitHub emails that it
+  failed, ask Claude for a dependency update (the run lists what is affected).
 - **Keep databases awake** runs daily. If GitHub emails that it was turned off
   (no commits for 60 days), open it and press Run workflow.
 - The free plan has no backups of its own; the **Back up production** workflow

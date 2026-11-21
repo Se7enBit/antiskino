@@ -1,0 +1,63 @@
+name: Dependency check
+
+# Once a month (and by hand: Actions → Dependency check → Run workflow):
+# - fails when `npm audit` reports a high or critical vulnerability in any
+#   package, app or tooling (GitHub then emails the owner): ask Claude for a
+#   dependency update;
+# - lists in the run's summary every audit finding (moderate ones too), what has
+#   newer versions and whether the Expo packages still match the SDK, for the
+#   next update. That part never fails.
+# GitHub turns scheduled workflows off after 60 days without commits; Run
+# workflow turns it back on.
+
+on:
+  schedule:
+    - cron: '23 5 1 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: 22
+
+jobs:
+  check:
+    name: Audit and outdated packages
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+      - run: npm ci
+
+      - name: Findings, newer versions and Expo SDK match (report only)
+        run: |
+          {
+            echo '## npm audit (all severities)'
+            echo '```'
+            npm audit || true
+            echo '```'
+            echo '## Newer versions'
+            echo '```'
+            npm outdated || true
+            echo '```'
+            echo '## Expo packages vs the SDK'
+            echo '```'
+            npx expo install --check 2>&1 || true
+            echo '```'
+            echo '## Edge functions'
+            echo '```'
+            grep -rhoE 'npm:[@a-z0-9/._-]+@[0-9.]+' supabase/functions | sort -u
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: High or critical vulnerabilities
+        run: |
+          if ! npm audit --audit-level=high; then
+            echo "::error::npm audit found high or critical vulnerabilities (details above). Ask Claude for a dependency update."
+            exit 1
+          fi
