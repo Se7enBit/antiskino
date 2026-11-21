@@ -8,8 +8,11 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": true,
-      "bundleIdentifier": "gr.antiskino.app"
+      "supportsTablet": false,
+      "bundleIdentifier": "gr.antiskino.app",
+      "config": {
+        "usesNonExemptEncryption": false
+      }
     },
     "android": {
       "package": "gr.antiskino.app",

@@ -13,6 +13,7 @@ What the workflows do:
 | Release | by hand, on `main` | production database migrations and edge functions, tags the commit `production`, then Website |
 | Android preview build | by hand | APK against the dev project (expo.dev → Builds) |
 | Android release build | by hand, after a Release | app bundle (.aab) against production, for Google Play |
+| iOS build | by hand: preview or production | iPhone app, sent to TestFlight (step 7) |
 | Keep databases awake | daily | one small query to each project, so free projects don't pause |
 
 Before launch the site is the preview at `https://se7enbit.github.io/antiskino/`.
@@ -118,6 +119,16 @@ Reports never include names, email addresses, phone numbers or link tokens.
 On the website, Sentry only loads after an error, so visitors download nothing
 extra.
 
+Readable stack traces (optional): without this, reports show minified code.
+
+1. sentry.io → Settings → Auth Tokens → Create New Token (an organization
+   token: it already names your organization and the EU region). Copy it.
+2. GitHub secret `SENTRY_AUTH_TOKEN` = the token. If the Sentry project isn't
+   called `antiskino`, also add the variable `SENTRY_PROJECT` = its slug.
+3. The next website publish and the next app build upload their source maps.
+   The website never publishes them; the token stays in GitHub and, for app
+   builds, as a secret variable on expo.dev.
+
 ## 5. Android on Google Play
 
 1. play.google.com/console: developer account (one-time fee), then Create app
@@ -127,12 +138,11 @@ extra.
    download the .aab from expo.dev → Projects → antiskino → Builds.
 4. Play Console → Testing → Internal testing → Create release → upload the
    .aab. Test it, then promote it to Production.
-5. Store listing graphics are in `assets/store/`: the 512 px icon and the
-   1024×500 feature graphic in Greek and English. Take the phone screenshots on
-   the installed app. Store listing: privacy policy `https://<domain>/privacy`; account deletion
-   `https://<domain>/delete-account`; Data safety: personal info (name, email,
-   phone), app activity (reviews), device IDs (the push token); no location;
-   encrypted in transit; users can delete their data.
+5. Store listing: `assets/store/listing.md` has the texts in Greek and
+   English (name, short and full description), the Data safety answers and
+   the other App content answers, ready to paste. The graphics are next to it:
+   the 512 px icon and the 1024×500 feature graphic in Greek and English. Take
+   the phone screenshots on the installed app.
 6. The preview APK and the Play app share the package name: uninstall the
    preview before installing from Play.
 
@@ -142,3 +152,32 @@ extra.
   (no commits for 60 days), open it and press Run workflow.
 - The free plan has no daily backups: move production to a paid plan before
   real traffic.
+
+## 7. iPhone app on the App Store (after Android)
+
+Needs an Apple Developer account (99 USD a year; as a company once the
+business is registered, so the store shows its name). Everything is in
+browsers; EAS creates the signing certificate, provisioning profile and push
+key itself.
+
+1. developer.apple.com → enrol. Note the **Team ID** (Membership details).
+2. appstoreconnect.apple.com → Apps → + New App: iOS, name "Antiskino",
+   language Greek, bundle ID `gr.antiskino.app` (register it first under
+   Certificates, Identifiers & Profiles → Identifiers if it isn't offered),
+   SKU `antiskino`. Note the app's **Apple ID** (App Information).
+3. App Store Connect → Users and Access → Integrations → App Store Connect
+   API → Team Keys → + : name `EAS`, access **Admin**. Download the .p8 file
+   (only once) and note the **Key ID** and the **Issuer ID** above the list.
+4. GitHub secrets: `APPLE_ASC_KEY_P8` (the whole .p8 file, opened as text),
+   `APPLE_ASC_KEY_ID`, `APPLE_ASC_ISSUER_ID`. Variables: `APPLE_TEAM_ID`,
+   `IOS_ASC_APP_ID` (the app's Apple ID), and `APPLE_TEAM_TYPE` =
+   `COMPANY_OR_ORGANIZATION` for a company account (default `INDIVIDUAL`).
+5. Actions → **iOS build** → Run workflow → `preview` (against the dev
+   project). About 30–45 minutes later it is in TestFlight: install the
+   TestFlight app on the iPhone and accept the invitation App Store Connect
+   sends (add yourself under TestFlight → Internal Testing).
+6. For the store: run it again with `production` (after a Release), then in
+   App Store Connect fill in the listing (the texts in
+   `assets/store/listing.md` fit; screenshots from the iPhone), App Privacy
+   (the same answers as Play's Data safety), and submit the build for review.
+   The app is iPhone only, so no iPad screenshots are needed.

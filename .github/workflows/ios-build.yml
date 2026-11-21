@@ -1,0 +1,28 @@
+name: iOS build
+
+# The iPhone app on EAS, by hand: Actions → iOS build → Run workflow, choosing
+# preview (against the dev project) or production (after a Release). With the
+# IOS_ASC_APP_ID variable the build goes to TestFlight about 30 minutes later.
+# Needs an Apple Developer account: see docs/launch.md (iOS) and app-build.yml.
+
+on:
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: preview (dev project) or production
+        type: choice
+        options:
+          - preview
+          - production
+        default: preview
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    uses: ./.github/workflows/app-build.yml
+    with:
+      profile: ${{ inputs.profile }}
+      platform: ios
+    secrets: inherit

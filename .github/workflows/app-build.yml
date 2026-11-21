@@ -1,15 +1,19 @@
-name: Android build
+name: App build
 
-# The Android build on EAS (Expo's build service), shared by the two workflows
-# you run by hand:
+# The app builds on EAS (Expo's build service), shared by the workflows you run
+# by hand:
 # - "Android preview build" (android-preview.yml): an APK against the dev
 #   project, to install from expo.dev → Projects → antiskino → Builds;
 # - "Android release build" (android-release.yml): an app bundle (AAB) against
-#   production, to upload to Google Play.
+#   production, to upload to Google Play;
+# - "iOS build" (ios-build.yml): preview or production, sent to TestFlight.
 # EAS takes about 15 minutes after this workflow ends. Needs the EXPO_TOKEN
 # secret (expo.dev → Account settings → Access tokens); GOOGLE_SERVICES_JSON
 # (Firebase) turns on Android pushes. The first run created the EAS project and
-# the Android signing key; later runs reuse them.
+# the Android signing key; later runs reuse them. iOS needs an App Store Connect
+# API key (APPLE_ASC_KEY_P8, APPLE_ASC_KEY_ID, APPLE_ASC_ISSUER_ID secrets and
+# the APPLE_TEAM_ID variable), with which EAS creates and keeps the signing
+# certificate, provisioning profile and push key.
 
 on:
   workflow_call:
@@ -18,6 +22,10 @@ on:
         description: The eas.json build profile, preview or production
         type: string
         required: true
+      platform:
+        description: android or ios
+        type: string
+        default: android
 
 permissions:
   contents: read
@@ -28,11 +36,11 @@ env:
 
 jobs:
   build:
-    name: EAS build (${{ inputs.profile }})
+    name: EAS build (${{ inputs.platform }}, ${{ inputs.profile }})
     runs-on: ubuntu-latest
     timeout-minutes: 20
     concurrency:
-      group: android-${{ inputs.profile }}
+      group: ${{ inputs.platform }}-${{ inputs.profile }}
       cancel-in-progress: false
     steps:
       - name: Check the Expo token
@@ -67,6 +75,7 @@ jobs:
       # GOOGLE_SERVICES_JSON secret (the content of google-services.json). Without
       # it the build still works, with no pushes on Android.
       - name: Firebase config for pushes
+        if: inputs.platform == 'android'
         env:
           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
         run: |
@@ -125,9 +134,60 @@ jobs:
             fs.writeFileSync('eas.json', JSON.stringify(eas, null, 2));
           "
 
+      # Readable stack traces: with the SENTRY_AUTH_TOKEN secret, the build
+      # uploads its source maps to Sentry (Sentry's Expo plugin in this
+      # checkout's app.json; the token as a secret EAS variable).
+      - name: Source maps for Sentry
+        env:
+          SENTRY_AUTH_TOKEN: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          SENTRY_ORG: ${{ vars.SENTRY_ORG }}
+          SENTRY_PROJECT: ${{ vars.SENTRY_PROJECT }}
+        run: node scripts/eas-sentry.js "${{ inputs.profile }}"
+
+      # iOS signing: EAS logs in to Apple with the App Store Connect API key and
+      # creates (first run) or reuses the certificate, provisioning profile and
+      # push key. With the IOS_ASC_APP_ID variable (the app's Apple ID in App
+      # Store Connect → App Information) each build is sent to TestFlight.
+      - name: Apple credentials
+        if: inputs.platform == 'ios'
+        env:
+          PROFILE: ${{ inputs.profile }}
+          APPLE_ASC_KEY_P8: ${{ secrets.APPLE_ASC_KEY_P8 }}
+          APPLE_ASC_KEY_ID: ${{ secrets.APPLE_ASC_KEY_ID }}
+          APPLE_ASC_ISSUER_ID: ${{ secrets.APPLE_ASC_ISSUER_ID }}
+          APPLE_TEAM_ID: ${{ vars.APPLE_TEAM_ID }}
+          APPLE_TEAM_TYPE: ${{ vars.APPLE_TEAM_TYPE || 'INDIVIDUAL' }}
+          IOS_ASC_APP_ID: ${{ vars.IOS_ASC_APP_ID }}
+        run: |
+          if [ -z "$APPLE_ASC_KEY_P8" ] || [ -z "$APPLE_ASC_KEY_ID" ] || [ -z "$APPLE_ASC_ISSUER_ID" ] || [ -z "$APPLE_TEAM_ID" ]; then
+            echo "::error::An iOS build needs the secrets APPLE_ASC_KEY_P8 (the .p8 file's content), APPLE_ASC_KEY_ID, APPLE_ASC_ISSUER_ID and the variable APPLE_TEAM_ID: see docs/launch.md (iOS)."
+            exit 1
+          fi
+          key="$RUNNER_TEMP/asc-api-key.p8"
+          printf '%s\n' "$APPLE_ASC_KEY_P8" > "$key"
+          {
+            echo "EXPO_ASC_API_KEY_PATH=$key"
+            echo "EXPO_ASC_KEY_ID=$APPLE_ASC_KEY_ID"
+            echo "EXPO_ASC_ISSUER_ID=$APPLE_ASC_ISSUER_ID"
+            echo "EXPO_APPLE_TEAM_ID=$APPLE_TEAM_ID"
+            echo "EXPO_APPLE_TEAM_TYPE=$APPLE_TEAM_TYPE"
+          } >> "$GITHUB_ENV"
+          if [ -n "$IOS_ASC_APP_ID" ]; then
+            node -e "
+              const fs = require('fs');
+              const eas = JSON.parse(fs.readFileSync('eas.json', 'utf8'));
+              eas.submit = eas.submit || {};
+              eas.submit[process.env.PROFILE] = { ios: { ascAppId: process.env.IOS_ASC_APP_ID } };
+              fs.writeFileSync('eas.json', JSON.stringify(eas, null, 2));
+            "
+            echo "AUTO_SUBMIT=--auto-submit" >> "$GITHUB_ENV"
+          else
+            echo "::warning::IOS_ASC_APP_ID is not set: the build is not sent to TestFlight."
+          fi
+
       # EAS_NO_VCS: upload this checkout as it is now (with the project id and
       # settings above), leaving out what .gitignore lists.
       - name: Start the build on EAS
         env:
           EAS_NO_VCS: 1
-        run: eas build --platform android --profile "${{ inputs.profile }}" --non-interactive --no-wait
+        run: eas build --platform "${{ inputs.platform }}" --profile "${{ inputs.profile }}" --non-interactive --no-wait $AUTO_SUBMIT

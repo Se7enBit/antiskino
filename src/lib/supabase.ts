@@ -1,4 +1,4 @@
-import { createClient, processLock, type SupabaseClient } from '@supabase/supabase-js';
+import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 import { z } from 'zod';
 
 import type { Database } from '@/api/database.types';
@@ -62,7 +62,6 @@ export function createSupabaseClient(env: SupabaseEnv): AppSupabaseClient {
       persistSession: storage !== undefined,
       autoRefreshToken: true,
       detectSessionInUrl: false,
-      lock: processLock,
     },
   });
 }

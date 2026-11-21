@@ -5,6 +5,7 @@
   },
   "build": {
     "preview": {
+      "environment": "preview",
       "distribution": "internal",
       "autoIncrement": true,
       "android": {
@@ -13,9 +14,13 @@
       "env": {
         "EXPO_NO_TELEMETRY": "1",
         "EXPO_PUBLIC_SHOW_FATAL_ERRORS": "1"
+      },
+      "ios": {
+        "distribution": "store"
       }
     },
     "production": {
+      "environment": "production",
       "autoIncrement": true,
       "android": {
         "buildType": "app-bundle"
