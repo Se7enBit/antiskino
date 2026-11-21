@@ -96,6 +96,8 @@ jobs:
           cp "$GITHUB_WORKSPACE/site/+not-found.html" "$GITHUB_WORKSPACE/site/404.html"
           # JSON-LD, sitemap.xml and robots.txt (with the script from main).
           node "$GITHUB_WORKSPACE/scripts/seo.js" "$GITHUB_WORKSPACE/site"
+          # Content-Security-Policy for every page (production's Supabase and Sentry).
+          node "$GITHUB_WORKSPACE/scripts/csp.js" "$GITHUB_WORKSPACE/site"
           # Source maps to Sentry, then out of the site.
           node "$GITHUB_WORKSPACE/scripts/sentry-sourcemaps.js" "$GITHUB_WORKSPACE/site"
 
@@ -129,6 +131,7 @@ jobs:
           npx expo export -p web --source-maps --output-dir "$OUT"
           # JSON-LD only: previews carry a noindex tag and get no sitemap.
           node scripts/seo.js "$OUT"
+          node scripts/csp.js "$OUT"
           node scripts/sentry-sourcemaps.js "$OUT"
           if [ -z "$CUSTOM_DOMAIN" ]; then cp "site/+not-found.html" site/404.html; fi
 

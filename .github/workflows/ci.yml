@@ -155,6 +155,7 @@ jobs:
         run: |
           npx expo export -p web
           node scripts/seo.js dist
+          node scripts/csp.js dist
           cp "dist/+not-found.html" dist/404.html
       - name: Install Chromium for Playwright
         run: npx playwright install --with-deps chromium

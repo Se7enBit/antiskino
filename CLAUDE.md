@@ -71,6 +71,7 @@ The owner mostly works from a phone, so:
 - Platform-specific code uses `*.native.tsx` / `*.web.tsx` (e.g. maps).
 - Static web hosting can't serve unknown dynamic paths: screens with ids take query parameters (`/admin/partner?id=`); use `[param]` segments only with `generateStaticParams`.
 - The partner area must work at 360 px wide and on desktop.
+- The website has a Content-Security-Policy (`scripts/csp.js`): a new outside service the web app calls or loads from (API, images, scripts) must be added there, or the browser blocks it. The end-to-end test fails on violations.
 - Prefer small, readable modules over clever abstractions.
 
 ### Scope
