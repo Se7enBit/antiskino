@@ -6,6 +6,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query';
 
+import type { GuestContact } from '@/domain/booking';
 import type { BookingRange } from '@/domain/partnerBookings';
 import type { CampingStatus } from '@/domain/roles';
 import { getSupabase } from '@/lib/supabase';
@@ -149,3 +150,26 @@ export function useAdminBookings(range: BookingRange) {
 }
 
 export type AdminBooking = NonNullable<ReturnType<typeof useAdminBookings>['data']>[number];
+
+/** Corrects the guest's contact details on a booking (admins only; admin_update_booking_guest). */
+export function useUpdateBookingGuest() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ bookingId, guest }: { bookingId: string; guest: GuestContact }) => {
+      const { error } = await getSupabase().rpc('admin_update_booking_guest', {
+        p_booking_id: bookingId,
+        p_name: guest.name,
+        p_email: guest.email,
+        p_phone: guest.phone,
+        p_country: guest.country,
+        p_locale: guest.locale,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['partner'] }),
+        queryClient.invalidateQueries({ queryKey: ['admin'] }),
+      ]),
+  });
+}

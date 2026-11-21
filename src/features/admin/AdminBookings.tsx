@@ -1,4 +1,5 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { router } from 'expo-router';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { ADMIN_BOOKINGS_LIMIT, useAdminBookings, type AdminBooking } from '@/api/admin';
 import { useLanguage, useT } from '@/i18n';
@@ -10,7 +11,7 @@ import { BookingFilters, useBookingFilters } from '../bookings/BookingFilters';
 import { ErrorState } from '../common/ErrorState';
 import { STATUS_TONES } from '../partner/bookings/statusTones';
 
-/** /admin/bookings: every camping's bookings, read-only (SPEC F12). */
+/** /admin/bookings: every camping's bookings; each opens its page with the admin's actions (SPEC F12). */
 export function AdminBookings() {
   const t = useT();
   const filters = useBookingFilters(todayInAthens());
@@ -46,7 +47,12 @@ function AdminBookingRow({ booking }: { booking: AdminBooking }) {
   const t = useT();
   const { language } = useLanguage();
   return (
-    <View style={styles.row} testID={`admin-booking-${booking.ref}`}>
+    <Pressable
+      accessibilityRole="link"
+      onPress={() => router.push({ pathname: '/admin/booking', params: { ref: booking.ref } })}
+      style={({ pressed }) => [styles.row, pressed && styles.pressed]}
+      testID={`admin-booking-${booking.ref}`}
+    >
       <View style={styles.top}>
         <Text style={styles.name}>
           {booking.camping?.name} · {booking.guest_name}
@@ -64,7 +70,7 @@ function AdminBookingRow({ booking }: { booking: AdminBooking }) {
           amount: formatMoney(booking.commission_cents, language),
         })}
       </BodyText>
-    </View>
+    </Pressable>
   );
 }
 
@@ -83,4 +89,5 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   name: { flex: 1, fontSize: 16, fontWeight: '700', color: colors.text },
+  pressed: { opacity: 0.6 },
 });

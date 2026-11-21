@@ -23,8 +23,11 @@ export function BookingTimeline({ events, createdAt }: Props) {
         <View key={event.id} style={styles.event} testID={`event-${event.to_status}`}>
           <Text style={styles.time}>{formatDateTime(event.at, language)}</Text>
           <BodyText>
-            {t(`bookingStatus.${event.to_status}`)} ·{' '}
-            {t(`partner.booking.actor.${event.actor_kind}`)}
+            {/* Same status before and after: the guest's details were corrected. */}
+            {event.from_status === event.to_status
+              ? t('partner.booking.detailsChanged')
+              : t(`bookingStatus.${event.to_status}`)}{' '}
+            · {t(`partner.booking.actor.${event.actor_kind}`)}
           </BodyText>
           {event.note ? <BodyText>{event.note}</BodyText> : null}
         </View>

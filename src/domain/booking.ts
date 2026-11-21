@@ -107,6 +107,18 @@ export const guestFormSchema = z.object({
   note: optional(z.string().max(1000)),
 }) satisfies z.ZodType<GuestDetails, GuestForm>;
 
+/** The guest's contact details an admin can correct on a booking. */
+export const guestContactSchema = guestFormSchema.pick({
+  name: true,
+  email: true,
+  phone: true,
+  country: true,
+  locale: true,
+});
+
+export type GuestContactForm = Pick<GuestForm, 'name' | 'email' | 'phone' | 'country' | 'locale'>;
+export type GuestContact = z.output<typeof guestContactSchema>;
+
 // ---------------------------------------------------------------------------
 // What the steps show
 // ---------------------------------------------------------------------------
