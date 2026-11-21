@@ -80,7 +80,8 @@ Antiskino is in Greek and English. Questions: [contact email]
 
 - App icon: `play-icon-512.png` (512 × 512)
 - Feature graphic: `feature-graphic-el.png` / `feature-graphic-en.png` (1024 × 500)
-- Phone screenshots (2–8, take them on the installed app): Home search · results on the map · a camping page with reviews · booking step 3 (review) · the booking confirmation · My bookings · partner Today
+- Phone screenshots (1080 × 1920, six per language, upload in order): `screenshots/el/` for the Greek listing, `screenshots/en/` for the English one. Search · results · a camping page · its pitch types · the price of a stay · the partner's Today screen, each under a caption. They show three demo campings with drawn photos; once real campings are live, swap in real ones.
+- To regenerate them after the app changes (Claude can do it): `node scripts/store-screenshots/run.js`. It builds the website against a fake backend with the demo campings (`scripts/store-screenshots/fake-supabase.js`) and photographs it with Playwright.
 
 ## Data safety (Policy → App content → Data safety)
 
