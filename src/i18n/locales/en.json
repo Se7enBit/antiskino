@@ -666,6 +666,7 @@
       },
       "commission": "Antiskino commission: {{amount}}",
       "history": "History",
+      "detailsChanged": "Guest details corrected",
       "created": "Booked on {{time}}",
       "actor": {
         "guest": "by the guest",
@@ -805,6 +806,13 @@
       "title": "Bookings",
       "commission": "commission {{amount}}",
       "limit": "Showing the latest {{count}} stays in these dates. Narrow the dates to see others."
+    },
+    "booking": {
+      "title": "Booking",
+      "actingAs": "You act as Antiskino: every change shows in the booking's history.",
+      "editGuest": "Correct guest details",
+      "saveGuest": "Save details",
+      "saved": "Guest details corrected."
     },
     "commission": {
       "title": "Commission",

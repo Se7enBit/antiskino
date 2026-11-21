@@ -64,8 +64,12 @@ export function usePartnerBookingAction() {
       });
       if (error) throw error;
     },
-    // Inventory changes too (declines and cancellations free nights).
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['partner'] }),
+    // Inventory changes too (declines and cancellations free nights); admins act here too.
+    onSuccess: () =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['partner'] }),
+        queryClient.invalidateQueries({ queryKey: ['admin'] }),
+      ]),
   });
 }
 

@@ -1,4 +1,5 @@
 import { useLocalSearchParams } from 'expo-router';
+import type { ReactNode } from 'react';
 import { Linking, StyleSheet, Text, View } from 'react-native';
 
 import {
@@ -44,7 +45,14 @@ export function BookingDetailScreen() {
   return <Screen>{body}</Screen>;
 }
 
-function BookingDetail({ booking }: { booking: PartnerBooking }) {
+type DetailProps = {
+  booking: PartnerBooking;
+  /** Shown at the end of the Guest card (the admin's correction form). */
+  guestExtra?: ReactNode;
+};
+
+/** The booking page's content, shared by the partner and the admin pages. */
+export function BookingDetail({ booking, guestExtra }: DetailProps) {
   const t = useT();
   const { language } = useLanguage();
   const action = usePartnerBookingAction();
@@ -130,6 +138,7 @@ function BookingDetail({ booking }: { booking: PartnerBooking }) {
             onPress={() => void Linking.openURL(`mailto:${booking.guest_email}`)}
           />
         </View>
+        {guestExtra}
       </Card>
 
       <Card title={t('partner.booking.stay')}>

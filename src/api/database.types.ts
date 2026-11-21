@@ -1004,6 +1004,17 @@ export type Database = {
     };
     Functions: {
       accept_partner_invite: { Args: { p_token: string }; Returns: Json };
+      admin_update_booking_guest: {
+        Args: {
+          p_booking_id: string;
+          p_country: string;
+          p_email: string;
+          p_locale: string;
+          p_name: string;
+          p_phone: string;
+        };
+        Returns: undefined;
+      };
       athens_today: { Args: Record<PropertyKey, never>; Returns: string };
       booking_view: { Args: { p_booking_id: string }; Returns: Json };
       camping_is_live: { Args: { p_camping_id: string }; Returns: boolean };
