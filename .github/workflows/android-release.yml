@@ -3,7 +3,7 @@ name: Android release build
 # The Google Play build (an app bundle, .aab) against production, by hand:
 # Actions → Android release build → Run workflow, after a Release. Download it
 # from expo.dev → Projects → antiskino → Builds and upload it in Google Play
-# Console (the first upload has to be by hand). See android-build.yml.
+# Console (the first upload has to be by hand). See app-build.yml.
 
 on:
   workflow_dispatch:
@@ -13,7 +13,7 @@ permissions:
 
 jobs:
   build:
-    uses: ./.github/workflows/android-build.yml
+    uses: ./.github/workflows/app-build.yml
     with:
       profile: production
     secrets: inherit

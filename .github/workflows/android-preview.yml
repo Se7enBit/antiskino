@@ -2,7 +2,7 @@ name: Android preview build
 
 # The preview APK against the dev project, by hand: Actions → Android preview
 # build → Run workflow. About 15 minutes later it is on expo.dev → Projects →
-# antiskino → Builds, with an install link. See android-build.yml.
+# antiskino → Builds, with an install link. See app-build.yml.
 
 on:
   workflow_dispatch:
@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   build:
-    uses: ./.github/workflows/android-build.yml
+    uses: ./.github/workflows/app-build.yml
     with:
       profile: preview
     secrets: inherit
