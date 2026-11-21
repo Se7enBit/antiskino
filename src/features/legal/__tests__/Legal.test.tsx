@@ -34,7 +34,7 @@ describe('legal pages', () => {
       screen.getByText(/^Antiskino is run by \[Business name\], \[Address\], Tax ID \[Tax ID\]\./),
     ).toBeOnTheScreen();
     expect(screen.getByText('10. Changes')).toBeOnTheScreen();
-    expect(screen.getByText('Last updated 20/11/2026')).toBeOnTheScreen();
+    expect(screen.getByText('Last updated 21/11/2026')).toBeOnTheScreen();
   });
 
   it('show list items as separate lines', async () => {
