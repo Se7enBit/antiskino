@@ -513,10 +513,10 @@ Hosted checkout (redirect to `checkoutUrl`) keeps card data out of the app on al
 5. **Reception:** Today, booking detail actions, assign pitch, check-in/no-show, realtime, push notifications. *Push delivery is live on the server; phones receive pushes once the EAS preview APK exists (M6).*
 6. **Reviews, favorites, polish:** review invites, replies, moderation; favorites; empty/error states; Android preview APK. **Field test with the first camping** using its real pitch types, seasons and prices.
 7. **Launch (on-site payment):** custom domain (also the Resend sending domain, so guest emails go out), Supabase production project and plan, terms/privacy, commission statements, store listings (Android first, then iOS).
-8. **Online payments:** pick the provider, implement `PaymentProvider`, deposit/full modes, request-mode authorize/capture, refunds, platform fee, partner payout onboarding.
+8. **Online payments:** pick the provider, implement `PaymentProvider`, deposit/full modes, request-mode authorize/capture, refunds, platform fee, partner payout onboarding. Build plan: `docs/payments-plan.md`.
 
 ## 10. Open questions
-- **Payment provider** (Stripe Connect vs Viva.com): decide before M8 on fees, payouts, local card coverage, and who is the merchant of record.
+- **Payment provider** (Stripe Connect vs Viva.com, with Everypay as a Greek alternative): decide before M8 on fees, payouts, local card coverage, and who is the merchant of record. Research (November 2026) recommends Stripe Connect; the open questions are in `docs/payments-plan.md` §1.
 - **Commission rate**, and whether the first camping gets a founding rate.
 - **Invoicing:** the camping issues receipts for stays; Antiskino invoices commission to partners. Confirm with an accountant (myDATA obligations, VAT on commission).
 - **Local fees:** reports indicate campsites are exempt from Greece's Climate Crisis Resilience Fee. Confirm with the first camping; the `fees` table covers any charge that does apply.
