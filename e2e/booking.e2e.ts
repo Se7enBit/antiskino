@@ -43,10 +43,20 @@ test('the demo camping page is pre-rendered with its title and description', asy
     geo: { '@type': 'GeoCoordinates' },
   });
   expect(html).toContain('<meta name="robots" content="noindex, nofollow"/>');
+  // The Content-Security-Policy (scripts/csp.js), first in <head>, with the
+  // page's inline script allowed by its hash.
+  expect(html).toMatch(
+    /<head[^>]*><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'sha256-[A-Za-z0-9+/=]+'/,
+  );
 });
 
 test('a guest books without an account, then cancels with the manage link', async ({ page }) => {
   const before = bookedOn('2027-07-10');
+  // The whole flow runs under the site's Content-Security-Policy without breaking it.
+  const violations: string[] = [];
+  page.on('console', (message) => {
+    if (/Content Security Policy/i.test(message.text())) violations.push(message.text());
+  });
 
   // The camping page quotes the stay; book the tent pitch.
   await page.goto(`c/demo-thalassa?${STAY}`);
@@ -101,4 +111,5 @@ test('a guest books without an account, then cancels with the manage link', asyn
   // Nothing was paid online, so nothing is refunded; the nights are free again.
   expect(sql(`select refunded_cents from public.bookings where ref = '${ref}'`)).toBe('0');
   expect(bookedOn('2027-07-10')).toBe(before);
+  expect(violations).toEqual([]);
 });

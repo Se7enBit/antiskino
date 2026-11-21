@@ -1,3 +1,6 @@
+// First: zod settings before any schema runs.
+import '@/lib/zodConfig';
+
 import { Stack, type ErrorBoundaryProps } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 
