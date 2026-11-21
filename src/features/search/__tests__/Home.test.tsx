@@ -143,7 +143,7 @@ describe('Home search', () => {
     expect(screen.queryByTestId('search-submit')).toBeNull();
     await fireEvent.press(screen.getByText('camping page: c0'));
     expect(router.push).toHaveBeenCalledWith({
-      pathname: '/c/[slug]',
+      pathname: '/en/c/[slug]',
       params: {
         slug: 'c0',
         arrival: '2027-07-10',

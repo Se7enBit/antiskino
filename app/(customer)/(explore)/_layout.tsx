@@ -11,6 +11,7 @@ export default function ExploreLayout() {
       <Stack.Screen name="search" options={{ title: t('search.results') }} />
       {/* The page sets its title to the camping's name once loaded. */}
       <Stack.Screen name="c/[slug]/index" options={{ title: '' }} />
+      <Stack.Screen name="en/c/[slug]/index" options={{ title: '' }} />
       <Stack.Screen name="book" options={{ title: t('booking.title') }} />
     </Stack>
   );

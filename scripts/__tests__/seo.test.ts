@@ -1,4 +1,4 @@
-import { robotsTxt, sitemapPaths, sitemapXml, withJsonLd } from '../seo';
+import { robotsTxt, sitemapPaths, sitemapXml, withJsonLd, withPageLanguage } from '../seo';
 
 describe('seo post-export step', () => {
   it('turns the JSON-LD meta tag into a script that cannot be closed early', () => {
@@ -18,10 +18,23 @@ describe('seo post-export step', () => {
         'search.html',
         'c/[slug].html',
         'c/demo-thalassa/index.html',
+        'en/c/demo-thalassa/index.html',
+        'en/c/[slug].html',
         '(customer)/c/demo-thalassa/index.html',
+        '(customer)/(explore)/en/c/demo-thalassa/index.html',
         'partner/index.html',
       ]),
-    ).toEqual(['', 'c/demo-thalassa/', 'privacy', 'terms']);
+    ).toEqual(['', 'c/demo-thalassa/', 'en/c/demo-thalassa/', 'privacy', 'terms']);
+  });
+
+  it('marks English camping pages as English', () => {
+    const page = '<!DOCTYPE html><html lang="el"><head></head></html>';
+    expect(withPageLanguage('en/c/thalassa/index.html', page)).toContain('<html lang="en"');
+    expect(withPageLanguage('(customer)/(explore)/en/c/thalassa/index.html', page)).toContain(
+      '<html lang="en"',
+    );
+    expect(withPageLanguage('c/thalassa/index.html', page)).toBe(page);
+    expect(withPageLanguage('terms.html', page)).toBe(page);
   });
 
   it('writes the sitemap and robots.txt for the site', () => {

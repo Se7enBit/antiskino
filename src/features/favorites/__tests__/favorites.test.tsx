@@ -141,7 +141,7 @@ describe('Favorites tab', () => {
     expect(screen.queryByText('Sign in to keep your favorites on all your devices.')).toBeNull();
     await fireEvent.press(screen.getByTestId('favorite-camping-thalassa'));
     expect(router.push).toHaveBeenCalledWith({
-      pathname: '/c/[slug]',
+      pathname: '/en/c/[slug]',
       params: { slug: 'thalassa' },
     });
     const heart = screen.getByLabelText('Remove Camping Thalassa from favorites');

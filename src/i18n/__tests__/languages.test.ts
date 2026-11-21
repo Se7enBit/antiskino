@@ -1,4 +1,4 @@
-import { isLanguage, otherLanguage, pickLanguage } from '../languages';
+import { isLanguage, languageOfPath, otherLanguage, pickLanguage } from '../languages';
 
 describe('languages', () => {
   it('picks the first supported device language', () => {
@@ -20,5 +20,17 @@ describe('languages', () => {
     expect(isLanguage(undefined)).toBe(false);
     expect(otherLanguage('el')).toBe('en');
     expect(otherLanguage('en')).toBe('el');
+  });
+});
+
+describe('languageOfPath', () => {
+  it('takes the language from camping page addresses only', () => {
+    expect(languageOfPath('/c/thalassa')).toBe('el');
+    expect(languageOfPath('/en/c/thalassa')).toBe('en');
+    expect(languageOfPath('/en/c/thalassa/')).toBe('en');
+    expect(languageOfPath('/')).toBeNull();
+    expect(languageOfPath('/search')).toBeNull();
+    expect(languageOfPath('/en')).toBeNull();
+    expect(languageOfPath('/partner/bookings')).toBeNull();
   });
 });

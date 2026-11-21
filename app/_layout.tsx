@@ -1,7 +1,7 @@
 // First: zod settings before any schema runs.
 import '@/lib/zodConfig';
 
-import { Stack, type ErrorBoundaryProps } from 'expo-router';
+import { Stack, usePathname, type ErrorBoundaryProps } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 
 import { AuthProvider } from '@/api/auth';
@@ -9,11 +9,13 @@ import { QueryProvider } from '@/api/QueryProvider';
 import { CrashScreen } from '@/features/common/CrashScreen';
 import { FavoritesSync } from '@/features/favorites/FavoritesSync';
 import { PushSetup } from '@/features/push/PushSetup';
-import { LanguageProvider } from '@/i18n';
+import { LanguageProvider, languageOfPath } from '@/i18n';
 
 export default function RootLayout() {
+  // Camping pages on the web take their language from the address.
+  const pathname = usePathname();
   return (
-    <LanguageProvider>
+    <LanguageProvider urlLanguage={languageOfPath(pathname)}>
       <QueryProvider>
         <AuthProvider>
           <StatusBar style="dark" />
