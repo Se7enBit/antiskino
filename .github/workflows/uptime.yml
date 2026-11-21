@@ -1,0 +1,73 @@
+name: Uptime check
+
+# Every 3 hours (and by hand: Actions → Uptime check → Run workflow) this opens
+# the website and runs a search through the `search` edge function, the way a
+# guest would. When something doesn't answer, the run fails and GitHub emails the
+# owner (Settings → Notifications → Actions: failed workflows).
+# Checked: the preview website and the dev project; once set up (CUSTOM_DOMAIN,
+# PROD_SUPABASE_URL / _KEY), production too. A search that finds no campings
+# still passes: it means the function and the database answered.
+# GitHub turns scheduled workflows off after 60 days without commits; Run
+# workflow turns it back on.
+
+on:
+  schedule:
+    - cron: '37 */3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Website and search
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      CUSTOM_DOMAIN: ${{ vars.CUSTOM_DOMAIN }}
+      DEV_URL: ${{ vars.EXPO_PUBLIC_SUPABASE_URL || secrets.EXPO_PUBLIC_SUPABASE_URL }}
+      DEV_KEY: ${{ vars.EXPO_PUBLIC_SUPABASE_KEY || secrets.EXPO_PUBLIC_SUPABASE_KEY }}
+      PROD_URL: ${{ vars.PROD_SUPABASE_URL }}
+      PROD_KEY: ${{ vars.PROD_SUPABASE_KEY || secrets.PROD_SUPABASE_KEY }}
+    steps:
+      - name: Check
+        run: |
+          failed=0
+          fail() { echo "::error::$1"; failed=1; }
+
+          # A page that answers 200 and is the app (its <title>).
+          page() {
+            local name="$1" url="$2" body status
+            body="$RUNNER_TEMP/page.html"
+            status=$(curl -sS -L -o "$body" -w '%{http_code}' --max-time 30 --retry 3 --retry-delay 20 --retry-all-errors "$url") || status=000
+            if [ "$status" != 200 ]; then fail "$name: $url answered HTTP $status."; return; fi
+            if ! grep -q '<title' "$body"; then fail "$name: $url answered, but not with the website."; return; fi
+            echo "$name: ok ($url)"
+          }
+
+          # A search for a stay a month ahead, as the app sends it.
+          search() {
+            local name="$1" url="$2" key="$3" arrival departure body status
+            if [ -z "$url" ] || [ -z "$key" ]; then echo "$name: not set up, skipped"; return; fi
+            arrival=$(date -u -d '+30 days' +%F)
+            departure=$(date -u -d '+32 days' +%F)
+            body="$RUNNER_TEMP/search.json"
+            status=$(curl -sS -o "$body" -w '%{http_code}' --max-time 30 --retry 3 --retry-delay 20 --retry-all-errors \
+              -H "apikey: $key" -H "Authorization: Bearer $key" -H 'Content-Type: application/json' \
+              -d "{\"arrival\":\"$arrival\",\"departure\":\"$departure\",\"adults\":2,\"childAges\":[],\"equipment\":\"tent\"}" \
+              "${url%/}/functions/v1/search") || status=000
+            if [ "$status" != 200 ]; then fail "$name: the search function answered HTTP $status."; return; fi
+            if ! node -e "const r=JSON.parse(require('fs').readFileSync(process.argv[1],'utf8')); if (!Array.isArray(r.results)) process.exit(1); console.log('$name: ok, ' + r.results.length + ' camping(s) available')" "$body"; then
+              fail "$name: the search function answered without results."
+            fi
+          }
+
+          if [ -n "$CUSTOM_DOMAIN" ]; then
+            page "Production website" "https://$CUSTOM_DOMAIN/"
+            page "Preview website" "https://$CUSTOM_DOMAIN/preview/"
+          else
+            page "Preview website" "https://${GITHUB_REPOSITORY_OWNER,,}.github.io/${GITHUB_REPOSITORY#*/}/"
+          fi
+          search "Dev search" "$DEV_URL" "$DEV_KEY"
+          search "Production search" "$PROD_URL" "$PROD_KEY"
+          exit $failed
