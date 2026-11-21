@@ -127,12 +127,11 @@ extra.
    download the .aab from expo.dev → Projects → antiskino → Builds.
 4. Play Console → Testing → Internal testing → Create release → upload the
    .aab. Test it, then promote it to Production.
-5. Store listing graphics are in `assets/store/`: the 512 px icon and the
-   1024×500 feature graphic in Greek and English. Take the phone screenshots on
-   the installed app. Store listing: privacy policy `https://<domain>/privacy`; account deletion
-   `https://<domain>/delete-account`; Data safety: personal info (name, email,
-   phone), app activity (reviews), device IDs (the push token); no location;
-   encrypted in transit; users can delete their data.
+5. Store listing: `assets/store/listing.md` has the texts in Greek and
+   English (name, short and full description), the Data safety answers and
+   the other App content answers, ready to paste. The graphics are next to it:
+   the 512 px icon and the 1024×500 feature graphic in Greek and English. Take
+   the phone screenshots on the installed app.
 6. The preview APK and the Play app share the package name: uninstall the
    preview before installing from Play.
 
