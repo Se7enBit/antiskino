@@ -62,6 +62,8 @@
   },
   "camping": {
     "notFound": "This camping isn't on Antiskino right now.",
+    "otherLanguage": "Ελληνικά",
+    "otherLanguageLabel": "This page in Greek",
     "draft": "Not published yet: guests can't see this page.",
     "checkAvailability": "Check availability",
     "yourStay": "Your stay",

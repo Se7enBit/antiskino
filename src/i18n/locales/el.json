@@ -62,6 +62,8 @@
   },
   "camping": {
     "notFound": "Αυτό το κάμπινγκ δεν είναι διαθέσιμο στο Antiskino αυτή τη στιγμή.",
+    "otherLanguage": "English",
+    "otherLanguageLabel": "Η σελίδα στα αγγλικά",
     "draft": "Δεν έχει δημοσιευτεί ακόμα: οι επισκέπτες δεν βλέπουν αυτή τη σελίδα.",
     "checkAvailability": "Έλεγξε διαθεσιμότητα",
     "yourStay": "Η διαμονή σου",

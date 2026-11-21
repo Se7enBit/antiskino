@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react';
 
-import { i18n, LanguageProvider } from '@/i18n';
+import { i18n, LanguageProvider, type Language } from '@/i18n';
 
 // react-dom has no type package here; this is the one function the test needs.
 const { renderToStaticMarkup } = jest.requireActual<{
@@ -40,19 +40,21 @@ afterAll(() => {
   process.env.EXPO_PUBLIC_SITE_URL = savedSiteUrl;
 });
 
-const html = (slug: string) =>
+const html = (slug: string, pageLanguage: Language = 'el') =>
   renderToStaticMarkup(
     <LanguageProvider>
-      <CampingHead slug={slug} />
+      <CampingHead slug={slug} pageLanguage={pageLanguage} />
     </LanguageProvider>,
   );
 
 describe('CampingHead (pre-rendered camping page)', () => {
   it('has the title, description and og:image of the camping', async () => {
     await i18n.changeLanguage('en');
+    // The Greek page describes the camping in Greek, whatever the UI language.
     const head = html('thalassa');
     expect(head).toContain('<title>Camping Thalassa · Antiskino</title>');
-    expect(head).toContain('<meta name="description" content="By the sea"/>');
+    expect(head).toContain('<meta name="description" content="Δίπλα στη θάλασσα"/>');
+    expect(head).toContain('<meta property="og:locale" content="el_GR"/>');
     expect(head).toContain('<meta property="og:title" content="Camping Thalassa"/>');
     expect(head).toContain(
       '<meta property="og:url" content="https://example.org/antiskino/c/thalassa/"/>',
@@ -63,10 +65,10 @@ describe('CampingHead (pre-rendered camping page)', () => {
   });
 
   it('carries the schema.org facts and the canonical address', async () => {
-    await i18n.changeLanguage('en');
-    const head = html('thalassa');
+    await i18n.changeLanguage('el');
+    const head = html('thalassa', 'en');
     expect(head).toContain(
-      '<link rel="canonical" href="https://example.org/antiskino/c/thalassa/"/>',
+      '<link rel="canonical" href="https://example.org/antiskino/en/c/thalassa/"/>',
     );
     const meta = /<meta name="antiskino:json-ld" content="([^"]*)"\/>/.exec(head)?.[1] ?? '';
     const ld: unknown = JSON.parse(meta.replaceAll('&quot;', '"').replaceAll('&amp;', '&'));
@@ -74,10 +76,26 @@ describe('CampingHead (pre-rendered camping page)', () => {
       '@type': 'Campground',
       name: 'Camping Thalassa',
       description: 'By the sea',
-      url: 'https://example.org/antiskino/c/thalassa/',
+      url: 'https://example.org/antiskino/en/c/thalassa/',
       geo: { latitude: 40.09, longitude: 23.98 },
       aggregateRating: { ratingValue: 4.5, reviewCount: 3 },
     });
+  });
+
+  it('links the Greek and English addresses, Greek as the default', () => {
+    for (const page of ['el', 'en'] as const) {
+      const head = html('thalassa', page);
+      expect(head).toContain(
+        '<link rel="alternate" hrefLang="el" href="https://example.org/antiskino/c/thalassa/"/>',
+      );
+      expect(head).toContain(
+        '<link rel="alternate" hrefLang="en" href="https://example.org/antiskino/en/c/thalassa/"/>',
+      );
+      expect(head).toContain(
+        '<link rel="alternate" hrefLang="x-default" href="https://example.org/antiskino/c/thalassa/"/>',
+      );
+    }
+    expect(html('thalassa', 'en')).toContain('<meta property="og:locale" content="en_GB"/>');
   });
 
   it('renders nothing for a camping that was not live at build time', () => {

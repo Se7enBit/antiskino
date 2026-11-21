@@ -50,6 +50,21 @@ test('the demo camping page is pre-rendered with its title and description', asy
   );
 });
 
+test('the English page of the camping is pre-rendered in English, linked with the Greek one', async ({
+  request,
+}) => {
+  const html = await (await request.get('en/c/demo-thalassa')).text();
+  expect(html).toContain('<html lang="en"');
+  expect(html).toContain('<title>Camping Thalassa (demo) · Antiskino</title>');
+  expect(html).toMatch(/<link rel="canonical" href="[^"]*\/en\/c\/demo-thalassa\/"\/>/);
+  expect(html).toMatch(/<link rel="alternate" hrefLang="el" href="[^"]*\/c\/demo-thalassa\/"\/>/);
+  const greek = await (await request.get('c/demo-thalassa')).text();
+  expect(greek).toContain('<html lang="el"');
+  expect(greek).toMatch(
+    /<link rel="alternate" hrefLang="en" href="[^"]*\/en\/c\/demo-thalassa\/"\/>/,
+  );
+});
+
 test('a guest books without an account, then cancels with the manage link', async ({ page }) => {
   const before = bookedOn('2027-07-10');
   // The whole flow runs under the site's Content-Security-Policy without breaking it.

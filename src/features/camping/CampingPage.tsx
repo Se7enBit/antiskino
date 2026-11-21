@@ -1,14 +1,14 @@
-import { router, Stack } from 'expo-router';
+import { Link, router, Stack } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Platform, StyleSheet, Text, View } from 'react-native';
 
 import { useCampingPage } from '@/api/camping';
 import { useCampingReviews } from '@/api/reviews';
 import { useSearch } from '@/api/search';
 import { bookingParams } from '@/domain/booking';
 import { pitchFromCents } from '@/domain/camping';
-import { queryFromRequest, type SearchRequest } from '@/domain/search';
-import { localized, useLanguage, useT } from '@/i18n';
+import { paramsFromRequest, queryFromRequest, type SearchRequest } from '@/domain/search';
+import { localized, otherLanguage, useLanguage, useT, type Language } from '@/i18n';
 import { todayInAthens } from '@/lib/dates';
 import { useHydrated } from '@/lib/useHydrated';
 import { BodyText, Button, Card, Icon, Loading, Notice, colors, spacing } from '@/ui';
@@ -24,9 +24,12 @@ import { CampingHead } from './CampingHead';
 import { CampingReviews } from './CampingReviews';
 import { Gallery } from './Gallery';
 import { PitchTypeCard, type PitchPrice } from './PitchTypeCard';
+import { campingPathname } from './routes';
 
 type Props = {
   slug: string | undefined;
+  /** The language of the page's address (camping pages); none in single-camping Home. */
+  pageLanguage?: Language;
   /** The stay to price, or null for "from" prices. */
   request: SearchRequest | null;
   onSearch: (request: SearchRequest) => void;
@@ -34,7 +37,7 @@ type Props = {
 };
 
 /** A camping's page (SPEC F2): gallery, availability and totals for the stay, details. */
-export function CampingPage({ slug, request, onSearch, onNotFound }: Props) {
+export function CampingPage({ slug, pageLanguage, request, onSearch, onNotFound }: Props) {
   const t = useT();
   const { language } = useLanguage();
   const hydrated = useHydrated();
@@ -55,6 +58,7 @@ export function CampingPage({ slug, request, onSearch, onNotFound }: Props) {
   const head = slug ? (
     <CampingHead
       slug={slug}
+      pageLanguage={pageLanguage ?? language}
       live={
         camping
           ? {
@@ -126,6 +130,21 @@ export function CampingPage({ slug, request, onSearch, onNotFound }: Props) {
         ) : null}
         <RatingSummary rating={reviews.data?.rating} />
         {shortDescr ? <BodyText>{shortDescr}</BodyText> : null}
+        {/* Web: the same page in the other language (its own address). */}
+        {pageLanguage && Platform.OS === 'web' ? (
+          <Link
+            replace
+            href={{
+              pathname: campingPathname(otherLanguage(pageLanguage)),
+              params: { slug: camping.slug, ...(request ? paramsFromRequest(request) : {}) },
+            }}
+            accessibilityLabel={t('camping.otherLanguageLabel')}
+            style={styles.otherLanguage}
+            testID="camping-other-language"
+          >
+            {t('camping.otherLanguage')}
+          </Link>
+        ) : null}
       </View>
 
       <Card title={request ? t('camping.yourStay') : t('camping.checkAvailability')}>
@@ -183,5 +202,11 @@ const styles = StyleSheet.create({
   title: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   name: { flex: 1, fontSize: 28, fontWeight: '800', color: colors.text },
   place: { flexDirection: 'row', alignItems: 'center', gap: spacing.xs },
+  otherLanguage: {
+    alignSelf: 'flex-start',
+    color: colors.primary,
+    fontSize: 15,
+    fontWeight: '600',
+  },
   heading: { fontSize: 20, fontWeight: '700', color: colors.text },
 });

@@ -11,6 +11,7 @@ import { formatMoney } from '@/lib/money';
 import { Badge, BodyText, Button, Card, ConfirmButton, Notice, colors, spacing } from '@/ui';
 
 import { PriceBreakdown } from '../booking/PriceBreakdown';
+import { campingPathname } from '../camping/routes';
 import { StayReview } from '../reviews/StayReview';
 
 const TONES: Record<BookingStatus, 'success' | 'warning' | 'neutral'> = {
@@ -130,7 +131,9 @@ export function BookingDetails({ booking, onCancel, cancelling, cancelFailed, re
         <View style={styles.actions}>
           <Button
             label={t('manage.openCamping')}
-            onPress={() => router.push({ pathname: '/c/[slug]', params: { slug: camping.slug } })}
+            onPress={() =>
+              router.push({ pathname: campingPathname(language), params: { slug: camping.slug } })
+            }
           />
           {lat !== null && lng !== null ? (
             <Button

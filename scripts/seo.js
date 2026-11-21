@@ -28,7 +28,8 @@ function withJsonLd(html) {
 
 /**
  * Paths of the pages that belong in the sitemap, as GitHub Pages serves them:
- * terms.html at "terms", c/<slug>/index.html at "c/<slug>/", home at "".
+ * terms.html at "terms", c/<slug>/index.html at "c/<slug>/" (and its English
+ * page at "en/c/<slug>/"), home at "".
  */
 function sitemapPaths(htmlFiles) {
   const paths = new Set();
@@ -39,11 +40,20 @@ function sitemapPaths(htmlFiles) {
       .replace(/\\/g, '/')
       .replace(/index\.html$/, '')
       .replace(/\.html$/, '');
-    if (page === '' || page === 'terms' || page === 'privacy' || /^c\/[^/]+\/$/.test(page)) {
+    if (page === '' || page === 'terms' || page === 'privacy' || /^(en\/)?c\/[^/]+\/$/.test(page)) {
       paths.add(page);
     }
   }
   return [...paths].sort();
+}
+
+/**
+ * English camping pages (en/c/<slug>/, also their route-group copies) say so
+ * in <html lang>, which the shell writes as Greek for every page.
+ */
+function withPageLanguage(file, html) {
+  if (!/(^|[\\/])en[\\/]c[\\/]/.test(file)) return html;
+  return html.replace(/<html lang="el"/, '<html lang="en"');
 }
 
 function sitemapXml(site, paths, today) {
@@ -70,7 +80,7 @@ function run(root, env) {
   for (const file of files) {
     const full = path.join(root, file);
     const html = fs.readFileSync(full, 'utf8');
-    const updated = withJsonLd(html);
+    const updated = withPageLanguage(file, withJsonLd(html));
     if (updated !== html) fs.writeFileSync(full, updated);
   }
   const site = (env.EXPO_PUBLIC_SITE_URL ?? '').replace(/\/+$/, '');
@@ -81,7 +91,7 @@ function run(root, env) {
   }
 }
 
-module.exports = { withJsonLd, sitemapPaths, sitemapXml, robotsTxt };
+module.exports = { withJsonLd, withPageLanguage, sitemapPaths, sitemapXml, robotsTxt };
 
 if (require.main === module) {
   const root = process.argv[2];

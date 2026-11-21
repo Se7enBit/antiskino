@@ -10,9 +10,11 @@ import {
   withoutRegion,
   type SearchRequest,
 } from '@/domain/search';
-import { useT } from '@/i18n';
+import { useLanguage, useT } from '@/i18n';
 import { useHydrated } from '@/lib/useHydrated';
 import { Button, Card, Loading, Notice, Screen, colors, spacing } from '@/ui';
+
+import { campingPathname } from '../camping/routes';
 
 import { ResultCard } from './ResultCard';
 import { ResultsMap } from './ResultsMap';
@@ -59,6 +61,7 @@ export function ResultsScreen() {
 
 function Results({ request }: { request: SearchRequest }) {
   const t = useT();
+  const { language } = useLanguage();
   const search = useSearch(request);
   const [view, setView] = useState<'list' | 'map'>('list');
   if (search.isPending) return <Loading label={t('search.searching')} />;
@@ -73,7 +76,7 @@ function Results({ request }: { request: SearchRequest }) {
   if (results.length === 0) return <Notice message={t('search.noResults')} />;
   const open = (result: SearchResult) =>
     router.push({
-      pathname: '/c/[slug]',
+      pathname: campingPathname(language),
       params: { slug: result.camping.slug, ...paramsFromRequest(withoutRegion(request)) },
     });
   return (

@@ -3,10 +3,11 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { useLiveCampings } from '@/api/search';
 import { paramsFromRequest, regionsOf, withoutRegion } from '@/domain/search';
-import { useT } from '@/i18n';
+import { useLanguage, useT } from '@/i18n';
 import { BodyText, Loading, Screen, colors, spacing } from '@/ui';
 
 import { CampingPage } from '../camping/CampingPage';
+import { campingPathname } from '../camping/routes';
 import { PageHead } from '../common/PageHead';
 
 import { SearchForm } from './SearchForm';
@@ -14,6 +15,7 @@ import { SearchForm } from './SearchForm';
 /** Home: the search form, or the camping's page when exactly one camping is live (SPEC F1). */
 export function HomeScreen() {
   const t = useT();
+  const { language } = useLanguage();
   const campings = useLiveCampings();
   // Not with a single camping: its page brings its own title.
   const head = <PageHead title={t('meta.home.title')} description={t('meta.home.description')} />;
@@ -33,7 +35,7 @@ export function HomeScreen() {
           request={null}
           onSearch={(request) =>
             router.push({
-              pathname: '/c/[slug]',
+              pathname: campingPathname(language),
               params: { slug: only.slug, ...paramsFromRequest(withoutRegion(request)) },
             })
           }

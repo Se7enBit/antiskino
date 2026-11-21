@@ -3,9 +3,11 @@ import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { useFavoriteCampings, type FavoriteCamping } from '@/api/favorites';
 import { photoUrl } from '@/api/photos';
-import { useT } from '@/i18n';
+import { useLanguage, useT } from '@/i18n';
 import { useHydrated } from '@/lib/useHydrated';
 import { BodyText, Button, Card, Icon, Loading, Notice, Screen, colors, spacing } from '@/ui';
+
+import { campingPathname } from '../camping/routes';
 
 import { FavoriteButton } from './FavoriteButton';
 import { useFavorites } from './useFavorites';
@@ -45,11 +47,14 @@ export function FavoritesScreen() {
 }
 
 function FavoriteCard({ camping }: { camping: FavoriteCamping }) {
+  const { language } = useLanguage();
   return (
     <View style={styles.card}>
       <Pressable
         accessibilityRole="link"
-        onPress={() => router.push({ pathname: '/c/[slug]', params: { slug: camping.slug } })}
+        onPress={() =>
+          router.push({ pathname: campingPathname(language), params: { slug: camping.slug } })
+        }
         style={({ pressed }) => [styles.open, pressed && styles.pressed]}
         testID={`favorite-camping-${camping.slug}`}
       >

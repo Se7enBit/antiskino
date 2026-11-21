@@ -27,3 +27,14 @@ export function pickLanguage(preferred: readonly (string | null | undefined)[]):
   }
   return FALLBACK_LANGUAGE;
 }
+
+/**
+ * The language a web address asks for. Camping pages carry it: Greek at
+ * /c/<slug>, English at /en/c/<slug> (SPEC F2), so search engines get one
+ * language per address. Elsewhere null: the visitor's own language applies.
+ */
+export function languageOfPath(pathname: string): Language | null {
+  if (/^\/en\/c\/[^/]+/.test(pathname)) return 'en';
+  if (/^\/c\/[^/]+/.test(pathname)) return 'el';
+  return null;
+}
