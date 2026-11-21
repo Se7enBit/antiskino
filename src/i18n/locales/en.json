@@ -327,6 +327,41 @@
       "team": "Team"
     },
     "exit": "Exit",
+    "guide": {
+      "title": "Guide",
+      "open": "Guide for campings",
+      "intro": "Short instructions for each screen. Tap a topic to open it.",
+      "sections": {
+        "area": {
+          "title": "The partner area",
+          "body": "Guests book online and pay at reception. You run the camping from here, on a phone or a computer, with the same email.\n• Today: the reception screen.\n• Bookings: requests, upcoming and past stays.\n• Profile, Pitch types, Rates, Calendar: the camping's setup. On phones Pitch types, Rates and Team open from Profile.\n• Reviews and Team.\nOn the reception phone, allow notifications so you hear every new booking. If you have two campings, pick one at the top."
+        },
+        "setup": {
+          "title": "Profile and Pitch types",
+          "body": "Only owners change the setup; staff can view it.\n• Profile: name, address, map point (in Google Maps, long-press your entrance and copy the two numbers), descriptions in Greek and English, amenities, check-in and check-out times, photos (the first is the main one).\n• Confirmation: Instant, or On request with the hours you have to answer (2–48).\n• Cancellation: Flexible, Moderate or Strict.\n• Pitch types: one for each kind of pitch, with the equipment it accepts (tent, caravan, camper), maximum people and photos. A Hidden type isn't sold online.\nChanges to the name, descriptions and photos show on the website in about 10 minutes."
+        },
+        "rates": {
+          "title": "Rates and Calendar",
+          "body": "Prices are in euros, VAT included, and each booking's price is worked out automatically. In Rates, in this order:\n1. Guest categories by age (e.g. Adult 12+, Child 4–11).\n2. Extras (car, electricity, pet) and Fixed fees.\n3. Seasons: first and last night, minimum nights. The last night is the night before departure.\n4. Each season's prices, then Save prices. An empty field doesn't apply in that season.\nIn the Calendar each night shows bookings / pitches on sale. Set allotment says how many pitches of each type Antiskino may sell; keep some for phone calls and walk-ins. Closed nights aren't sold online.\nBookings already made keep their price; a new price only affects new ones."
+        },
+        "bookings": {
+          "title": "Bookings",
+          "body": "The nights are held from the moment of booking.\n• Request: Accept or Decline by the deadline. With no answer it expires and the guest is told; a reminder comes 2 hours before.\n• Confirmed: if needed, Cancel booking with a reason, which the guest sees.\n• After departure the booking completes on its own the next day.\nGuests can cancel from their email or the app; the nights are freed at once. Search by name or reference (ANT-…) and open Details for the price breakdown and history."
+        },
+        "reception": {
+          "title": "Today at reception",
+          "body": "Today updates itself: arrivals, departures, who is in house tonight, and requests with the time left.\n1. When the guest arrives, tap Check in.\n2. In Details, enter the pitch number and, if needed, an internal note (only your team sees it). The red \"No pitch assigned\" goes away.\n3. Take the amount shown as \"Pays at the camping\" and issue a receipt as always.\nIf someone doesn't come, tap No-show from the arrival day on. The nights stay held; to sell them again, cancel the booking."
+        },
+        "team": {
+          "title": "Reviews, Team, notifications",
+          "body": "• Reviews: only guests who stayed can write one, from the day after departure. Your reply is public.\n• Team: owners invite members by email and role and send them the link (it works once and expires in 7 days). Staff work Today, Bookings and Reviews but can't change Profile, Pitch types, Rates or the Calendar.\n• Notifications: every member with the app hears new bookings, requests and cancellations, and gets emails too. Under Account → Booking emails you turn off the emails you don't want."
+        },
+        "payment": {
+          "title": "Payment, commission, help",
+          "body": "The guest pays the whole amount to you, at reception; Antiskino charges nothing online.\n• The commission is the rate we agreed, on each booking's total, and shows in Details.\n• It's charged only for completed stays, not for cancellations, declines or no-shows.\n• Each month we send you a statement and an invoice.\nSomething not working, or a price that doesn't match? Send us a screenshot and the booking reference: {{email}}"
+        }
+      }
+    },
     "noCampings": "Your team has no campings yet. The Antiskino team adds them.",
     "ownersOnly": "Only the camping's owners can change this.",
     "profile": {

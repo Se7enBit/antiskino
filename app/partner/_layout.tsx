@@ -3,18 +3,21 @@ import type { ColorValue } from 'react-native';
 
 import { useCampingBookingsLive } from '@/api/realtime';
 import { RequireAccess } from '@/features/auth/RequireAccess';
-import { ExitLink } from '@/features/partner/ExitLink';
+import { HeaderLinks } from '@/features/partner/HeaderLinks';
 import { usePartnerWide } from '@/features/partner/layout';
 import { PartnerProvider, usePartnerArea } from '@/features/partner/PartnerProvider';
 import { useT } from '@/i18n';
 import { Icon, colors, phoneTabBarStyle, tabLabelStyle, type IconName } from '@/ui';
 
 /**
- * Screens without a phone tab (Profile links to them). Hidden, not `href: null`
- * (that redirects); and no width either, or the empty slots squeeze the others.
+ * A screen without a tab. Hidden, not `href: null` (that redirects); and no
+ * width either, or the empty slots squeeze the others.
  */
+const hiddenTab = { tabBarButton: () => null, tabBarItemStyle: { display: 'none' as const } };
+
+/** Screens without a phone tab (Profile links to them). */
 function phoneHidden(wide: boolean) {
-  return wide ? {} : { tabBarButton: () => null, tabBarItemStyle: { display: 'none' as const } };
+  return wide ? {} : hiddenTab;
 }
 
 function TabIcon({ name, color }: { name: IconName; color: ColorValue }) {
@@ -51,7 +54,7 @@ function PartnerTabs() {
         tabBarLabelStyle: tabLabelStyle(wide ? 15 : 11),
         tabBarStyle: wide ? { width: 220, minWidth: 220 } : phoneTabBarStyle,
         headerTintColor: colors.primary,
-        headerRight: () => <ExitLink />,
+        headerRight: () => <HeaderLinks />,
       }}
     >
       <Tabs.Screen
@@ -117,6 +120,8 @@ function PartnerTabs() {
           ...phoneHidden(wide),
         }}
       />
+      {/* The guide opens from the "?" in the header, so it has no tab. */}
+      <Tabs.Screen name="guide" options={{ title: t('partner.guide.title'), ...hiddenTab }} />
     </Tabs>
   );
 }

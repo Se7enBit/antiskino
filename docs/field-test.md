@@ -4,8 +4,8 @@ A checklist for trying Antiskino for real with one camping, on the dev project
 and the preview website, before launch. Tick as you go; note problems with a
 screenshot (Sentry catches app errors on its own).
 
-The partner guide to hand to the camping is a separate document, in Greek and
-English.
+The partner area has a short guide (the ? at the top, next to Exit); show it to
+the camping. A printable copy in Greek and English is a separate document.
 
 ## 1. Before the visit
 
