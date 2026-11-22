@@ -1,0 +1,149 @@
+name: Backup restore test
+
+# Once a month (and by hand: Actions → Backup restore test → Run workflow) this
+# proves that a backup can be restored, the way docs/operations.md says: into a
+# fresh Supabase database (here, the local stack on the runner) with the app's
+# migrations applied, by scripts/backup/restore.sh.
+# - Once production exists: the latest backup from "Back up production" is
+#   restored, with production's migrations (the `production` tag). The log
+#   shows row counts only, never the rows.
+# - Before that: the local stack with the demo data is backed up with the same
+#   script as production (scripts/backup/dump.sh) and restored. Every table must
+#   have the same number of rows as before, and the scheduled jobs, the trigger
+#   that creates profiles and the photo rules must be there.
+# A failed run means the backups can't be trusted: GitHub emails the owner.
+# GitHub turns scheduled workflows off after 60 days without commits; Run
+# workflow turns it back on.
+
+on:
+  schedule:
+    - cron: '17 4 8 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  # To download the latest backup (an artifact of "Back up production").
+  actions: read
+
+env:
+  SUPABASE_CLI_VERSION: 3.2.0
+  DB_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+
+jobs:
+  restore:
+    name: Back up, restore, compare
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    environment: production
+    env:
+      SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
+      PROD_BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Which backup
+        id: source
+        run: |
+          if [ -z "$SUPABASE_PROJECT_REF" ]; then
+            echo "Production is not set up yet: testing with a backup of the demo data."
+            echo "mode=demo" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          if [ -z "$PROD_BACKUP_PASSPHRASE" ]; then
+            echo "::error::Add the BACKUP_PASSPHRASE secret: backups can't be read without it."
+            exit 1
+          fi
+          run=$(gh api "repos/$GITHUB_REPOSITORY/actions/artifacts?per_page=100" --jq \
+            '[.artifacts[] | select((.name | startswith("backup-")) and (.expired | not))]
+             | sort_by(.created_at) | last | .workflow_run.id // empty')
+          if [ -z "$run" ]; then
+            echo "::error::No production backup from the last 30 days: check the Back up production runs."
+            exit 1
+          fi
+          gh run download "$run" --repo "$GITHUB_REPOSITORY" --dir "$RUNNER_TEMP/backup"
+          file=$(find "$RUNNER_TEMP/backup" -name '*.tar.gz.gpg' | head -n 1)
+          [ -n "$file" ] || { echo "::error::The backup run $run has no backup file."; exit 1; }
+          echo "Restoring $(basename "$file")."
+          # Production's schema: the migrations of the last release.
+          if git rev-parse -q --verify refs/tags/production > /dev/null; then
+            rm -rf supabase/migrations
+            git checkout production -- supabase/migrations
+          fi
+          echo "mode=production" >> "$GITHUB_OUTPUT"
+          echo "file=$file" >> "$GITHUB_OUTPUT"
+
+      - name: Install Supabase CLI
+        timeout-minutes: 5
+        run: |
+          curl -fsSL --retry 5 --retry-delay 5 --retry-all-errors --max-time 120 \
+            -o "$RUNNER_TEMP/supabase.tar.gz" \
+            "https://github.com/supabase/cli/releases/download/v${SUPABASE_CLI_VERSION}/supabase_linux_amd64.tar.gz"
+          sudo tar -xzf "$RUNNER_TEMP/supabase.tar.gz" -C /usr/local/bin supabase
+          supabase --version
+
+      - name: Start a local Supabase
+        run: supabase start -x realtime,imgproxy,mailpit,studio,edge-runtime,logflare,vector,supavisor
+
+      - name: Back up the demo data, restore it, compare
+        if: steps.source.outputs.mode == 'demo'
+        run: |
+          # The seed plus the dev demo data: bookings in every state, reviews, users.
+          psql "$DB_URL" -X -q -v ON_ERROR_STOP=1 -f supabase/dev-data.sql > /dev/null
+          psql "$DB_URL" -X -q -At -v ON_ERROR_STOP=1 -f scripts/backup/check.sql > "$RUNNER_TEMP/before.txt"
+          # A throwaway passphrase: this backup never leaves the runner.
+          BACKUP_PASSPHRASE="$(openssl rand -hex 24)"
+          export BACKUP_PASSPHRASE
+          scripts/backup/dump.sh "$RUNNER_TEMP/demo.tar.gz.gpg"
+          # A new project: the migrations only, no data.
+          supabase db reset --no-seed
+          scripts/backup/restore.sh "$RUNNER_TEMP/demo.tar.gz.gpg" "$DB_URL"
+          psql "$DB_URL" -X -q -At -v ON_ERROR_STOP=1 -f scripts/backup/check.sql > "$RUNNER_TEMP/after.txt"
+          {
+            echo '## Restore of a demo backup'
+            echo '```'
+            cat "$RUNNER_TEMP/after.txt"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          if ! diff "$RUNNER_TEMP/before.txt" "$RUNNER_TEMP/after.txt"; then
+            echo "::error::The restored database differs from the one backed up (above: < before, > after)."
+            exit 1
+          fi
+          echo "Restored: $(wc -l < "$RUNNER_TEMP/after.txt") checks match."
+
+      - name: Restore the latest production backup
+        if: steps.source.outputs.mode == 'production'
+        env:
+          BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+          BACKUP_FILE: ${{ steps.source.outputs.file }}
+        run: |
+          # A new project: production's migrations only, no data.
+          supabase db reset --no-seed
+          psql "$DB_URL" -X -q -At -v ON_ERROR_STOP=1 -f scripts/backup/check.sql \
+            | grep -v '^auth\.\|^public\.' > "$RUNNER_TEMP/expected.txt"
+          scripts/backup/restore.sh "$BACKUP_FILE" "$DB_URL"
+          rm -f "$BACKUP_FILE"
+          psql "$DB_URL" -X -q -At -v ON_ERROR_STOP=1 -f scripts/backup/check.sql > "$RUNNER_TEMP/after.txt"
+          {
+            echo '## Restore of the latest production backup'
+            echo '```'
+            cat "$RUNNER_TEMP/after.txt"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+          # The jobs, the trigger and the photo rules are all there...
+          grep -vxFf "$RUNNER_TEMP/after.txt" "$RUNNER_TEMP/expected.txt" > "$RUNNER_TEMP/missing.txt" || true
+          if [ -s "$RUNNER_TEMP/missing.txt" ]; then
+            echo "::error::Missing after the restore: $(paste -sd ', ' "$RUNNER_TEMP/missing.txt")"
+            exit 1
+          fi
+          # ...and there is data: users, campings.
+          for table in auth.users public.campings; do
+            count=$(grep "^$table " "$RUNNER_TEMP/after.txt" | cut -d' ' -f2)
+            if [ "${count:-0}" -eq 0 ]; then
+              echo "::error::$table is empty after the restore."
+              exit 1
+            fi
+          done
+          echo "Restored: $(wc -l < "$RUNNER_TEMP/after.txt") checks."
