@@ -1,5 +1,6 @@
 import { photoUrl } from '@/api/photos';
 import { staticCamping } from '@/api/staticCampings';
+import { regionName } from '@/domain/regions';
 import { campgroundJsonLd } from '@/domain/seo';
 import { localized, LANGUAGES, type Language } from '@/i18n';
 import { siteUrl } from '@/lib/site';
@@ -58,7 +59,15 @@ export function CampingHead({ slug, pageLanguage, live }: Props) {
       {prerendered ? (
         <meta
           name={JSON_LD_META}
-          content={JSON.stringify(campgroundJsonLd({ ...prerendered, description, url, image }))}
+          content={JSON.stringify(
+            campgroundJsonLd({
+              ...prerendered,
+              region: prerendered.region ? regionName(prerendered.region, pageLanguage) : null,
+              description,
+              url,
+              image,
+            }),
+          )}
         />
       ) : null}
       {description ? <meta name="description" content={description} /> : null}

@@ -29,7 +29,7 @@ describe('search URL params', () => {
     adults: 2,
     childAges: [4, 11],
     equipment: 'caravan' as const,
-    region: 'Χαλκιδική',
+    region: 'halkidiki',
   };
 
   it('round-trips a request', () => {
@@ -39,7 +39,7 @@ describe('search URL params', () => {
       adults: '2',
       children: '4,11',
       equipment: 'caravan',
-      region: 'Χαλκιδική',
+      region: 'halkidiki',
     });
     expect(requestFromParams(paramsFromRequest(request))).toEqual(request);
     const plain = { ...request, childAges: [], region: undefined };
@@ -76,27 +76,43 @@ describe('search URL params', () => {
 describe('form helpers', () => {
   it('builds a request only with dates, and back', () => {
     expect(toRequest(DEFAULT_QUERY)).toBeNull();
-    const request = toRequest({ ...query, childAges: [3], region: 'Pelion' });
+    const request = toRequest({ ...query, childAges: [3], region: 'pelion' });
     expect(request).toEqual({
       arrival: '2027-07-10',
       departure: '2027-07-12',
       adults: 2,
       childAges: [3],
       equipment: 'tent',
-      region: 'Pelion',
+      region: 'pelion',
     });
-    expect(queryFromRequest(request!)).toEqual({ ...query, childAges: [3], region: 'Pelion' });
+    expect(queryFromRequest(request!)).toEqual({ ...query, childAges: [3], region: 'pelion' });
     expect(toRequest(query)).not.toHaveProperty('region');
   });
 
-  it('lists distinct regions', () => {
+  it('lists the distinct known regions, in list order', () => {
     expect(
       regionsOf([
-        { region: 'Πήλιο' },
+        { region: 'halkidiki' },
         { region: null },
-        { region: 'Χαλκιδική' },
-        { region: 'Πήλιο' },
+        { region: 'pelion' },
+        { region: 'halkidiki' },
+        { region: 'Atlantis' },
       ]),
-    ).toEqual(['Πήλιο', 'Χαλκιδική']);
+    ).toEqual(['pelion', 'halkidiki']);
+  });
+
+  it('drops an unknown region from a link instead of refusing it', () => {
+    const params = {
+      arrival: '2027-07-10',
+      departure: '2027-07-12',
+      adults: '2',
+      equipment: 'tent',
+    };
+    expect(requestFromParams({ ...params, region: 'Halkidiki' })).toEqual(
+      requestFromParams(params),
+    );
+    expect(requestFromParams({ ...params, region: 'halkidiki' })).toMatchObject({
+      region: 'halkidiki',
+    });
   });
 });

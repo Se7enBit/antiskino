@@ -1,7 +1,8 @@
 import { StyleSheet, Text } from 'react-native';
 
+import { regionName } from '@/domain/regions';
 import type { SearchRequest } from '@/domain/search';
-import { useT } from '@/i18n';
+import { useLanguage, useT } from '@/i18n';
 import { formatDateInput, nightsBetween } from '@/lib/dates';
 import { Button, colors } from '@/ui';
 
@@ -14,6 +15,7 @@ export function StaySummary({
   onChange: () => void;
 }) {
   const t = useT();
+  const { language } = useLanguage();
   return (
     <>
       <Text style={styles.dates}>
@@ -23,7 +25,7 @@ export function StaySummary({
       <Text style={styles.muted}>
         {t('search.party', { adults: request.adults, children: request.childAges.length })} ·{' '}
         {t(`equipment.${request.equipment}`)}
-        {request.region ? ` · ${request.region}` : ''}
+        {request.region ? ` · ${regionName(request.region, language)}` : ''}
       </Text>
       <Button label={t('search.change')} icon="magnify" onPress={onChange} testID="search-change" />
     </>

@@ -9,7 +9,7 @@ import { fakeMutation, renderWithLanguage } from '@/test/utils';
 jest.mock('@/api/admin', () => ({ useCreateCamping: jest.fn(), useSetCampingStatus: jest.fn() }));
 
 const campings = [
-  { id: 'c1', name: 'Thalassa', slug: 'thalassa', status: 'draft' as const, region: 'Halkidiki' },
+  { id: 'c1', name: 'Thalassa', slug: 'thalassa', status: 'draft' as const, region: 'halkidiki' },
   { id: 'c2', name: 'Pefka', slug: 'pefka', status: 'live' as const, region: null },
 ];
 
@@ -48,10 +48,11 @@ describe('CampingsSection', () => {
     await fireEvent.press(screen.getByTestId('camping-add'));
     await fireEvent.changeText(screen.getByTestId('camping-name'), 'Κάμπινγκ Θάλασσα');
     expect(screen.getByTestId('camping-slug').props.value).toBe('kampingk-thalassa');
-    await fireEvent.changeText(screen.getByTestId('camping-region'), 'Χαλκιδική');
+    // Picked from the list, shown by name, saved as the key.
+    await fireEvent.press(screen.getByText('Halkidiki'));
     await fireEvent.press(screen.getByTestId('camping-create'));
     expect(create.mutate).toHaveBeenCalledWith(
-      { name: 'Κάμπινγκ Θάλασσα', slug: 'kampingk-thalassa', region: 'Χαλκιδική' },
+      { name: 'Κάμπινγκ Θάλασσα', slug: 'kampingk-thalassa', region: 'halkidiki' },
       expect.any(Object),
     );
   });

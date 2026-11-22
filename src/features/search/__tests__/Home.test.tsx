@@ -29,7 +29,7 @@ jest.mock('../../camping/CampingPage', () => {
             adults: 2,
             childAges: [],
             equipment: 'tent',
-            region: 'Χαλκιδική',
+            region: 'halkidiki',
           })
         }
       >{`camping page: ${slug}`}</Text>
@@ -41,7 +41,7 @@ jest.mock('@/lib/dates', () => ({
   todayInAthens: () => '2027-07-05',
 }));
 
-async function setup(regions: (string | null)[] = ['Χαλκιδική', 'Χαλκιδική'], isLoading = false) {
+async function setup(regions: (string | null)[] = ['halkidiki', 'halkidiki'], isLoading = false) {
   jest.mocked(useLiveCampings).mockReturnValue({
     isLoading,
     data: isLoading
@@ -113,7 +113,7 @@ describe('Home search', () => {
   });
 
   it('offers a region filter only when campings span two regions or more', async () => {
-    await setup(['Χαλκιδική', null, 'Χαλκιδική']);
+    await setup(['halkidiki', null, 'halkidiki']);
     expect(screen.queryByText('All regions')).toBeNull();
   });
 
@@ -121,13 +121,15 @@ describe('Home search', () => {
     useSearchStore.setState({
       query: { ...DEFAULT_QUERY, arrival: '2027-07-10', departure: '2027-07-12' },
     });
-    await setup(['Χαλκιδική', 'Πήλιο']);
+    await setup(['halkidiki', 'pelion']);
     expect(screen.getByText('All regions')).toBeTruthy();
-    await fireEvent.press(screen.getByTestId('search-region-Πήλιο'));
+    // Shown by name in the UI language, sent as the key.
+    expect(screen.getByText('Halkidiki')).toBeTruthy();
+    await fireEvent.press(screen.getByTestId('search-region-pelion'));
     await fireEvent.press(screen.getByTestId('search-submit'));
     expect(router.push).toHaveBeenCalledWith({
       pathname: '/search',
-      params: expect.objectContaining({ region: 'Πήλιο' }),
+      params: expect.objectContaining({ region: 'pelion' }),
     });
   });
 
@@ -138,7 +140,7 @@ describe('Home search', () => {
   });
 
   it("shows the camping's page when exactly one camping is live", async () => {
-    await setup(['Χαλκιδική']);
+    await setup(['halkidiki']);
     expect(screen.getByText('camping page: c0')).toBeTruthy();
     expect(screen.queryByTestId('search-submit')).toBeNull();
     await fireEvent.press(screen.getByText('camping page: c0'));

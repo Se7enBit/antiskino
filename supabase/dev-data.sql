@@ -63,7 +63,7 @@ insert into public.campings (
    '{"el": "Σκιερές θέσεις δίπλα στη θάλασσα της Σιθωνίας.", "en": "Shady pitches right by the sea in Sithonia."}',
    '{"el": "Ήσυχο οικογενειακό κάμπινγκ με πεύκα, αμμουδιά και ταβέρνα.", "en": "A quiet family camping with pine trees, a sandy beach and a taverna."}',
    '{"el": "Ησυχία 23:00–08:00. Τα σκυλιά με λουρί.", "en": "Quiet hours 23:00–08:00. Dogs on a lead."}',
-   'Halkidiki', 'Sarti, Sithonia, 630 72 Halkidiki', 40.0915, 23.9800, '+30 2375 000000', 'thalassa@example.org',
+   'halkidiki', 'Sarti, Sithonia, 630 72 Halkidiki', 40.0915, 23.9800, '+30 2375 000000', 'thalassa@example.org',
    '{hot_showers,electricity,wifi,beach_access,mini_market,restaurant,shade,pets_allowed}',
    '14:00', '12:00', 'instant', 24, 'moderate'),
   ('d1000000-0000-4000-8000-000000000002', 'd0000000-0000-4000-8000-0000000000d1', 'pefka-demo', 'live',
@@ -71,7 +71,7 @@ insert into public.campings (
    '{"el": "Θέσεις κάτω από τα πεύκα, στους πρόποδες του Πηλίου.", "en": "Pitches under the pines at the foot of Mount Pelion."}',
    '{"el": "Δροσερό κάμπινγκ κοντά σε χωριά και μονοπάτια. Οι κρατήσεις επιβεβαιώνονται από τη ρεσεψιόν.", "en": "A cool camping near villages and hiking paths. Reception confirms each booking."}',
    '{"el": "Φωτιές μόνο στις ψησταριές.", "en": "Fires only in the barbecue area."}',
-   'Pelion', 'Kala Nera, 370 10 Magnesia', 39.3176, 23.1167, '+30 2423 000000', 'pefka@example.org',
+   'pelion', 'Kala Nera, 370 10 Magnesia', 39.3176, 23.1167, '+30 2423 000000', 'pefka@example.org',
    '{hot_showers,electricity,wifi,bbq,playground,shade,laundry}',
    '13:00', '11:00', 'request', 24, 'flexible'),
   ('d1000000-0000-4000-8000-000000000003', 'd0000000-0000-4000-8000-0000000000d1', 'kastri-demo', 'live',
@@ -79,7 +79,7 @@ insert into public.campings (
    '{"el": "Πέτρινες πεζούλες πάνω από τον κόλπο της Μάνης.", "en": "Stone terraces above the bay of Mani."}',
    '{"el": "Μικρό κάμπινγκ με πισίνα και θέα στο ηλιοβασίλεμα.", "en": "A small camping with a pool and sunset views."}',
    '{"el": "Η πισίνα είναι ανοιχτή 09:00–20:00.", "en": "The pool is open 09:00–20:00."}',
-   'Peloponnese', 'Kardamyli, 240 22 Messinia', 36.8870, 22.2330, '+30 2721 000000', 'kastri@example.org',
+   'peloponnese', 'Kardamyli, 240 22 Messinia', 36.8870, 22.2330, '+30 2721 000000', 'kastri@example.org',
    '{hot_showers,electricity,pool,bar,shared_kitchen}',
    '15:00', '11:00', 'instant', 24, 'strict');
 

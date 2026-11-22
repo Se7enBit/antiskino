@@ -26,7 +26,7 @@ const campings = [
     slug: 'thalassa',
     status: 'live',
     name: 'Camping Thalassa',
-    region: 'Halkidiki',
+    region: 'halkidiki',
     short_descr: T(
       'Σκιερές θέσεις δίπλα στη θάλασσα της Σιθωνίας.',
       'Shady pitches right by the sea in Sithonia.',
@@ -72,7 +72,7 @@ const campings = [
     slug: 'pefka',
     status: 'live',
     name: 'Camping Pefka',
-    region: 'Pelion',
+    region: 'pelion',
     short_descr: T(
       'Θέσεις κάτω από τα πεύκα, στους πρόποδες του Πηλίου.',
       'Pitches under the pines at the foot of Mount Pelion.',
@@ -103,7 +103,7 @@ const campings = [
     slug: 'kastri',
     status: 'live',
     name: 'Camping Kastri',
-    region: 'Peloponnese',
+    region: 'peloponnese',
     short_descr: T(
       'Πεζούλες με θέα στη λίμνη και τα βουνά.',
       'Terraces with views of the lake and the mountains.',

@@ -13,6 +13,7 @@ import {
   type SearchRequest,
   type StayProblem,
 } from '@/domain/search';
+import { isRegion, regionName, sortRegions, type Region } from '@/domain/regions';
 import { useLanguage, useT } from '@/i18n';
 import { formatDateInput, nightsBetween, todayInAthens } from '@/lib/dates';
 import {
@@ -32,7 +33,7 @@ import { useSearchStore } from './searchStore';
 
 type Props = {
   /** Regions of the live campings; the filter shows with two or more. */
-  regions: string[];
+  regions: Region[];
   onSearch: (request: SearchRequest) => void;
 };
 
@@ -168,10 +169,13 @@ export function SearchForm({ regions, onSearch }: Props) {
           <ChoiceGroup
             options={[
               { value: '', label: t('search.allRegions') },
-              ...regions.map((region) => ({ value: region, label: region })),
+              ...sortRegions(regions, language).map((region) => ({
+                value: region,
+                label: regionName(region, language),
+              })),
             ]}
             selected={query.region ?? ''}
-            onChange={(region) => update({ region: region || null })}
+            onChange={(region) => update({ region: isRegion(region) ? region : null })}
             testID="search-region"
           />
         </View>

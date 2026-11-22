@@ -61,6 +61,7 @@ describe('CampingProfileForm', () => {
     await fireEvent.press(screen.getByTestId('profile-confirmation-request'));
     await fireEvent.changeText(screen.getByTestId('profile-requestExpiryHours'), '12');
     await fireEvent.press(screen.getByTestId('profile-cancellation-strict'));
+    await fireEvent.press(screen.getByTestId('profile-region-crete'));
     await fireEvent.press(screen.getByTestId('profile-save'));
 
     expect(save.mutate).toHaveBeenCalledWith(
@@ -74,8 +75,11 @@ describe('CampingProfileForm', () => {
         request_expiry_hours: 12,
         cancellation_policy: 'strict',
         payment_mode: 'on_site',
+        region: 'crete',
       }),
     );
+    // The list shows names in the UI language.
+    expect(screen.getByText('Crete')).toBeTruthy();
   });
 
   it('explains the cancellation presets in plain words', async () => {

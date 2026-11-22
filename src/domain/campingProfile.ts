@@ -4,6 +4,7 @@ import type { Database } from '@/api/database.types';
 
 import { AMENITIES, isAmenity } from './amenities';
 import { textIn, toLocalized } from './localizedText';
+import { isRegion, regionFieldSchema } from './regions';
 
 type CampingRow = Database['public']['Tables']['campings']['Row'];
 type CampingUpdate = Database['public']['Tables']['campings']['Update'];
@@ -61,7 +62,7 @@ export const campingProfileSchema = z
     descrEn: text(5000),
     houseRulesEl: text(3000),
     houseRulesEn: text(3000),
-    region: optional(80),
+    region: regionFieldSchema,
     address: optional(300),
     phone: optional(40),
     email: z
@@ -130,7 +131,7 @@ export function campingToForm(camping: CampingRow): CampingProfileForm {
     descrEn: textIn(camping.descr, 'en'),
     houseRulesEl: textIn(camping.house_rules, 'el'),
     houseRulesEn: textIn(camping.house_rules, 'en'),
-    region: camping.region ?? '',
+    region: isRegion(camping.region) ? camping.region : '',
     address: camping.address ?? '',
     phone: camping.phone ?? '',
     email: camping.email ?? '',
