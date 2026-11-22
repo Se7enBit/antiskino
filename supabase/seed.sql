@@ -60,7 +60,7 @@ insert into public.campings (
   '{"el": "Σκιερές θέσεις δίπλα στη θάλασσα.", "en": "Shady pitches right by the sea."}',
   '{"el": "Ένα ήσυχο κάμπινγκ για δοκιμές, με πεύκα και αμμουδιά.", "en": "A quiet camping for testing, with pine trees and a sandy beach."}',
   '{"el": "Ησυχία 23:00-08:00.", "en": "Quiet hours 23:00-08:00."}',
-  'Halkidiki', 'Sarti, Sithonia, 630 72 Halkidiki', 40.0915, 23.9800, '+30 2375 000000', 'info@antiskino.test',
+  'halkidiki', 'Sarti, Sithonia, 630 72 Halkidiki', 40.0915, 23.9800, '+30 2375 000000', 'info@antiskino.test',
   '{hot_showers,electricity,wifi,beach_access,mini_market,shade,pets_allowed}',
   '14:00', '12:00', 'instant', 'moderate'
 );
@@ -142,7 +142,7 @@ insert into public.campings (
   'c0000000-0000-4000-8000-000000000002', 'b0000000-0000-4000-8000-000000000001',
   'demo-pefka', 'live', 'Camping Pefka (demo)',
   '{"el": "Θέσεις κάτω από τα πεύκα.", "en": "Pitches under the pine trees."}',
-  'Pelion', 'Kala Nera, 370 10 Pelion', 39.3290, 23.1180, '+30 2423 000000', 'pefka@antiskino.test',
+  'pelion', 'Kala Nera, 370 10 Pelion', 39.3290, 23.1180, '+30 2423 000000', 'pefka@antiskino.test',
   '{hot_showers,shade}', '14:00', '12:00', 'request', 'flexible'
 );
 

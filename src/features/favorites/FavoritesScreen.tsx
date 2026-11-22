@@ -3,6 +3,7 @@ import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { useFavoriteCampings, type FavoriteCamping } from '@/api/favorites';
 import { photoUrl } from '@/api/photos';
+import { regionName } from '@/domain/regions';
 import { useLanguage, useT } from '@/i18n';
 import { useHydrated } from '@/lib/useHydrated';
 import { BodyText, Button, Card, Icon, Loading, Notice, Screen, colors, spacing } from '@/ui';
@@ -71,7 +72,9 @@ function FavoriteCard({ camping }: { camping: FavoriteCamping }) {
         )}
         <View style={styles.text}>
           <Text style={styles.name}>{camping.name}</Text>
-          {camping.region ? <Text style={styles.muted}>{camping.region}</Text> : null}
+          {camping.region ? (
+            <Text style={styles.muted}>{regionName(camping.region, language)}</Text>
+          ) : null}
         </View>
       </Pressable>
       <FavoriteButton campingId={camping.id} name={camping.name} />

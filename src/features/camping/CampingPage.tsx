@@ -7,6 +7,7 @@ import { useCampingReviews } from '@/api/reviews';
 import { useSearch } from '@/api/search';
 import { bookingParams } from '@/domain/booking';
 import { pitchFromCents } from '@/domain/camping';
+import { regionName } from '@/domain/regions';
 import { paramsFromRequest, queryFromRequest, type SearchRequest } from '@/domain/search';
 import { localized, otherLanguage, useLanguage, useT, type Language } from '@/i18n';
 import { todayInAthens } from '@/lib/dates';
@@ -125,7 +126,7 @@ export function CampingPage({ slug, pageLanguage, request, onSearch, onNotFound 
         {camping.region ? (
           <View style={styles.place}>
             <Icon name="map-marker" size={18} color={colors.muted} />
-            <BodyText>{camping.region}</BodyText>
+            <BodyText>{regionName(camping.region, language)}</BodyText>
           </View>
         ) : null}
         <RatingSummary rating={reviews.data?.rating} />

@@ -4,6 +4,8 @@ import type { Equipment, SearchRequest } from '../../supabase/functions/_shared/
 import { MAX_ADULTS, MAX_CHILDREN } from '../../supabase/functions/_shared/party';
 import { isIsoDate, isoDateSchema, nightsBetween, type IsoDate } from '@/lib/dates';
 
+import { isRegion, REGION_KEYS, type Region } from './regions';
+
 export type { Equipment, SearchRequest };
 export { MAX_ADULTS, MAX_CHILDREN };
 
@@ -20,7 +22,7 @@ export type SearchQuery = {
   adults: number;
   childAges: number[];
   equipment: Equipment;
-  region: string | null;
+  region: Region | null;
 };
 
 export const DEFAULT_QUERY: SearchQuery = {
@@ -76,7 +78,11 @@ const searchParamsSchema = z
     adults: count(1, MAX_ADULTS),
     children: childAgesParam,
     equipment: z.enum(EQUIPMENT),
-    region: z.string().trim().min(1).max(80).optional(),
+    // An old or mistyped region is dropped rather than spoiling the whole link.
+    region: z
+      .string()
+      .optional()
+      .transform((value) => (isRegion(value) ? value : undefined)),
   })
   .refine((p) => {
     // Runs even when a date failed above; those errors are already reported.
@@ -115,15 +121,14 @@ export function queryFromRequest(request: SearchRequest): SearchQuery {
     adults: request.adults,
     childAges: request.childAges,
     equipment: request.equipment,
-    region: request.region ?? null,
+    region: isRegion(request.region) ? request.region : null,
   };
 }
 
-/** Distinct regions of the live campings, sorted; the region filter shows only with two or more. */
-export function regionsOf(campings: { region: string | null }[]): string[] {
-  return [...new Set(campings.flatMap((c) => (c.region ? [c.region] : [])))].sort((a, b) =>
-    a.localeCompare(b, 'el'),
-  );
+/** The live campings' regions, in list order; the region filter shows only with two or more. */
+export function regionsOf(campings: { region: string | null }[]): Region[] {
+  const used = new Set(campings.map((c) => c.region));
+  return REGION_KEYS.filter((region) => used.has(region));
 }
 
 /** The same search without the region filter (a camping's own page ignores it). */

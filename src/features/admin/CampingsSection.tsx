@@ -5,8 +5,10 @@ import { useCreateCamping, useSetCampingStatus } from '@/api/admin';
 import { UNIQUE_VIOLATION, errorCode } from '@/domain/errors';
 import { campingFormSchema, fieldErrors, type CampingFormField } from '@/domain/partners';
 import type { CampingStatus } from '@/domain/roles';
+import { regionName } from '@/domain/regions';
 import { slugify } from '@/domain/slug';
-import { useT } from '@/i18n';
+import { RegionPicker } from '@/features/common/RegionPicker';
+import { useLanguage, useT } from '@/i18n';
 import { BodyText, Button, Card, Notice, TextField, colors, spacing } from '@/ui';
 
 import { CampingStatusBadge } from './CampingStatusBadge';
@@ -38,6 +40,7 @@ export function CampingsSection({
   campings: Camping[];
 }) {
   const t = useT();
+  const { language } = useLanguage();
   const setStatus = useSetCampingStatus(partnerId);
   const [adding, setAdding] = useState(false);
 
@@ -52,7 +55,7 @@ export function CampingsSection({
           </View>
           <BodyText>
             /c/{camping.slug}
-            {camping.region ? ` · ${camping.region}` : ''}
+            {camping.region ? ` · ${regionName(camping.region, language)}` : ''}
           </BodyText>
           <View style={styles.actions}>
             {NEXT[camping.status].map((action) => (
@@ -129,11 +132,10 @@ function NewCampingForm({ partnerId, onDone }: { partnerId: string; onDone: () =
         testID="camping-slug"
       />
       <BodyText>{t('admin.campings.slugHint', { slug: slug || 'camping' })}</BodyText>
-      <TextField
+      <RegionPicker
         label={t('admin.campings.region')}
         value={region}
-        onChangeText={setRegion}
-        error={error('region')}
+        onChange={setRegion}
         testID="camping-region"
       />
       <View style={styles.actions}>

@@ -2,6 +2,7 @@ import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { photoUrl } from '@/api/photos';
 import type { SearchResult } from '@/api/search';
+import { regionName } from '@/domain/regions';
 import { localized, useLanguage, useT } from '@/i18n';
 import { formatMoney } from '@/lib/money';
 import { Icon, colors, spacing } from '@/ui';
@@ -41,7 +42,7 @@ export function ResultCard({ result, onOpen }: { result: SearchResult; onOpen: (
           {camping.region ? (
             <View style={styles.place}>
               <Icon name="map-marker" size={16} color={colors.muted} />
-              <Text style={styles.muted}>{camping.region}</Text>
+              <Text style={styles.muted}>{regionName(camping.region, language)}</Text>
             </View>
           ) : null}
           <RatingSummary rating={camping.rating} size={15} />

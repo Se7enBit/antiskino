@@ -15,6 +15,7 @@ import {
   type CampingProfileForm as FormValues,
 } from '@/domain/campingProfile';
 import { fieldErrors } from '@/domain/partners';
+import { RegionPicker } from '@/features/common/RegionPicker';
 import { useT } from '@/i18n';
 import {
   BodyText,
@@ -91,7 +92,13 @@ export function CampingProfileForm({
 
       <Card title={t('partner.profile.sections.basics')}>
         <TextField {...field('name')} />
-        <TextField {...field('region')} />
+        <RegionPicker
+          label={t('partner.profile.region')}
+          value={values.region}
+          onChange={(region) => set('region', region)}
+          disabled={!canEdit}
+          testID="profile-region"
+        />
         <TextField {...field('address')} />
         <TextField {...field('phone')} keyboardType="phone-pad" inputMode="tel" />
         <TextField

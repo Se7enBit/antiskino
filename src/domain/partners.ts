@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { commissionPercentSchema } from './commission';
+import { regionFieldSchema } from './regions';
 import { slugSchema } from './slug';
 
 const optionalText = (max: number) =>
@@ -41,7 +42,7 @@ export type PartnerFormField = keyof PartnerFormValues;
 export const campingFormSchema = z.object({
   name: z.string().trim().min(1).max(120),
   slug: slugSchema,
-  region: optionalText(80),
+  region: regionFieldSchema,
 });
 
 export type CampingFormValues = z.input<typeof campingFormSchema>;
