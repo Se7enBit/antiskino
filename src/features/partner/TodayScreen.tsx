@@ -100,7 +100,8 @@ const styles = StyleSheet.create({
   stat: {
     flex: 1,
     minWidth: 0,
-    padding: spacing.sm,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.xs,
     borderRadius: 12,
     borderWidth: 1,
     borderColor: colors.border,

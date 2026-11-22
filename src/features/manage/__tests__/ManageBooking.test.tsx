@@ -102,6 +102,7 @@ describe('Manage link', () => {
     expect(screen.getByText('Adult: 2 · Tent')).toBeTruthy();
     expect(screen.getByText('Check-in from 14:00')).toBeTruthy();
     expect(screen.getByText(/You pay (€62\.00|62,00 €) at reception/)).toBeTruthy();
+    expect(screen.getByText(/cancelling costs you nothing/)).toBeTruthy();
   });
 
   it('cancels after a second tap', async () => {
@@ -129,6 +130,9 @@ describe('Manage link', () => {
     );
     expect(screen.getByText('This booking is cancelled. Reason: Flooded pitch')).toBeTruthy();
     expect(screen.queryByTestId('booking-cancel')).toBeNull();
+    // The cancellation terms only matter while the guest can still cancel.
+    expect(screen.queryByText(/cancelling costs you nothing/)).toBeNull();
+    expect(screen.queryByText(/cancellation:/)).toBeNull();
   });
 
   it('says when the link is wrong or incomplete', async () => {

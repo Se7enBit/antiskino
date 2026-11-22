@@ -82,11 +82,14 @@ export function BookingDetail({ booking, guestExtra }: DetailProps) {
           {formatDateInput(booking.arrival)} → {formatDateInput(booking.departure)} ·{' '}
           {t('search.nights', { count: booking.nights ?? 0 })} · {localized(names.pitch, language)}
         </BodyText>
-        <Text style={booking.assigned_pitch ? styles.pitch : styles.unassigned}>
-          {booking.assigned_pitch
-            ? t('partner.booking.pitch', { pitch: booking.assigned_pitch })
-            : t('partner.booking.unassigned')}
-        </Text>
+        {booking.assigned_pitch ? (
+          <Text style={styles.pitch}>
+            {t('partner.booking.pitch', { pitch: booking.assigned_pitch })}
+          </Text>
+        ) : booking.status === 'confirmed' || booking.status === 'checked_in' ? (
+          // Only a stay that is coming or under way needs a pitch.
+          <Text style={styles.unassigned}>{t('partner.booking.unassigned')}</Text>
+        ) : null}
         {booking.status === 'requested' && booking.request_expires_at ? (
           <RequestDeadline deadline={booking.request_expires_at} />
         ) : null}

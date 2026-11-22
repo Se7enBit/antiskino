@@ -1,15 +1,18 @@
 import { Stack } from 'expo-router';
 
 import { RequireAccess } from '@/features/auth/RequireAccess';
+import { titledScreens } from '@/features/common/titledScreens';
 import { useT } from '@/i18n';
 import { colors } from '@/ui';
+
+const titled = titledScreens();
 
 // Platform admins only.
 export default function AdminLayout() {
   const t = useT();
   return (
     <RequireAccess area="admin">
-      <Stack screenOptions={{ headerTintColor: colors.primary }}>
+      <Stack screenLayout={titled} screenOptions={{ headerTintColor: colors.primary }}>
         <Stack.Screen name="index" options={{ title: t('admin.title') }} />
         <Stack.Screen name="new-partner" options={{ title: t('admin.partnerForm.title') }} />
         <Stack.Screen name="partner" options={{ title: t('admin.partner.title') }} />
