@@ -4,7 +4,8 @@ name: Backup restore test
 # proves that a backup can be restored, the way docs/operations.md says: into a
 # fresh Supabase database (here, the local stack on the runner) with the app's
 # migrations applied, by scripts/backup/restore.sh.
-# - Once production exists: the latest backup from "Back up production" is
+# - Once production exists (Release has run: the `production` tag): the
+#   latest backup from "Back up production" is
 #   restored, with production's migrations (the `production` tag). The log
 #   shows row counts only, never the rows.
 # - Before that: the local stack with the demo data is backed up with the same
@@ -36,7 +37,6 @@ jobs:
     timeout-minutes: 30
     environment: production
     env:
-      SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
       PROD_BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
       GH_TOKEN: ${{ github.token }}
     steps:
@@ -47,8 +47,8 @@ jobs:
       - name: Which backup
         id: source
         run: |
-          if [ -z "$SUPABASE_PROJECT_REF" ]; then
-            echo "Production is not set up yet: testing with a backup of the demo data."
+          if ! git rev-parse -q --verify refs/tags/production > /dev/null; then
+            echo "Release hasn't run yet (no production tag): testing with a backup of the demo data."
             echo "mode=demo" >> "$GITHUB_OUTPUT"
             exit 0
           fi
@@ -68,10 +68,8 @@ jobs:
           [ -n "$file" ] || { echo "::error::The backup run $run has no backup file."; exit 1; }
           echo "Restoring $(basename "$file")."
           # Production's schema: the migrations of the last release.
-          if git rev-parse -q --verify refs/tags/production > /dev/null; then
-            rm -rf supabase/migrations
-            git checkout production -- supabase/migrations
-          fi
+          rm -rf supabase/migrations
+          git checkout production -- supabase/migrations
           echo "mode=production" >> "$GITHUB_OUTPUT"
           echo "file=$file" >> "$GITHUB_OUTPUT"
 

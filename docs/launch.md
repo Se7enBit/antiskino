@@ -17,7 +17,7 @@ What the workflows do:
 | Keep databases awake | daily | one small query to each project, so free projects don't pause |
 | Uptime check | every 3 hours, or by hand | opens the website and runs a search; fails (GitHub emails you) when either doesn't answer |
 | Back up production | nightly, or by hand | encrypted copy of the production database, kept 30 days |
-| Backup restore test | monthly, or by hand | restores the latest backup on a test database and checks it (before production exists: a backup of the demo data) |
+| Backup restore test | monthly, or by hand | restores the latest backup on a test database and checks it (before the first Release: a backup of the demo data) |
 | Dependency check | monthly, or by hand | fails on high or critical vulnerabilities in the packages; lists all findings and newer versions |
 
 Before launch the site is the preview at `https://se7enbit.github.io/antiskino/`.

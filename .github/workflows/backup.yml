@@ -11,8 +11,8 @@ name: Back up production
 # Restoring: docs/operations.md (Restore a backup). The Backup restore test
 # checks monthly that the latest backup can be restored.
 #
-# Until production exists (SUPABASE_PROJECT_REF unset) each run just says so and
-# succeeds. Uses the same secrets as Release.
+# Until production exists (Release has run: the `production` tag) each run just
+# says so and succeeds. Uses the same secrets as Release.
 
 on:
   schedule:
@@ -40,17 +40,18 @@ jobs:
       SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
       SUPABASE_PROJECT_REF: ${{ secrets.SUPABASE_PROJECT_REF }}
       BACKUP_PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+      GH_TOKEN: ${{ github.token }}
     steps:
       - name: Check the setup
         id: setup
         run: |
-          if [ -z "$SUPABASE_PROJECT_REF" ]; then
-            echo "Production is not set up yet (no SUPABASE_PROJECT_REF secret): nothing to back up."
+          if ! gh api "repos/$GITHUB_REPOSITORY/git/ref/tags/production" --silent 2> /dev/null; then
+            echo "Release hasn't run yet (no production tag): nothing to back up."
             echo "ready=false" >> "$GITHUB_OUTPUT"
             exit 0
           fi
           missing=""
-          for name in SUPABASE_ACCESS_TOKEN SUPABASE_DB_PASSWORD BACKUP_PASSPHRASE; do
+          for name in SUPABASE_PROJECT_REF SUPABASE_ACCESS_TOKEN SUPABASE_DB_PASSWORD BACKUP_PASSPHRASE; do
             [ -n "${!name}" ] || missing="$missing $name"
           done
           if [ -n "$missing" ]; then
