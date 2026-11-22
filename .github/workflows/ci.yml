@@ -129,8 +129,9 @@ jobs:
             "https://github.com/supabase/cli/releases/download/v${SUPABASE_CLI_VERSION}/supabase_linux_amd64.tar.gz"
           sudo tar -xzf "$RUNNER_TEMP/supabase.tar.gz" -C /usr/local/bin supabase
           supabase --version
-      - name: Start local Supabase with edge functions (migrations and seed.sql)
-        run: supabase start -x realtime,imgproxy,mailpit,studio,logflare,vector,supavisor,postgres-meta
+      # Realtime too: the Today screen's live updates are tested.
+      - name: Start local Supabase with edge functions and Realtime (migrations and seed.sql)
+        run: supabase start -x imgproxy,mailpit,studio,logflare,vector,supavisor,postgres-meta
       - name: Point the web build at the local stack
         run: |
           supabase status -o json > "$RUNNER_TEMP/status.json"
