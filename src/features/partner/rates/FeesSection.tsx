@@ -31,6 +31,12 @@ export function FeesSection({
       editLabel={t('partner.rates.edit')}
       emptyText={t('partner.rates.fees.empty')}
       testID="fee"
+      editA11yLabel={(fee) =>
+        t('a11y.itemAction', {
+          action: t('partner.rates.edit'),
+          item: localized(fee.name, language),
+        })
+      }
       renderSummary={(fee) => (
         <BodyText>
           {localized(fee.name, language)} · {t(`partner.rates.units.${fee.unit}`)} ·{' '}

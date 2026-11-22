@@ -218,11 +218,12 @@ function InviteForm({
         testID="invite-email"
       />
       <SectionLabel>{t('admin.team.role')}</SectionLabel>
-      <View style={styles.actions}>
+      <View style={styles.actions} accessibilityRole="radiogroup">
         {PARTNER_ROLES.map((option) => (
           <Button
             key={option}
             label={t(`admin.roles.${option}`)}
+            choice="radio"
             selected={option === role}
             onPress={() => setRole(option)}
             testID={`invite-role-${option}`}

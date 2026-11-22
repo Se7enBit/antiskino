@@ -19,11 +19,12 @@ export function PartnerScreen({ children }: Props) {
       {isError ? <Notice tone="error" message={t('common.error')} /> : null}
       {!isError && !camping ? <Notice message={t('partner.noCampings')} /> : null}
       {campings.length > 1 ? (
-        <View style={styles.switcher}>
+        <View style={styles.switcher} accessibilityRole="radiogroup">
           {campings.map((c) => (
             <Button
               key={c.id}
               label={c.name}
+              choice="radio"
               selected={c.id === camping?.id}
               onPress={() => selectCamping(c.id)}
               testID={`camping-switch-${c.slug}`}

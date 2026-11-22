@@ -16,14 +16,16 @@ export function ReviewsModeration() {
 
   return (
     <Screen>
-      <View style={styles.row}>
+      <View style={styles.row} accessibilityRole="radiogroup">
         <Button
           label={t('admin.reviews.all')}
+          choice="radio"
           selected={!onlyHidden}
           onPress={() => setOnlyHidden(false)}
         />
         <Button
           label={t('admin.reviews.hiddenOnly')}
+          choice="radio"
           selected={onlyHidden}
           onPress={() => setOnlyHidden(true)}
           testID="only-hidden"
@@ -110,6 +112,10 @@ function ModeratedReview({ review, busy, failed, onSet }: Props) {
         <View style={styles.row}>
           <Button
             label={t('admin.reviews.hide')}
+            accessibilityLabel={t('a11y.itemAction', {
+              action: t('admin.reviews.hide'),
+              item: [review.author_name, review.camping?.name].filter(Boolean).join(' · '),
+            })}
             onPress={() => setHiding(true)}
             testID={`hide-${review.id}`}
           />

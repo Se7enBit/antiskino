@@ -102,6 +102,10 @@ function PitchTypeCard({ pitchType, onEdit }: { pitchType: PitchTypeRow; onEdit?
       {onEdit ? (
         <Button
           label={t('partner.pitchTypes.edit')}
+          accessibilityLabel={t('a11y.itemAction', {
+            action: t('partner.pitchTypes.edit'),
+            item: localized(pitchType.name, language),
+          })}
           onPress={onEdit}
           testID={`pitch-edit-${pitchType.id}`}
         />

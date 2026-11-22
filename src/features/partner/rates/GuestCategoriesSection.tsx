@@ -29,6 +29,12 @@ export function GuestCategoriesSection({ campingId, guestCategories, canEdit }: 
       editLabel={t('partner.rates.edit')}
       emptyText={t('partner.rates.guests.empty')}
       testID="guest"
+      editA11yLabel={(category) =>
+        t('a11y.itemAction', {
+          action: t('partner.rates.edit'),
+          item: localized(category.name, language),
+        })
+      }
       renderSummary={(category) => (
         <BodyText>
           {localized(category.name, language)} ·{' '}

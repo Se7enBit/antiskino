@@ -32,6 +32,8 @@ export function BookingCard({ booking, today, onAction, busy, failed, pitchWarni
   const t = useT();
   const { language } = useLanguage();
   const eta = shortTime(booking.arrival_eta);
+  // Every card has the same buttons: screen readers hear whose booking each is for.
+  const item = (action: string) => t('a11y.itemAction', { action, item: booking.guest_name });
 
   return (
     <View style={styles.card} testID={`partner-booking-${booking.ref}`}>
@@ -72,17 +74,20 @@ export function BookingCard({ booking, today, onAction, busy, failed, pitchWarni
       <View style={styles.actions}>
         <Button
           label={t('partner.booking.open')}
+          accessibilityLabel={item(t('partner.booking.open'))}
           icon="file-document-outline"
           onPress={() => openBooking(booking.ref)}
           testID={`open-${booking.ref}`}
         />
         <Button
           label={`${t('partner.bookings.call')} ${booking.guest_phone}`}
+          accessibilityLabel={item(`${t('partner.bookings.call')} ${booking.guest_phone}`)}
           icon="phone"
           onPress={() => void Linking.openURL(`tel:${booking.guest_phone.replace(/\s/g, '')}`)}
         />
         <Button
           label={t('partner.bookings.emailGuest')}
+          accessibilityLabel={item(t('partner.bookings.emailGuest'))}
           icon="email-outline"
           onPress={() => void Linking.openURL(`mailto:${booking.guest_email}`)}
         />

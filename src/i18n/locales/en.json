@@ -1035,5 +1035,8 @@
   },
   "regions": {
     "none": "No region"
+  },
+  "a11y": {
+    "itemAction": "{{action}}: {{item}}"
   }
 }

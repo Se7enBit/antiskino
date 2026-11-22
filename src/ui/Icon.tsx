@@ -40,6 +40,10 @@ export function Icon({
       size={size}
       color={color}
       accessibilityLabel={label}
+      // Decorative icons stay out of screen readers. aria-hidden is what the
+      // web reads (otherwise the icon font's character became part of every
+      // button's name); the other two are the apps' own.
+      aria-hidden={!label}
       accessibilityElementsHidden={!label}
       importantForAccessibility={label ? 'yes' : 'no-hide-descendants'}
     />

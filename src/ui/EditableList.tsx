@@ -14,6 +14,8 @@ type Props<T extends { id: string }> = {
   emptyText: string;
   /** One line (or a few) describing an item. */
   renderSummary: (item: T) => ReactNode;
+  /** The Edit button's name for screen readers, e.g. "Edit: Low season". */
+  editA11yLabel?: (item: T) => string;
   /** The editor for an item, or for a new one when item is undefined. */
   renderEditor: (item: T | undefined, close: () => void) => ReactNode;
   testID: string;
@@ -28,6 +30,7 @@ export function EditableList<T extends { id: string }>({
   editLabel,
   emptyText,
   renderSummary,
+  editA11yLabel,
   renderEditor,
   testID,
 }: Props<T>) {
@@ -47,6 +50,7 @@ export function EditableList<T extends { id: string }>({
               {canEdit ? (
                 <Button
                   label={editLabel}
+                  accessibilityLabel={editA11yLabel?.(item)}
                   onPress={() => setEditing(item.id)}
                   testID={`${testID}-edit-${item.id}`}
                 />
