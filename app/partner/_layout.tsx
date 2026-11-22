@@ -1,13 +1,28 @@
 import { Tabs } from 'expo-router/tabs';
-import type { ColorValue } from 'react-native';
+import type { ColorValue, TextStyle } from 'react-native';
 
 import { useCampingBookingsLive } from '@/api/realtime';
 import { RequireAccess } from '@/features/auth/RequireAccess';
+import { titledScreens } from '@/features/common/titledScreens';
 import { HeaderLinks } from '@/features/partner/HeaderLinks';
 import { usePartnerWide } from '@/features/partner/layout';
 import { PartnerProvider, usePartnerArea } from '@/features/partner/PartnerProvider';
 import { useT } from '@/i18n';
 import { Icon, colors, phoneTabBarStyle, tabLabelStyle, type IconName } from '@/ui';
+
+// Bookings is a stack that titles its own screens.
+const titled = titledScreens(['bookings']);
+
+// "Ημερολόγιο" needs 65 px at 11 px, but the tab's 5 px side padding leaves 62
+// at 360 px and the label was cut. Labels may span that padding: stretched,
+// -4 px margins, and a max width above the web's default of 100%.
+const phoneLabelStyle: TextStyle = {
+  ...tabLabelStyle(11),
+  alignSelf: 'stretch',
+  marginHorizontal: -4,
+  maxWidth: '120%',
+  textAlign: 'center',
+};
 
 /**
  * A screen without a tab. Hidden, not `href: null` (that redirects); and no
@@ -42,16 +57,17 @@ function PartnerTabs() {
   useCampingBookingsLive(usePartnerArea().camping?.id);
   return (
     <Tabs
+      screenLayout={titled}
       screenOptions={{
         tabBarPosition: wide ? 'left' : 'bottom',
         tabBarVariant: wide ? 'material' : 'uikit',
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.muted,
         // Like the customer tabs: an icon with its label below on phones (five
-        // tabs of 72 px at 360 px; "Ημερολόγιο" fits at 11 px), beside it in the sidebar.
+        // tabs of 72 px at 360 px), beside it in the sidebar.
         // Pitch types, Rates and Team have no phone tab; Profile links to them.
         tabBarLabelPosition: wide ? 'beside-icon' : 'below-icon',
-        tabBarLabelStyle: tabLabelStyle(wide ? 15 : 11),
+        tabBarLabelStyle: wide ? tabLabelStyle(15) : phoneLabelStyle,
         tabBarStyle: wide ? { width: 220, minWidth: 220 } : phoneTabBarStyle,
         headerTintColor: colors.primary,
         headerRight: () => <HeaderLinks />,

@@ -157,6 +157,13 @@ describe('Partner booking detail', () => {
     expect(screen.getByTestId('desk-pitch').props.value).toBe('B12');
   });
 
+  it('asks for a pitch only for a stay that is coming or under way', async () => {
+    setup({ ...BOOKING, status: 'cancelled', cancel_reason: 'Plans changed' });
+    await renderWithLanguage(<BookingDetailScreen />);
+    expect(screen.getByText('Reason: Plans changed')).toBeTruthy();
+    expect(screen.queryByText('No pitch assigned')).toBeNull();
+  });
+
   it('says when the booking is not the team’s', async () => {
     setup(null);
     await renderWithLanguage(<BookingDetailScreen />);

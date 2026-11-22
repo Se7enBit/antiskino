@@ -33,6 +33,14 @@ export function ConfirmButton({ label, question, yes, no, onConfirm, loading, te
 }
 
 const styles = StyleSheet.create({
-  row: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: spacing.sm },
+  // Its own full-width line: inside a row of buttons it would otherwise be as
+  // wide as its content and run past the card's edge instead of wrapping.
+  row: {
+    width: '100%',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    gap: spacing.sm,
+  },
   question: { fontSize: 15, fontWeight: '600', color: colors.danger },
 });

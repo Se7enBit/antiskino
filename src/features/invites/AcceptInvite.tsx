@@ -4,6 +4,7 @@ import { StyleSheet } from 'react-native';
 import { useAuth, useSignOut } from '@/api/auth';
 import { useAcceptInvite } from '@/api/invites';
 import { SignInForm } from '@/features/auth/SignInForm';
+import { PageHead } from '@/features/common/PageHead';
 import { useT } from '@/i18n';
 import { BodyText, Button, Card, Loading, Notice, Screen, colors } from '@/ui';
 
@@ -76,6 +77,7 @@ export function AcceptInvite({ token }: { token: string | undefined }) {
 
   return (
     <Screen>
+      <PageHead title={`${t('invite.title')} · Antiskino`} />
       <Card title={t('invite.title')}>{body()}</Card>
       <Link href="/" style={styles.link}>
         {t('common.backToApp')}

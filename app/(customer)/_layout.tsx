@@ -1,8 +1,12 @@
 import { Tabs } from 'expo-router/tabs';
 import type { ColorValue } from 'react-native';
 
+import { titledScreens } from '@/features/common/titledScreens';
 import { useT } from '@/i18n';
 import { Icon, colors, phoneTabBarStyle, tabLabelStyle, type IconName } from '@/ui';
+
+// Explore and Bookings are stacks that title their own screens.
+const titled = titledScreens(['(explore)', 'bookings']);
 
 function TabIcon({ name, color }: { name: IconName; color: ColorValue }) {
   return <Icon name={name} color={typeof color === 'string' ? color : colors.muted} size={22} />;
@@ -12,6 +16,7 @@ export default function CustomerLayout() {
   const t = useT();
   return (
     <Tabs
+      screenLayout={titled}
       screenOptions={{
         tabBarActiveTintColor: colors.primary,
         tabBarInactiveTintColor: colors.muted,

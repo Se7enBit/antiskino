@@ -114,8 +114,13 @@ export function BookingDetails({ booking, onCancel, cancelling, cancelFailed, re
         <BodyText>
           {t('booking.review.payOnSite', { price: formatMoney(booking.total_cents, language) })}
         </BodyText>
-        <BodyText>{t(`camping.cancellation.${booking.cancellation_policy}`)}</BodyText>
-        {booking.payment_mode === 'on_site' ? <BodyText>{t('camping.onSiteFree')}</BodyText> : null}
+        {/* The cancellation terms matter only while the guest can still cancel. */}
+        {booking.can_cancel ? (
+          <BodyText>{t(`camping.cancellation.${booking.cancellation_policy}`)}</BodyText>
+        ) : null}
+        {booking.can_cancel && booking.payment_mode === 'on_site' ? (
+          <BodyText>{t('camping.onSiteFree')}</BodyText>
+        ) : null}
       </Card>
 
       <Card title={t('booking.steps.details')}>

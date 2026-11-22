@@ -7,6 +7,8 @@ import { useT } from '@/i18n';
 import { useHydrated } from '@/lib/useHydrated';
 import { Button, Loading, Notice, Screen, colors } from '@/ui';
 
+import { PageHead } from '../common/PageHead';
+
 import { BookingDetails } from './BookingDetails';
 
 const param = (value: unknown) =>
@@ -22,6 +24,7 @@ export function ManageBookingScreen() {
   const token = hydrated ? param(params.t) : undefined;
   return (
     <Screen>
+      <PageHead title={`${t('manage.title')} · Antiskino`} />
       <Text style={styles.title} accessibilityRole="header">
         {t('manage.title')}
       </Text>

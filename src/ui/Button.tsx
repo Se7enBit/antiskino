@@ -65,6 +65,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: spacing.md,
+    // A label that wraps (long Greek words, narrow cards) makes the button taller.
+    paddingVertical: spacing.sm,
     borderRadius: 8,
     borderWidth: 1,
     borderColor: colors.border,
@@ -74,6 +76,6 @@ const styles = StyleSheet.create({
   filled: { borderColor: colors.primary, backgroundColor: colors.primary },
   inactive: { opacity: 0.5 },
   pressed: { opacity: 0.7 },
-  label: { fontSize: 16, color: colors.text },
+  label: { fontSize: 16, color: colors.text, textAlign: 'center', flexShrink: 1 },
   filledLabel: { color: colors.onPrimary, fontWeight: '600' },
 });
