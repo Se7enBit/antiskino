@@ -8,7 +8,8 @@ name: Back up production
 # Inside (after decrypting): roles.sql, schema.sql and data.sql from
 # `supabase db dump` (users, bookings, everything in the public schema). Not
 # inside: Vault secrets (never dumped) and the photo files in Storage.
-# Restoring needs a computer: docs/launch.md (Backups).
+# Restoring: docs/operations.md (Restore a backup). The Backup restore test
+# checks monthly that the latest backup can be restored.
 #
 # Until production exists (SUPABASE_PROJECT_REF unset) each run just says so and
 # succeeds. Uses the same secrets as Release.
@@ -75,26 +76,15 @@ jobs:
         if: steps.setup.outputs.ready == 'true'
         run: supabase link --project-ref "$SUPABASE_PROJECT_REF"
 
-      # The plain dumps exist only on this runner, only until they are encrypted.
+      # scripts/backup/dump.sh: the plain dumps exist only on this runner, only
+      # until they are encrypted. The Backup restore test uses the same script.
       - name: Dump and encrypt
         if: steps.setup.outputs.ready == 'true'
         id: dump
         run: |
-          dir="$RUNNER_TEMP/dump"
-          mkdir -p "$dir"
-          supabase db dump --remote --password "$SUPABASE_DB_PASSWORD" --role-only -f "$dir/roles.sql"
-          supabase db dump --remote --password "$SUPABASE_DB_PASSWORD" -f "$dir/schema.sql"
-          supabase db dump --remote --password "$SUPABASE_DB_PASSWORD" --data-only --use-copy -f "$dir/data.sql"
-          for file in roles schema data; do
-            [ -s "$dir/$file.sql" ] || { echo "::error::$file.sql is empty."; exit 1; }
-          done
           name="antiskino-$(date -u +%Y-%m-%d)"
-          tar -C "$dir" -czf - roles.sql schema.sql data.sql \
-            | gpg --batch --yes --pinentry-mode loopback --passphrase-fd 3 \
-                --symmetric --cipher-algo AES256 -o "$RUNNER_TEMP/$name.tar.gz.gpg" \
-                3<<< "$BACKUP_PASSPHRASE"
-          rm -rf "$dir"
-          ls -l "$RUNNER_TEMP/$name.tar.gz.gpg"
+          scripts/backup/dump.sh "$RUNNER_TEMP/$name.tar.gz.gpg" \
+            --remote --password "$SUPABASE_DB_PASSWORD"
           echo "name=$name" >> "$GITHUB_OUTPUT"
 
       - uses: actions/upload-artifact@v4

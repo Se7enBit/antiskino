@@ -31,7 +31,7 @@ The Supabase CLI is v3 (pinned in CI): `gen types` and `test db` target the loca
 The owner mostly works from a phone, so:
 - **CI is the test runner.** Keep `typecheck → lint → jest → deno test → pgTAP → web export → end-to-end` green, and add tests with every logic change. The end-to-end tests (`e2e/`, Playwright: a guest's booking, the camping answering and checking in, the admin cancelling) need the local Supabase stack, so they run in CI only; on failure the report is the run's `e2e-report` artifact.
 - The web preview (https://se7enbit.github.io/antiskino/; `https://<domain>/preview/` once `CUSTOM_DOMAIN` is set) deploys on push to `main` (the Website workflow), and native checks use the EAS preview APK (GitHub → Actions → "Android preview build" → Run workflow; install from expo.dev → Builds). Push notifications don't work in Expo Go.
-- Production is updated only by hand: Actions → "Release" (prod migrations, edge functions, then the website from the `production` tag) and "Android release build" (AAB); "iOS build" sends a preview or production build to TestFlight once the Apple account exists. `docs/launch.md` is the launch checklist.
+- Production is updated only by hand: Actions → "Release" (prod migrations, edge functions, then the website from the `production` tag) and "Android release build" (AAB); "iOS build" sends a preview or production build to TestFlight once the Apple account exists. `docs/launch.md` is the launch checklist; `docs/operations.md` says what to do when a check fails, a key leaks or a backup must be restored.
 - Demo data for the **dev** project: `supabase/dev-data.sql`, pasted into the Supabase SQL editor (re-runnable; never on production). `supabase/seed.sql` is only for the local stack and CI.
 - Keep changes small. End each task with a short "how to check it on the phone" note (which screen, what to tap, what to expect).
 
@@ -57,6 +57,7 @@ The owner mostly works from a phone, so:
 - Storage blocks direct SQL deletes on `storage.objects`; tests that delete set `storage.allow_delete_query` to `'true'` like the Storage API does.
 - Bookings have no direct insert/update policies; writes go through edge functions and `security definer` SQL functions.
 - The Supabase secret (service role) key is used only inside edge functions. Never put it in the app. Never log secrets, tokens or guest personal data.
+- Backups dump only the `public` schema; restores take the schema from the migrations. Anything a migration makes outside `public` (pg_cron jobs, triggers on `auth` tables, Storage policies, the realtime publication) must also be listed by `scripts/backup/check.sql`, so the monthly Backup restore test checks it comes back.
 - Regenerate `src/api/database.types.ts` after every migration (`npm run db:types`). CI fails when it is stale.
 
 ### i18n

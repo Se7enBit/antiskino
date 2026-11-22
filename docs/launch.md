@@ -17,6 +17,7 @@ What the workflows do:
 | Keep databases awake | daily | one small query to each project, so free projects don't pause |
 | Uptime check | every 3 hours, or by hand | opens the website and runs a search; fails (GitHub emails you) when either doesn't answer |
 | Back up production | nightly, or by hand | encrypted copy of the production database, kept 30 days |
+| Backup restore test | monthly, or by hand | restores the latest backup on a test database and checks it (before production exists: a backup of the demo data) |
 | Dependency check | monthly, or by hand | fails on high or critical vulnerabilities in the packages; lists all findings and newer versions |
 
 Before launch the site is the preview at `https://se7enbit.github.io/antiskino/`.
@@ -39,7 +40,7 @@ After step 4 the domain's root is production and the preview moves to
    (supabase.com → Account → Access tokens → Generate), and
    `BACKUP_PASSPHRASE`: a long random password from your password manager,
    saved there too. Nightly backups are encrypted with it and can't be read
-   without it (see Backups below).
+   without it (docs/operations.md: Restore a backup).
 3. Variables: `PROD_SUPABASE_URL` (`https://<ref>.supabase.co`) and
    `PROD_SUPABASE_KEY` (Project settings → API keys → publishable key).
 4. GitHub → Actions → **Release** → Run workflow (branch `main`). It applies
@@ -154,40 +155,17 @@ Readable stack traces (optional): without this, reports show minified code.
 
 ## 6. Afterwards
 
-- **Uptime check** runs every 3 hours. If GitHub emails that it failed, open
-  the run: it says which part didn't answer (website, dev or production search).
-  A paused free project is the usual cause (restore it in Supabase).
-- **Dependency check** runs on the 1st of each month. If GitHub emails that it
-  failed, ask Claude for a dependency update (the run lists what is affected).
-- **Keep databases awake** runs daily. If GitHub emails that it was turned off
-  (no commits for 60 days), open it and press Run workflow.
-- The free plan has no backups of its own; the **Back up production** workflow
-  covers that (below). A paid plan adds Supabase's daily backups and
-  point-in-time restore once there is real traffic.
+`docs/operations.md`: what checks itself (uptime, backups, the monthly restore
+test, dependencies, crash reports), what a failure email means, and what to do
+when something goes wrong, including changing a leaked key and restoring a
+backup.
 
-### Backups
-
-Every night **Back up production** saves the production database in one file
-encrypted with `BACKUP_PASSPHRASE` (users, bookings and everything else in the
-database; not the Vault secrets, not the photo files in Storage). Each run keeps
-its file for 30 days: Actions → Back up production → a run → Artifacts
-(`backup-<date>`). Before production exists, each run just says there is
-nothing to back up.
-
-Check now and then that the latest runs are green. To restore (on a computer,
-with the Supabase CLI and `psql`), into a new or emptied project:
-
-```bash
-unzip backup-<date>.zip
-gpg -d antiskino-<date>.tar.gz.gpg | tar -xz   # asks for BACKUP_PASSPHRASE
-psql --single-transaction --variable ON_ERROR_STOP=1 \
-  --file roles.sql --file schema.sql \
-  --command 'SET session_replication_role = replica' --file data.sql \
-  --dbname "<the project's connection string, Session pooler>"
-```
-
-Then set the edge function secrets and the Vault secrets again (step 2.5–2.6)
-and redeploy the functions with Release.
+- The free plan has no backups of its own; **Back up production** covers that:
+  every night an encrypted copy of the database (users, bookings, everything;
+  not the Vault secrets, not the photo files), kept 30 days as the run's
+  artifact. Check now and then that its runs are green. A paid plan adds
+  Supabase's daily backups and point-in-time restore once there is real
+  traffic.
 
 ## 7. iPhone app on the App Store (after Android)
 
