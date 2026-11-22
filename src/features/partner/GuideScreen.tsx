@@ -31,6 +31,7 @@ export function GuideScreen() {
             <Pressable
               accessibilityRole="button"
               accessibilityState={{ expanded }}
+              aria-expanded={expanded}
               onPress={() => setOpen(expanded ? null : id)}
               style={styles.heading}
               testID={`guide-${id}`}

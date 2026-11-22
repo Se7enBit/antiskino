@@ -85,10 +85,11 @@ function Results({ request }: { request: SearchRequest }) {
         <Text style={styles.heading} accessibilityRole="header">
           {t('search.results')}
         </Text>
-        <View style={styles.toggle}>
+        <View style={styles.toggle} accessibilityRole="radiogroup">
           <Button
             label={t('search.list')}
             icon="format-list-bulleted"
+            choice="radio"
             selected={view === 'list'}
             onPress={() => setView('list')}
             testID="results-list"
@@ -96,6 +97,7 @@ function Results({ request }: { request: SearchRequest }) {
           <Button
             label={t('search.map')}
             icon="map"
+            choice="radio"
             selected={view === 'map'}
             onPress={() => setView('map')}
             testID="results-map"

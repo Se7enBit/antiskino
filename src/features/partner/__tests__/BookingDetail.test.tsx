@@ -119,6 +119,8 @@ describe('Partner booking detail', () => {
   it('checks the guest in on the arrival day', async () => {
     const { action } = setup();
     await renderWithLanguage(<BookingDetailScreen />);
+    // Screen readers hear whose booking the button is for.
+    expect(screen.getByLabelText('Check in: Maria Papadopoulou')).toBeTruthy();
     await fireEvent.press(screen.getByTestId('check-in-ANT-7KQ2XM'));
     expect(action.mutate).toHaveBeenCalledWith({
       bookingId: 'b1',

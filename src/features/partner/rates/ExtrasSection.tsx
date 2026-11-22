@@ -35,6 +35,12 @@ export function ExtrasSection({
       editLabel={t('partner.rates.edit')}
       emptyText={t('partner.rates.extras.empty')}
       testID="extra"
+      editA11yLabel={(extra) =>
+        t('a11y.itemAction', {
+          action: t('partner.rates.edit'),
+          item: localized(extra.name, language),
+        })
+      }
       renderSummary={(extra) => (
         <>
           <BodyText>

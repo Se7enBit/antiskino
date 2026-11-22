@@ -9,6 +9,13 @@ type Props = {
   variant?: 'primary' | 'secondary';
   /** For toggle buttons such as the language switch. */
   selected?: boolean;
+  /**
+   * In a group of choices: 'radio' (pick one) or 'checkbox' (pick several), so
+   * screen readers say which are chosen ("checked") instead of a plain button.
+   */
+  choice?: 'radio' | 'checkbox';
+  /** For a button that shows or hides something (e.g. the calendar). */
+  expanded?: boolean;
   disabled?: boolean;
   loading?: boolean;
   /** An icon before the label. */
@@ -23,6 +30,8 @@ export function Button({
   onPress,
   variant = 'secondary',
   selected = false,
+  choice,
+  expanded,
   disabled = false,
   loading = false,
   icon,
@@ -33,9 +42,17 @@ export function Button({
   const inactive = disabled || loading;
   return (
     <Pressable
-      accessibilityRole="button"
+      accessibilityRole={choice ?? 'button'}
       accessibilityLabel={accessibilityLabel}
-      accessibilityState={{ selected, disabled: inactive, busy: loading }}
+      accessibilityState={
+        choice
+          ? { checked: selected, disabled: inactive, busy: loading, expanded }
+          : { selected, disabled: inactive, busy: loading, expanded }
+      }
+      // The web reads only aria-* (accessibilityState is the apps' own).
+      aria-checked={choice ? selected : undefined}
+      aria-expanded={expanded}
+      aria-busy={loading || undefined}
       disabled={inactive}
       onPress={onPress}
       testID={testID}

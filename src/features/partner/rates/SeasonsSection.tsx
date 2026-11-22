@@ -37,6 +37,12 @@ export function SeasonsSection({
       editLabel={t('partner.rates.edit')}
       emptyText={t('partner.rates.seasons.empty')}
       testID="season"
+      editA11yLabel={(season) =>
+        t('a11y.itemAction', {
+          action: t('partner.rates.edit'),
+          item: localized(season.name, language),
+        })
+      }
       renderSummary={(season) => {
         const range = parseNightRange(season.dates);
         return (

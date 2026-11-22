@@ -8,7 +8,7 @@ import type { IsoDate } from '@/lib/dates';
 import { Button, ConfirmButton, Notice, TextField, spacing } from '@/ui';
 
 type Props = {
-  booking: { ref: string; status: string; arrival: IsoDate };
+  booking: { ref: string; status: string; arrival: IsoDate; guest_name: string };
   today: IsoDate;
   onAction: (action: BookingAction, reason?: string) => void;
   busy: boolean;
@@ -24,6 +24,8 @@ export function BookingActions({ booking, today, onAction, busy, failed }: Props
   const actions = receptionActions(booking, today);
   if (actions.length === 0) return null;
   const { ref } = booking;
+  // Lists show several bookings: screen readers hear whose each button is for.
+  const named = (action: string) => t('a11y.itemAction', { action, item: booking.guest_name });
 
   return (
     <View style={styles.block}>
@@ -32,6 +34,7 @@ export function BookingActions({ booking, today, onAction, busy, failed }: Props
         {actions.includes('accept') ? (
           <Button
             label={t('partner.bookings.accept')}
+            accessibilityLabel={named(t('partner.bookings.accept'))}
             variant="primary"
             onPress={() => onAction('accept')}
             loading={busy}
@@ -41,6 +44,7 @@ export function BookingActions({ booking, today, onAction, busy, failed }: Props
         {actions.includes('decline') ? (
           <ConfirmButton
             label={t('partner.bookings.decline')}
+            accessibilityLabel={named(t('partner.bookings.decline'))}
             question={t('partner.bookings.declineQuestion')}
             yes={t('partner.bookings.declineYes')}
             no={t('manage.cancelNo')}
@@ -52,6 +56,7 @@ export function BookingActions({ booking, today, onAction, busy, failed }: Props
         {actions.includes('check_in') ? (
           <Button
             label={t('partner.bookings.checkIn')}
+            accessibilityLabel={named(t('partner.bookings.checkIn'))}
             variant="primary"
             icon="check"
             onPress={() => onAction('check_in')}
@@ -62,6 +67,7 @@ export function BookingActions({ booking, today, onAction, busy, failed }: Props
         {actions.includes('no_show') ? (
           <ConfirmButton
             label={t('partner.bookings.noShow')}
+            accessibilityLabel={named(t('partner.bookings.noShow'))}
             question={t('partner.bookings.noShowQuestion')}
             yes={t('partner.bookings.noShowYes')}
             no={t('manage.cancelNo')}
@@ -73,6 +79,7 @@ export function BookingActions({ booking, today, onAction, busy, failed }: Props
         {actions.includes('cancel') && !cancelling ? (
           <Button
             label={t('partner.bookings.cancel')}
+            accessibilityLabel={named(t('partner.bookings.cancel'))}
             onPress={() => setCancelling(true)}
             testID={`cancel-${ref}`}
           />

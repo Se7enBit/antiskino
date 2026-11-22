@@ -48,6 +48,7 @@ export function StarPicker({ value, onChange, starLabel, testID }: PickerProps) 
           onPress={() => onChange(n)}
           accessibilityRole="radio"
           accessibilityState={{ checked: value === n }}
+          aria-checked={value === n}
           accessibilityLabel={starLabel(n)}
           hitSlop={4}
           style={styles.target}

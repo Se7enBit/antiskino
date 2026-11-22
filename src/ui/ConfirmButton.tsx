@@ -11,13 +11,32 @@ type Props = {
   no: string;
   onConfirm: () => void;
   loading?: boolean;
+  /** When the label alone doesn't say what it acts on (e.g. in a list). */
+  accessibilityLabel?: string;
   testID?: string;
 };
 
 /** A destructive action that asks once more inline (no native dialogs, so it works on web too). */
-export function ConfirmButton({ label, question, yes, no, onConfirm, loading, testID }: Props) {
+export function ConfirmButton({
+  label,
+  question,
+  yes,
+  no,
+  onConfirm,
+  loading,
+  accessibilityLabel,
+  testID,
+}: Props) {
   const [asking, setAsking] = useState(false);
-  if (!asking) return <Button label={label} onPress={() => setAsking(true)} testID={testID} />;
+  if (!asking)
+    return (
+      <Button
+        label={label}
+        accessibilityLabel={accessibilityLabel}
+        onPress={() => setAsking(true)}
+        testID={testID}
+      />
+    );
   return (
     <View style={styles.row}>
       <Text style={styles.question}>{question}</Text>

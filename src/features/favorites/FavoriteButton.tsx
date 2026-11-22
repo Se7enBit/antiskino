@@ -18,6 +18,7 @@ export function FavoriteButton({ campingId, name }: { campingId: string; name: s
     <Pressable
       accessibilityRole="button"
       accessibilityState={{ selected: saved }}
+      aria-pressed={saved}
       accessibilityLabel={saved ? t('favorites.remove', { name }) : t('favorites.add', { name })}
       onPress={() => favorites.toggle(campingId)}
       style={({ pressed }) => [styles.button, pressed && styles.pressed]}

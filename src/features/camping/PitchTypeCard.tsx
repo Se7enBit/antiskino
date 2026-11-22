@@ -68,6 +68,10 @@ export function PitchTypeCard({ pitchType, price, onBook }: Props) {
         </Text>
         <Button
           label={t('camping.book')}
+          accessibilityLabel={t('a11y.itemAction', {
+            action: t('camping.book'),
+            item: localized(pitchType.name, language),
+          })}
           variant="primary"
           onPress={() => onBook?.()}
           disabled={!onBook}

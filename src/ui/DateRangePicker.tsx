@@ -87,6 +87,8 @@ export function DateRangePicker({
                 accessibilityRole="button"
                 accessibilityLabel={`${formatNight(day, language).weekday} ${Number(day.slice(8))} ${formatMonth(day, language)}`}
                 accessibilityState={{ selected, disabled: off }}
+                // The web reads aria-*: a chosen arrival or departure day is "pressed".
+                aria-pressed={selected}
                 disabled={off}
                 onPress={() => pick(day)}
                 style={[

@@ -85,6 +85,7 @@ export function SearchForm({ regions, onSearch }: Props) {
           icon="calendar-range"
           onPress={() => setCalendar((open) => !open)}
           selected={calendar}
+          expanded={calendar}
           testID="search-dates"
         />
         {calendar ? (
@@ -149,12 +150,13 @@ export function SearchForm({ regions, onSearch }: Props) {
 
       <View style={styles.section}>
         <SectionLabel>{t('search.equipment')}</SectionLabel>
-        <View style={styles.row}>
+        <View style={styles.row} accessibilityRole="radiogroup">
           {EQUIPMENT.map((equipment) => (
             <Button
               key={equipment}
               label={t(`equipment.${equipment}`)}
               icon={EQUIPMENT_ICONS[equipment]}
+              choice="radio"
               selected={query.equipment === equipment}
               onPress={() => update({ equipment })}
               testID={`search-equipment-${equipment}`}
