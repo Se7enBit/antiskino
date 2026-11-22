@@ -502,7 +502,7 @@ Hosted checkout (redirect to `checkoutUrl`) keeps card data out of the app on al
 - [x] Signing in with an email claims earlier guest bookings with that email (pgTAP 009).
 - [x] The camping accepts a request from Today and checks a guest in on the arrival day; the admin corrects a guest's details and cancels with a reason; each step is in the booking's history and the guest is emailed (Playwright `e2e/reception.e2e.ts`).
 - [x] RLS: a member of partner A can't read any row of partner B; anon can't read bookings (pgTAP 022 checks every table and view).
-- [ ] Partner Today updates within seconds of a new booking (realtime), and the staff phone gets a push. *The realtime publication and the push queue are tested (pgTAP 012, 013; deno notify); seeing it on a phone is the field test.*
+- [ ] Partner Today updates within seconds of a new booking (realtime), and the staff phone gets a push. *Today's live update is tested in a browser (Playwright `e2e/reception.e2e.ts`, with Realtime in the CI stack), the realtime publication and the push queue in pgTAP 012, 013 and deno notify; a push received on a phone is the field test.*
 - [x] One live camping → Home opens its page; two or more → search (Jest Home).
 - [x] Every UI string comes from locale files; a test fails if `el.json` and `en.json` keys differ (Jest locales).
 - [x] Web `/c/<slug>` is pre-rendered with title, description and og:image (Jest CampingHead).

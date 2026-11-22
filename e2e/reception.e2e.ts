@@ -5,17 +5,20 @@ import { signIn, sql, watchCsp } from './helpers';
 // The camping's and Antiskino's side (SPEC F11, F12), against the local stack
 // and its seed: the owner of the demo partner answers a request at
 // "demo-pefka" (bookings by request) and checks a guest in at "demo-thalassa"
-// on the arrival day; the admin corrects a guest's phone and cancels the
-// booking with a reason. Each test makes its own bookings, with emails unique
-// to the run.
+// on the arrival day; Today shows a new request within seconds (Realtime);
+// the admin corrects a guest's phone and cancels the booking with a reason.
+// Each test makes its own bookings, with emails unique to the run.
 
 const OWNER = 'owner@antiskino.test';
 const ADMIN = 'admin@antiskino.test';
 const THALASSA = 'c0000000-0000-4000-8000-000000000001';
 const THALASSA_TENT = 'c1000000-0000-4000-8000-000000000001';
 const THALASSA_ADULT = 'c3000000-0000-4000-8000-000000000001';
+const PEFKA = 'c0000000-0000-4000-8000-000000000002';
 const PEFKA_TENT = 'c1000000-0000-4000-8000-000000000011';
-const RUN = Date.now().toString(36);
+const PEFKA_ADULT = 'c3000000-0000-4000-8000-000000000011';
+/** Unique per call: guest emails and tokens of each test run (also when repeated). */
+const unique = () => `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`;
 
 const statusOf = (ref: string) => sql(`select status from public.bookings where ref = '${ref}'`);
 
@@ -27,6 +30,7 @@ const guestEmails = (ref: string, kind: string) =>
   );
 
 test('the camping accepts a guest’s request from Today', async ({ page }) => {
+  const run = unique();
   const violations = watchCsp(page);
 
   // The guest asks for three nights at the camping that books by request.
@@ -34,7 +38,7 @@ test('the camping accepts a guest’s request from Today', async ({ page }) => {
   await page.getByTestId(`pitch-${PEFKA_TENT}-book`).click();
   await page.getByTestId('booking-continue').click();
   await page.getByTestId('guest-name').fill('Lena Weber');
-  await page.getByTestId('guest-email').fill(`lena.${RUN}@example.org`);
+  await page.getByTestId('guest-email').fill(`lena.${run}@example.org`);
   await page.getByTestId('guest-phone').fill('+30 690 000 0001');
   await page.getByTestId('guest-country-GR').click();
   await page.getByTestId('guest-locale-en').click();
@@ -67,7 +71,41 @@ test('the camping accepts a guest’s request from Today', async ({ page }) => {
   expect(violations).toEqual([]);
 });
 
+test('Today shows a new request within seconds, without reloading', async ({ page }) => {
+  const run = unique();
+  const violations = watchCsp(page);
+  // Realtime confirms each subscription on the page's WebSocket; wait for the
+  // one of Pefka's bookings before anything happens there.
+  const listening = new Promise<void>((resolve, reject) => {
+    setTimeout(() => reject(new Error('Realtime never confirmed the subscription')), 15_000);
+    page.on('websocket', (socket) => {
+      socket.on('framereceived', ({ payload }) => {
+        const text = typeof payload === 'string' ? payload : payload.toString();
+        if (text.includes(PEFKA) && text.includes('Subscribed to PostgreSQL')) resolve();
+      });
+    });
+  });
+  await signIn(page, OWNER);
+  await page.goto('partner');
+  await page.getByTestId('camping-switch-demo-pefka').click();
+  await listening;
+
+  // A guest's request arrives, made the way create-booking makes one.
+  const ref = sql(`
+    select ref from public.reserve_and_create_booking(
+      '${PEFKA_TENT}', '2027-09-06', '2027-09-09', 'tent', '{"${PEFKA_ADULT}": 2}', '{}',
+      '{"name": "Anna Novak", "email": "anna.${run}@example.org", "phone": "+420 600 000 000",
+        "country": "CZ", "locale": "en"}',
+      null, 6000, '{}', public.sha256_hex('e2e-live-${run}'))`);
+  expect(statusOf(ref)).toBe('requested');
+
+  // It appears on the open Today screen, ready to answer.
+  await expect(page.getByTestId(`accept-${ref}`)).toBeVisible({ timeout: 10_000 });
+  expect(violations).toEqual([]);
+});
+
 test('the camping checks a guest in on the arrival day', async ({ page }) => {
+  const run = unique();
   const violations = watchCsp(page);
   // A confirmed stay that starts today in Athens (the seed's seasons are in
   // 2027, so it's added directly; checking in doesn't touch the nights).
@@ -76,9 +114,9 @@ test('the camping checks a guest in on the arrival day', async ({ page }) => {
       guest_country, locale, arrival, departure, equipment, party, party_size, status, total_cents,
       price_breakdown, payment_mode, cancellation_policy, commission_bps, commission_cents, manage_token_hash)
     select public.new_booking_ref(), '${THALASSA}', '${THALASSA_TENT}', 'Jonas Berg',
-      'jonas.${RUN}@example.org', '+46 70 000 0000', 'SE', 'en', d, d + 2, 'tent',
+      'jonas.${run}@example.org', '+46 70 000 0000', 'SE', 'en', d, d + 2, 'tent',
       '{"${THALASSA_ADULT}": 2}', 2, 'confirmed', 6000, '{}', 'on_site', 'moderate', 600, 360,
-      public.sha256_hex('e2e-checkin-${RUN}')
+      public.sha256_hex('e2e-checkin-${run}')
     from (select (now() at time zone 'Europe/Athens')::date as d) today
     returning ref`);
   expect(ref).toMatch(/^ANT-[0-9A-Z]{6}$/);
@@ -104,6 +142,7 @@ test('the camping checks a guest in on the arrival day', async ({ page }) => {
 test('the admin corrects a guest’s phone and cancels the booking with a reason', async ({
   page,
 }) => {
+  const run = unique();
   const violations = watchCsp(page);
   const nights = () =>
     sql(
@@ -114,9 +153,9 @@ test('the admin corrects a guest’s phone and cancels the booking with a reason
   const ref = sql(`
     select ref from public.reserve_and_create_booking(
       '${THALASSA_TENT}', '2027-08-10', '2027-08-13', 'tent', '{"${THALASSA_ADULT}": 2}', '{}',
-      '{"name": "Sofia Rossi", "email": "sofia.${RUN}@example.org", "phone": "+39 320 000 0000",
+      '{"name": "Sofia Rossi", "email": "sofia.${run}@example.org", "phone": "+39 320 000 0000",
         "country": "IT", "locale": "en"}',
-      null, 12000, '{}', public.sha256_hex('e2e-admin-${RUN}'))`);
+      null, 12000, '{}', public.sha256_hex('e2e-admin-${run}'))`);
   expect(statusOf(ref)).toBe('confirmed');
   expect(Number(nights())).toBe(before + 1);
 

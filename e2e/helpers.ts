@@ -34,26 +34,12 @@ type Session = { access_token?: string; expires_in?: number };
  */
 export async function signIn(page: Page, email: string): Promise<void> {
   expect(SERVICE_KEY, 'E2E_SERVICE_KEY: the local stack’s service key').not.toBe('');
-  const link = (await (
-    await fetch(`${API_URL}/auth/v1/admin/generate_link`, {
-      method: 'POST',
-      headers: {
-        apikey: SERVICE_KEY,
-        Authorization: `Bearer ${SERVICE_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ type: 'magiclink', email }),
-    })
-  ).json()) as { email_otp?: string; properties?: { email_otp?: string } };
-  const token = link.email_otp ?? link.properties?.email_otp;
-  expect(token, `a sign-in code for ${email}`).toBeTruthy();
-  const session = (await (
-    await fetch(`${API_URL}/auth/v1/verify`, {
-      method: 'POST',
-      headers: { apikey: ANON_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ type: 'magiclink', email, token }),
-    })
-  ).json()) as Session;
+  // A newer code for the same user replaces the older one, so two tests
+  // signing the same user in at once can each lose theirs: try again.
+  let session: Session = {};
+  for (let attempt = 0; attempt < 3 && !session.access_token; attempt += 1) {
+    session = await newSession(email);
+  }
   expect(session.access_token, `a session for ${email}`).toBeTruthy();
   const stored = JSON.stringify({
     ...session,
@@ -67,6 +53,29 @@ export async function signIn(page: Page, email: string): Promise<void> {
     },
     [key, stored] as const,
   );
+}
+
+async function newSession(email: string): Promise<Session> {
+  const link = (await (
+    await fetch(`${API_URL}/auth/v1/admin/generate_link`, {
+      method: 'POST',
+      headers: {
+        apikey: SERVICE_KEY,
+        Authorization: `Bearer ${SERVICE_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ type: 'magiclink', email }),
+    })
+  ).json()) as { email_otp?: string; properties?: { email_otp?: string } };
+  const token = link.email_otp ?? link.properties?.email_otp;
+  expect(token, `a sign-in code for ${email}`).toBeTruthy();
+  return (await (
+    await fetch(`${API_URL}/auth/v1/verify`, {
+      method: 'POST',
+      headers: { apikey: ANON_KEY, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ type: 'magiclink', email, token }),
+    })
+  ).json()) as Session;
 }
 
 /** Fails the test on any Content-Security-Policy violation the page reports. */

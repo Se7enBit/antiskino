@@ -8,8 +8,9 @@ seed (`supabase/seed.sql`), checking the database after each step (SPEC §8):
   in both languages under the Content-Security-Policy.
 - `reception.e2e.ts`: the camping's and Antiskino's side. The owner accepts a
   guest's request at "demo-pefka" (bookings by request) from Today and checks
-  a guest in on the arrival day; the admin opens a booking from Admin →
-  Bookings, corrects the guest's phone and cancels it with a reason.
+  a guest in on the arrival day; a new request shows on the open Today screen
+  within seconds (Realtime); the admin opens a booking from Admin → Bookings,
+  corrects the guest's phone and cancels it with a reason.
 
 `helpers.ts` holds the database query and the sign-in: the owner and the admin
 are signed in without email, with a one-time code from the local stack's auth
@@ -18,7 +19,8 @@ mail server.
 
 They run in CI (job "End-to-end"):
 
-1. `supabase start` (database with migrations and seed, API, edge functions);
+1. `supabase start` (database with migrations and seed, API, edge functions,
+   Realtime);
 2. `npx expo export -p web` against that stack, with
    `EXPO_PUBLIC_SITE_URL=http://127.0.0.1:8081/antiskino`;
 3. `npx playwright test -c e2e/playwright.config.ts`, which serves `dist/`
