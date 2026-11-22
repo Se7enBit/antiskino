@@ -6,8 +6,9 @@
 --   admin@antiskino.test  platform admin
 --   owner@antiskino.test  owner of the demo partner
 --   guest@antiskino.test  camper
--- plus a demo partner (owned by owner@) with one live camping, two pitch types,
--- the 2027 seasons, prices and inventory.
+-- plus a demo partner (owned by owner@) with two live campings: Thalassa
+-- (instant booking: two pitch types, the 2027 seasons, prices and inventory) and
+-- Pefka (bookings by request, for the end-to-end test of answering a request).
 
 insert into auth.users (
   instance_id, id, aud, role, email, email_confirmed_at,
@@ -128,4 +129,39 @@ where s.camping_id = 'c0000000-0000-4000-8000-000000000001';
 select set_config('request.jwt.claims', '{"sub": "a0000000-0000-4000-8000-000000000002", "role": "authenticated"}', false);
 select public.set_allotment('c1000000-0000-4000-8000-000000000001', '2027-05-01', '2027-09-30', 10);
 select public.set_allotment('c1000000-0000-4000-8000-000000000002', '2027-05-01', '2027-09-30', 6);
+select set_config('request.jwt.claims', '', false);
+
+-- ---------------------------------------------------------------------------
+-- A second camping of the demo partner, booked by request
+-- ---------------------------------------------------------------------------
+
+insert into public.campings (
+  id, partner_id, slug, status, name, short_descr, region, address, lat, lng, phone, email,
+  amenities, check_in_from, check_out_until, confirmation_mode, cancellation_policy
+) values (
+  'c0000000-0000-4000-8000-000000000002', 'b0000000-0000-4000-8000-000000000001',
+  'demo-pefka', 'live', 'Camping Pefka (demo)',
+  '{"el": "Θέσεις κάτω από τα πεύκα.", "en": "Pitches under the pine trees."}',
+  'Pelion', 'Kala Nera, 370 10 Pelion', 39.3290, 23.1180, '+30 2423 000000', 'pefka@antiskino.test',
+  '{hot_showers,shade}', '14:00', '12:00', 'request', 'flexible'
+);
+
+insert into public.pitch_types (id, camping_id, name, accepts, max_people, sort) values
+  ('c1000000-0000-4000-8000-000000000011', 'c0000000-0000-4000-8000-000000000002',
+   '{"el": "Θέση σκηνής", "en": "Tent pitch"}', '{tent}', 4, 1);
+
+insert into public.seasons (id, camping_id, name, dates, min_nights) values
+  ('c2000000-0000-4000-8000-000000000011', 'c0000000-0000-4000-8000-000000000002',
+   '{"el": "Σεζόν", "en": "Season"}', '[2027-05-01,2027-10-01)', 1);
+
+insert into public.guest_categories (id, camping_id, name, min_age, max_age, sort) values
+  ('c3000000-0000-4000-8000-000000000011', 'c0000000-0000-4000-8000-000000000002',
+   '{"el": "Ενήλικας", "en": "Adult"}', 0, null, 1);
+
+insert into public.prices (season_id, item_type, item_id, amount_cents) values
+  ('c2000000-0000-4000-8000-000000000011', 'pitch', 'c1000000-0000-4000-8000-000000000011', 1200),
+  ('c2000000-0000-4000-8000-000000000011', 'guest', 'c3000000-0000-4000-8000-000000000011', 800);
+
+select set_config('request.jwt.claims', '{"sub": "a0000000-0000-4000-8000-000000000002", "role": "authenticated"}', false);
+select public.set_allotment('c1000000-0000-4000-8000-000000000011', '2027-05-01', '2027-09-30', 5);
 select set_config('request.jwt.claims', '', false);

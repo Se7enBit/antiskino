@@ -140,14 +140,18 @@ jobs:
             const url = pick('API_URL', 'api_url');
             const key = pick('ANON_KEY', 'PUBLISHABLE_KEY', 'anon_key', 'publishable_key');
             const db = pick('DB_URL', 'db_url');
-            if (!url || !key || !db) {
-              console.error('supabase status has no API URL, anon key or DB URL. Keys: ' + Object.keys(s).join(', '));
+            // The local stack's own service key (a fixed demo value): the test
+            // signs the demo camping owner and admin in with it, without email.
+            const service = pick('SERVICE_ROLE_KEY', 'SECRET_KEY', 'service_role_key', 'secret_key');
+            if (!url || !key || !db || !service) {
+              console.error('supabase status has no API URL, anon key, DB URL or service key. Keys: ' + Object.keys(s).join(', '));
               process.exit(1);
             }
             require('fs').appendFileSync(process.env.GITHUB_ENV,
               'EXPO_PUBLIC_SUPABASE_URL=' + url + '\\n' +
               'EXPO_PUBLIC_SUPABASE_KEY=' + key + '\\n' +
-              'DB_URL=' + db + '\\n');
+              'DB_URL=' + db + '\\n' +
+              'E2E_SERVICE_KEY=' + service + '\\n');
           "
       - name: Export the web build
         env:
@@ -159,7 +163,7 @@ jobs:
           cp "dist/+not-found.html" dist/404.html
       - name: Install Chromium for Playwright
         run: npx playwright install --with-deps chromium
-      - name: Book and cancel in the browser
+      - name: Guest, camping and admin in the browser
         run: npx playwright test -c e2e/playwright.config.ts
       - name: Upload the report
         if: failure()
