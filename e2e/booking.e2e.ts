@@ -1,24 +1,14 @@
-/// <reference types="node" />
-
-import { execFileSync } from 'node:child_process';
-
 import { expect, test } from '@playwright/test';
+
+import { sql, watchCsp } from './helpers';
 
 // SPEC §8: a guest books without an account, gets the email in their language,
 // opens the manage link, sees and cancels the booking (0 refunded on site).
 // Runs against the local Supabase stack and its seed: the live demo camping
 // "demo-thalassa" with its tent pitch and 2027 allotments.
 
-const DB_URL = process.env.DB_URL ?? 'postgresql://postgres:postgres@127.0.0.1:54322/postgres';
 const TENT_PITCH = 'c1000000-0000-4000-8000-000000000001';
 const STAY = 'arrival=2027-07-10&departure=2027-07-13&adults=2&equipment=tent';
-
-/** One value from the local database (psql, as the postgres superuser). */
-function sql(query: string): string {
-  return execFileSync('psql', [DB_URL, '-X', '-q', '-t', '-A', '-c', query], {
-    encoding: 'utf8',
-  }).trim();
-}
 
 const bookedOn = (night: string) =>
   Number(
@@ -68,10 +58,7 @@ test('the English page of the camping is pre-rendered in English, linked with th
 test('a guest books without an account, then cancels with the manage link', async ({ page }) => {
   const before = bookedOn('2027-07-10');
   // The whole flow runs under the site's Content-Security-Policy without breaking it.
-  const violations: string[] = [];
-  page.on('console', (message) => {
-    if (/Content Security Policy/i.test(message.text())) violations.push(message.text());
-  });
+  const violations = watchCsp(page);
 
   // The camping page quotes the stay; book the tent pitch.
   await page.goto(`c/demo-thalassa?${STAY}`);
